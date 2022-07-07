@@ -1,0 +1,17 @@
+{
+    "name": "horeca/middleware-client-bundle",
+    "description": "A symfony bundle containing core functionality for horeca middleware integrations",
+    "type": "symfony-bundle",
+    "autoload": {
+        "psr-4": {
+            "Horeca\\MiddlewareClientBundle\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Florin Dirica",
+            "email": "florin.dirica@mountsoftware.ro"
+        }
+    ],
+    "require": {}
+}
