@@ -1,0 +1,7 @@
+{
+    "recipes": {
+        "horeca/middleware-client-bundle": [
+            "1.0.0"
+        ]
+    }
+}
