@@ -2,18 +2,24 @@
 
 namespace Horeca\MiddlewareClientBundle\MessageHandler;
 
+use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\LoggerDI;
+use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\SerializerDI;
+use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\OrderNotificationRepositoryDI;
+use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProviderApiDI;
+use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Message\OrderNotificationMessage;
+use Horeca\MiddlewareClientBundle\VO\Provider\ProviderCredentialsInterface;
 use Horeca\MiddlewareCommonLib\DependencyInjection\HorecaApiServiceDI;
 use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
 class OrderNotificationMessageHandler implements MessageSubscriberInterface
 {
-//    use LoggerDI;
-//    use SerializerDI;
-//    use HorecaApiServiceDI;
-//    use OrderNotificationRepositoryDI;
-//    use ProviderApiDI;
+    use LoggerDI;
+    use SerializerDI;
+    use HorecaApiServiceDI;
+    use OrderNotificationRepositoryDI;
+    use ProviderApiDI;
 
     /**
      * @inheritDoc
@@ -28,37 +34,37 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
 
     public function handleOrderNotificationMessage(OrderNotificationMessage $message)
     {
-//        $notification = $this->orderNotificationRepository->find($message->getOrderNotificationId());
-//        try {
-//            /** @var ShoppingCart $cart */
-//            $cart = $this->deserializeJson($notification->getHorecaPayload(), ShoppingCart::class);
-//
-//            $this->logger->info('[handleOrderNotificationMessage] CartId: ' . $cart->getId());
-//
-//            /** @var ServiceCredentials $credentials */
-//            $credentials = $this->deserializeJson($notification->getServiceCredentials(), ServiceCredentials::class);
-//
-//            $serviceOrder = $this->providerApi->mapShoppingCartToOrder($cart);
-//            $notification->setServicePayload($this->serializeJson($serviceOrder));
-//
-//            $responseData = $this->providerApi->sendOrder($serviceOrder, $credentials);
-//
-//            $notification->setResponsePayload($this->serializeJson($responseData));
-//            $notification->setServiceOrderId($responseData->data->jobId);
-//            $notification->changeStatus(OrderNotification::STATUS_NOTIFIED);
-//            $notification->setNotifiedAt(\DateTimeService::now());
-//
-//            $this->orderNotificationRepository->flush();
-//
-//            $this->horecaApiService->confirmProviderNotified($cart);
-//        } catch (\Exception $e) {
-//            $this->logger->critical('[handleOrderNotificationMessage] Exception: ' . $e->getMessage());
-//            $this->logger->critical('[handleOrderNotificationMessage] Exception: ' . $e->getTraceAsString());
-//
-//            $notification->changeStatus(OrderNotification::STATUS_FAILED);
-//            $notification->setErrorMessage($e->getMessage());
-//
-//            $this->orderNotificationRepository->flush();
-//        }
+        $notification = $this->orderNotificationRepository->find($message->getOrderNotificationId());
+        try {
+            /** @var ShoppingCart $cart */
+            $cart = $this->deserializeJson($notification->getHorecaPayload(), ShoppingCart::class);
+
+            $this->logger->info('[handleOrderNotificationMessage] CartId: ' . $cart->getId());
+
+            /** @var ProviderCredentialsInterface $credentials */
+            $credentials = $this->deserializeJson($notification->getServiceCredentials(), $this->providerApi->getProviderCredentialsClass());
+
+            $providerOrder = $this->providerApi->mapShoppingCartToProviderOrder($cart);
+            $notification->setServicePayload($this->serializeJson($providerOrder));
+
+            $response = $this->providerApi->saveOrder($providerOrder, $credentials);
+
+            $notification->setResponsePayload($this->serializeJson($response));
+            $notification->setServiceOrderId((string) $response->orderId);
+            $notification->changeStatus(OrderNotification::STATUS_NOTIFIED);
+            $notification->setNotifiedAt(new \DateTime());
+
+            $this->orderNotificationRepository->flush();
+
+            $this->horecaApiService->confirmProviderNotified($cart);
+        } catch (\Exception $e) {
+            $this->logger->critical('[handleOrderNotificationMessage] Exception: ' . $e->getMessage());
+            $this->logger->critical('[handleOrderNotificationMessage] Exception: ' . $e->getTraceAsString());
+
+            $notification->changeStatus(OrderNotification::STATUS_FAILED);
+            $notification->setErrorMessage($e->getMessage());
+
+            $this->orderNotificationRepository->flush();
+        }
     }
 }
