@@ -2,47 +2,34 @@
 
 namespace Horeca\MiddlewareClientBundle\Entity;
 
-use Horeca\MiddlewareClientBundle\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Horeca\MiddlewareClientBundle\Repository\UserRepository;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-/**
- * @ORM\Entity(repositoryClass=UserRepository::class)
- * @ORM\Table(name="hmc_users")
- *
- * @UniqueEntity(fields={"email"}, message="There is already an account with this email")
- */
+#[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\Table(name: "hmc_users")]
+#[UniqueEntity(fields: ["email"], message: "There is already an account with this email")]
 class User extends AbstractEntity implements UserInterface, PasswordAuthenticatedUserInterface
 {
     const ROLE_ADMIN = 'ROLE_ADMIN';
     const ROLE_USER = 'ROLE_USER';
 
-    /**
-     * @ORM\Column(name="email", type="string", length=180, unique=true)
-     */
+    #[ORM\Column(name: "email", type: "string", length: 180, unique: true)]
     private string $email;
 
-    /**
-     * @ORM\Column(name="username", type="string", length=180, unique=true)
-     */
+    #[ORM\Column(name: "username", type: "string", length: 180, unique: true)]
     private string $username;
 
-    /**
-     * @ORM\Column(name="roles", type="array", nullable=true)
-     */
+    #[ORM\Column(name: "roles", type: "array", nullable: true)]
     private array $roles = [User::ROLE_USER];
 
-    /**
-     * @ORM\Column(name="password", type="string", nullable=false)
-     */
+    #[ORM\Column(name: "password", type: "string", nullable: false)]
     private ?string $password = null;
 
-    /**
-     * @ORM\Column(name="salt", type="string", nullable=false)
-     */
+    #[ORM\Column(name: "salt", type: "string", nullable: false)]
     private string $salt;
 
     public function __construct()
@@ -137,8 +124,8 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
      */
     public function eraseCredentials()
     {
-        $this->email = "anon_" . \DateTimeService::time();
-        $this->username = "anon_" . \DateTimeService::time();
+        $this->email = "anon_" . \time();
+        $this->username = "anon_" . \time();
     }
 
     public function getUserIdentifier(): string

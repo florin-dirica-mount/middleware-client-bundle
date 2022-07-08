@@ -7,15 +7,12 @@ use Ramsey\Uuid\Uuid;
 
 abstract class AbstractEntity
 {
-    /**
-     * @ORM\Id()
-     * @ORM\Column(name="id", type="string", length=36)
-     */
+
+    #[ORM\Id]
+    #[ORM\Column(name: "id", type: "string", length: 36)]
     protected string $id;
 
-    /**
-     * @ORM\Column(name="created_at", type="datetime", nullable=false, options={"default":"CURRENT_TIMESTAMP"})
-     */
+    #[ORM\Column(name: "created_at", type: "datetime", nullable: false, options: ["default" => "CURRENT_TIMESTAMP"])]
     protected \DateTime $createdAt;
 
     public function __construct()

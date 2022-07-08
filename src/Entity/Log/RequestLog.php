@@ -2,64 +2,43 @@
 
 namespace Horeca\MiddlewareClientBundle\Entity\Log;
 
-use Horeca\MiddlewareClientBundle\Entity\AbstractEntity;
 use Doctrine\ORM\Mapping as ORM;
+use Horeca\MiddlewareClientBundle\Entity\AbstractEntity;
+use Horeca\MiddlewareClientBundle\Repository\Log\RequestLogRepository;
 
-/**
- * @ORM\Entity(repositoryClass="Horeca\MiddlewareClientBundle\Repository\Log\RequestLogRepository")
- * @ORM\Table(name="hmc_request_logs",
- *     indexes={
- *          @ORM\Index(name="hmc_request_logs_created_at_uri_idx", columns={"created_at", "uri"}),
- *          @ORM\Index(name="hmc_request_logs_created_at_status_code_idx", columns={"created_at", "status_code"}),
- *          @ORM\Index(name="hmc_request_logs_created_at_method_uri_status_code_idx", columns={"created_at", "method", "uri", "status_code"})
- *     })
- */
+#[ORM\Entity(repositoryClass: RequestLogRepository::class)]
+#[ORM\Table(name: "hmc_request_logs")]
+#[ORM\Index(columns: ["created_at", "uri"], name: "hmc_request_logs_created_at_uri_idx")]
+#[ORM\Index(columns: ["created_at", "status_code"], name: "hmc_request_logs_created_at_status_code_idx")]
+#[ORM\Index(columns: ["created_at", "method", "uri", "status_code"], name: "hmc_request_logs_created_at_method_uri_status_code_idx")]
 class RequestLog extends AbstractEntity
 {
 
-    /**
-     * @ORM\Column(name="method", type="string", length=10, nullable=false)
-     */
+    #[ORM\Column(name: "method", type: "string", length: 10, nullable: false)]
     private string $method;
 
-    /**
-     * @ORM\Column(name="uri", type="string", nullable=false)
-     */
+    #[ORM\Column(name: "uri", type: "string", nullable: false)]
     private string $uri;
 
-    /**
-     * @ORM\Column(name="status_code", type="integer", nullable=false)
-     */
+    #[ORM\Column(name: "status_code", type: "integer", nullable: false)]
     private int $statusCode;
 
-    /**
-     * @ORM\Column(name="headers", type="json", nullable=true)
-     */
+    #[ORM\Column(name: "headers", type: "json", nullable: true)]
     private ?string $headers = null;
 
-    /**
-     * @ORM\Column(name="query_params", type="json", nullable=true)
-     */
+    #[ORM\Column(name: "query_params", type: "json", nullable: true)]
     private ?string $queryParams = null;
 
-    /**
-     * @ORM\Column(name="body_params", type="json", nullable=true)
-     */
+    #[ORM\Column(name: "body_params", type: "json", nullable: true)]
     private ?string $bodyParams = null;
 
-    /**
-     * @ORM\Column(name="response_body", type="json", nullable=true)
-     */
+    #[ORM\Column(name: "response_body", type: "json", nullable: true)]
     private ?string $responseBody = null;
 
-    /**
-     * @ORM\Column(name="exception", type="text", nullable=true)
-     */
+    #[ORM\Column(name: "exception", type: "json", nullable: true)]
     private ?string $exception = null;
 
-    /**
-     * @ORM\Column(name="request_duration", type="float", nullable=true)
-     */
+    #[ORM\Column(name: "request_duration", type: "float", nullable: true)]
     private ?float $requestDuration = null;
 
     /**

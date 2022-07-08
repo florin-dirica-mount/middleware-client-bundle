@@ -5,26 +5,18 @@ namespace Horeca\MiddlewareClientBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
-/**
- * @ORM\Entity()
- * @ORM\Table(name="hmc_order_status_entries",
- *     indexes={
- *          @ORM\Index(name="hmc_status_entries_created_at_idx", columns={"created_at"}),
- *          @ORM\Index(name="hmc_status_entries_created_at_status_idx", columns={"created_at", "status"})
- *     })
- */
+#[ORM\Entity]
+#[ORM\Table(name: "hmc_order_status_entries")]
+#[ORM\Index(columns: ["created_at"], name: "hmc_status_entries_created_at_idx")]
+#[ORM\Index(columns: ["created_at", "status"], name: "hmc_status_entries_created_at_status_idx")]
 class OrderStatusEntry extends AbstractEntity
 {
-    /**
-     * @ORM\Column(name="status", type="string", nullable=false, length=50)
-     */
+    #[ORM\Column(name: "status", type: "string", length: 50, nullable: false)]
     protected ?string $status = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Horeca\MiddlewareClientBundle\Entity\OrderNotification", cascade={"persist"}, inversedBy="statusEntries")
-     * @ORM\JoinColumn(name="order_notification_id", nullable=false, onDelete="CASCADE")
-     * @Serializer\Exclude()
-     */
+    #[ORM\ManyToOne(targetEntity: OrderNotification::class, cascade: ["persist"], inversedBy: "statusEntries")]
+    #[ORM\JoinColumn(name: "order_notification_id", nullable: false, onDelete: "CASCADE")]
+    #[Serializer\Exclude]
     protected ?OrderNotification $order = null;
 
     public function __construct(?OrderNotification $order = null, ?string $status = null)

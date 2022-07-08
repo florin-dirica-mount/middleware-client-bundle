@@ -5,15 +5,13 @@ namespace Horeca\MiddlewareClientBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
 use JMS\Serializer\Annotation as Serializer;
 
-/**
- * @ORM\Entity(repositoryClass="Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository")
- * @ORM\Table(name="hmc_order_notifications", indexes={
- *          @ORM\Index(name="hmc_order_notifications_created_at_status_idx", columns={"created_at", "status"}),
- *          @ORM\Index(name="hmc_order_notifications_horeca_order_id_idx", columns={"horeca_order_id"})
- *     })
- */
+#[ORM\Entity(repositoryClass: OrderNotificationRepository::class)]
+#[ORM\Table(name: "hmc_order_notifications")]
+#[ORM\Index(columns: ["created_at", "status"], name: "hmc_order_notifications_created_at_status_idx")]
+#[ORM\Index(columns: ["horeca_order_id"], name: "hmc_order_notifications_horeca_order_id_idx")]
 class OrderNotification extends AbstractEntity
 {
     const STATUS_RECEIVED = 'received';     // order is received from the source system and it's products can be mapped
@@ -21,77 +19,39 @@ class OrderNotification extends AbstractEntity
     const STATUS_NOTIFIED = 'notified';     // target system was notified with the order
     const STATUS_FAILED = 'failed';         // an error occurred during processing of this order, at any step
 
-    /**
-     * Order ID in the source system
-     *
-     * @ORM\Column(name="horeca_order_id", type="string", length=36)
-     */
+    #[ORM\Column(name: "horeca_order_id", type: "string", length: 36, nullable: false)]
     private string $horecaOrderId;
 
-    /**
-     * Order ID in the target system
-     *
-     * @ORM\Column(name="service_order_id", type="string", length=36, nullable=true)
-     */
+    #[ORM\Column(name: "service_order_id", type: "string", length: 36, nullable: false)]
     private string $serviceOrderId;
 
-    /**
-     * Notification status, whether the target system was notified with this order or not
-     *
-     * @ORM\Column(name="status", type="string", length=50, options={"default":"received"})
-     */
+    #[ORM\Column(name: "status", type: "string", length: 50, nullable: false, options: ["default" => "received"])]
     private string $status;
 
-    /**
-     * @ORM\Column(name="restaurant_id", type="string", length=36, nullable=true)
-     */
+    #[ORM\Column(name: "restaurant_id", type: "string", length: 36, nullable: true)]
     private string $restaurantId;
 
-    /**
-     * @ORM\Column(name="service_credentials", type="json", nullable=true)
-     */
+    #[ORM\Column(name: "service_credentials", type: "json", nullable: true)]
     private string $serviceCredentials;
 
-    /**
-     * Data received from Horeca platform
-     *
-     * @ORM\Column(name="horeca_payload", type="json")
-     */
-    private string $horecaPayload;
+    #[ORM\Column(name: "horeca_payload", type: "json", nullable: true)]
+    private ?string $horecaPayload = null;
 
-    /**
-     * Data that needs to be sent to target service
-     *
-     * @ORM\Column(name="service_payload", type="json", nullable=true)
-     */
+    #[ORM\Column(name: "service_payload", type: "json", nullable: true)]
     private ?string $servicePayload = null;
 
-    /**
-     * Response received from the target system for this notification
-     *
-     * @ORM\Column(name="service_response", type="json", nullable=true)
-     */
+    #[ORM\Column(name: "response_payload", type: "json", nullable: true)]
     private ?string $responsePayload = null;
 
-    /**
-     * If an error happens it's message should be written here
-     *
-     * @ORM\Column(name="error_message", type="text", nullable=true)
-     */
+    #[ORM\Column(name: "error_message", type: "text", nullable: true)]
     private ?string $errorMessage = null;
 
-    /**
-     * Date at which the target system was notified with this order
-     *
-     * @ORM\Column(name="notified_at", type="datetime", nullable=true)
-     */
+    #[ORM\Column(name: "notified_at", type: "datetime", nullable: true)]
     private ?\DateTime $notifiedAt = null;
 
-    /**
-     * @ORM\OneToMany(targetEntity="Horeca\MiddlewareClientBundle\Entity\OrderStatusEntry", mappedBy="order", cascade={"persist", "remove"}, orphanRemoval=true, fetch="EXTRA_LAZY")
-     * @Serializer\Exclude()
-     * @var Collection|OrderStatusEntry[]
-     */
+    #[ORM\OneToMany(mappedBy: "order", targetEntity: OrderStatusEntry::class, cascade: ["persist", "remove"], fetch: "EXTRA_LAZY", orphanRemoval: true)]
+    #[Serializer\Exclude]
+    /** @var array|Collection|ArrayCollection */
     private array|Collection|ArrayCollection $statusEntries;
 
     public function __construct()
@@ -200,17 +160,17 @@ class OrderNotification extends AbstractEntity
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getHorecaPayload(): string
+    public function getHorecaPayload(): ?string
     {
         return $this->horecaPayload;
     }
 
     /**
-     * @param string $horecaPayload
+     * @param string|null $horecaPayload
      */
-    public function setHorecaPayload(string $horecaPayload): void
+    public function setHorecaPayload(?string $horecaPayload): void
     {
         $this->horecaPayload = $horecaPayload;
     }
@@ -280,17 +240,17 @@ class OrderNotification extends AbstractEntity
     }
 
     /**
-     * @return OrderStatusEntry[]|Collection
+     * @return array|ArrayCollection|Collection
      */
-    public function getStatusEntries(): array|ArrayCollection|Collection
+    public function getStatusEntries(): ArrayCollection|Collection|array
     {
         return $this->statusEntries;
     }
 
     /**
-     * @param OrderStatusEntry[]|Collection $statusEntries
+     * @param array|ArrayCollection|Collection $statusEntries
      */
-    public function setStatusEntries(array|ArrayCollection|Collection $statusEntries): void
+    public function setStatusEntries(ArrayCollection|Collection|array $statusEntries): void
     {
         $this->statusEntries = $statusEntries;
     }
