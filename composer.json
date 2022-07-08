@@ -26,6 +26,7 @@
         "doctrine/orm": "^2.10.0",
         "friendsofsymfony/rest-bundle": "^3.1",
         "guzzlehttp/guzzle": "^7.4",
+        "horeca/middleware-common-lib": "^1.0.2",
         "jms/serializer-bundle": "^4.0",
         "nelmio/cors-bundle": "^2.2",
         "phpdocumentor/reflection-docblock": "^5.2",
@@ -59,25 +60,27 @@
         "symfony/yaml": "^5.4",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0",
-        "vich/uploader-bundle": "^1.18"
+        "symfony/runtime": "^5.4"
     },
     "require-dev": {
-        "alexeyshockov/guzzle-psalm-plugin": "^0.3.1",
         "behat/behat": "^3.10",
         "dama/doctrine-test-bundle": "^6.6",
         "doctrine/doctrine-fixtures-bundle": "^3.4",
         "friends-of-behat/symfony-extension": "^2.2",
         "jetbrains/phpstorm-attributes": "^1.0",
         "phpunit/phpunit": "^9.5",
-        "psalm/plugin-symfony": "^3.1",
         "symfony/browser-kit": "^5.1",
         "symfony/maker-bundle": "^1.36",
         "symfony/phpunit-bridge": "^5.1",
         "symfony/stopwatch": "^5.1",
-        "symfony/web-profiler-bundle": "^5.1",
-        "vimeo/psalm": "^4.15",
-        "weirdan/doctrine-psalm-plugin": "^2.0"
+        "symfony/web-profiler-bundle": "^5.1"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://gitlab.com/horeca-universal/libs/middleware-common-lib.git"
+        }
+    ],
     "scripts": {
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
@@ -88,6 +91,12 @@
         "symfony": {
             "docker": true,
             "allow-contrib": true
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "symfony/flex": true,
+            "symfony/runtime": true
         }
     }
 }
