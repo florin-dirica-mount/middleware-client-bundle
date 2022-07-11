@@ -2,6 +2,7 @@
 
 namespace Horeca\MiddlewareClientBundle\DependencyInjection;
 
+use Horeca\MiddlewareClientBundle\Service\ProviderApiInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -27,7 +28,7 @@ class HorecaMiddlewareClientExtension extends Extension
 
         $providerDefinition = new Definition($config['provider_api_class']);
         $providerDefinition->setAutowired(true);
-        $container->setDefinition('horeca.provider_api', $providerDefinition);
+        $container->setDefinition(ProviderApiInterface::class, $providerDefinition);
     }
 
     public function getAlias(): string
