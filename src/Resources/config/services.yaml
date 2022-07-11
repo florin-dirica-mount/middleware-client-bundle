@@ -3,21 +3,7 @@ parameters:
     horeca.enable_request_exception_logging: '%env(resolve:HORECA_ENABLE_REQUEST_EXCEPTION_LOGGING)%'
 
 services:
-    _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
-
-    Horeca\MiddlewareClientBundle\:
-        resource: '../../'
-        exclude:
-            - '../../DependencyInjection/'
-            - '../../Entity/'
-            - '../../Resources/'
-            - '../../Exception/'
-            - '../../Message/'
-            - '../../DataFixtures/'
-            - '../../Kernel.php'
-            - '../../HorecaMiddlewareClientBundle.php'
+# TODO: manual service configuration :facepalm:
 
     Horeca\MiddlewareCommonLib\Service\HorecaApiInterface:
         class: Horeca\MiddlewareCommonLib\Service\HorecaApiService
@@ -30,6 +16,10 @@ services:
         autowire: true
         autoconfigure: true
 
+    Horeca\MiddlewareClientBundle\Service\RequestService:
+        autowire: true
+        autoconfigure: true
+
     Horeca\MiddlewareClientBundle\EventListener\RequestListener:
         tags:
             - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
@@ -39,4 +29,3 @@ services:
             - [ enableRequestExceptionLogging, [ '%horeca.enable_request_exception_logging%' ] ]
         autowire: true
         autoconfigure: true
-
