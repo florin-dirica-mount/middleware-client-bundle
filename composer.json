@@ -90,7 +90,11 @@
     "extra": {
         "symfony": {
             "docker": true,
-            "allow-contrib": true
+            "allow-contrib": true,
+            "endpoint": [
+                "https://api.github.com/repos/florin-dirica-mount/middleware-client-bundle-recipe/contents/index.json",
+                "flex://defaults"
+            ]
         }
     },
     "config": {
