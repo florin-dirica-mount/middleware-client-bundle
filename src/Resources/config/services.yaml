@@ -7,7 +7,7 @@ parameters:
 
 services:
 
-    Horeca\MiddlewareCommonLib\Service\HorecaApiInterface:
+    horeca.api_client:
         class: Horeca\MiddlewareCommonLib\Service\HorecaApiService
         arguments:
             - '@jms_serializer'
@@ -16,7 +16,7 @@ services:
             - [ setApiKey, [ '%horeca.api_key%' ] ]
             - [ setMiddlewareClientId, [ '%horeca.middleware_client_id%' ] ]
 
-    Horeca\MiddlewareClientBundle\EventListener\RequestListener:
+    horeca.request_listener:
         tags:
             - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
             - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse }
