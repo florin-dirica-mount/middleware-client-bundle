@@ -28,6 +28,7 @@ class HorecaMiddlewareClientExtension extends Extension
 
         $providerDefinition = new Definition($config['provider_api_class']);
         $providerDefinition->setAutowired(true);
+        $providerDefinition->setAutoconfigured(true);
         $container->setDefinition(ProviderApiInterface::class, $providerDefinition);
     }
 
