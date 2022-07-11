@@ -23,10 +23,8 @@ class HorecaMiddlewareClientExtension extends Extension
 
         $configuration = $this->getConfiguration($configs, $container);
         $config = $this->processConfiguration($configuration, $configs);
-        var_dump($config);die('wtf');
-//        foreach ($config as $key => $value) {
-//            $container->setParameter("horeca.$key", $value);
-//        }
+
+        $container->set('horeca.provider_api', $config['provider_api_class']);
     }
 
     public function getAlias(): string

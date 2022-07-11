@@ -1,9 +1,9 @@
 parameters:
-    horeca.base_url: '%env(resolve:HORECA_BASE_URL)%'
+#    horeca.base_url: '%env(resolve:HORECA_BASE_URL)%'
     horeca.api_key: '%env(resolve:HORECA_API_KEY)%'
-    horeca.shared_key: '%env(resolve:HORECA_SHARED_KEY)%'
-    horeca.middleware_client_id: '%env(resolve:HORECA_MIDDLEWARE_CLIENT_ID)%'
-    horeca.enable_request_exception_logging: '%env(resolve:HORECA_ENABLE_REQUEST_EXCEPTION_LOGGING)%'
+#    horeca.shared_key: '%env(resolve:HORECA_SHARED_KEY)%'
+#    horeca.middleware_client_id: '%env(resolve:HORECA_MIDDLEWARE_CLIENT_ID)%'
+#    horeca.enable_request_exception_logging: '%env(resolve:HORECA_ENABLE_REQUEST_EXCEPTION_LOGGING)%'
 
 services:
 
@@ -12,9 +12,9 @@ services:
         arguments:
             - '@jms_serializer'
         calls:
-            - [ setBaseUrl, [ '%horeca.base_url%' ] ]
-            - [ setApiKey, [ '%horeca.api_key%' ] ]
-            - [ setMiddlewareClientId, [ '%horeca.middleware_client_id%' ] ]
+            - [ setBaseUrl, [ '%env(resolve:HORECA_BASE_URL)%' ] ]
+            - [ setApiKey, [ '%env(resolve:HORECA_API_KEY)%' ] ]
+            - [ setMiddlewareClientId, [ '%env(resolve:HORECA_MIDDLEWARE_CLIENT_ID)%' ] ]
 
     horeca.request_listener:
         tags:
