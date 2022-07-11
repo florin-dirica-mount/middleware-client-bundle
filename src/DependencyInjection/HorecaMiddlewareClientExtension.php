@@ -2,7 +2,6 @@
 
 namespace Horeca\MiddlewareClientBundle\DependencyInjection;
 
-use Horeca\MiddlewareCommonLib\Service\HorecaApiInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
@@ -24,7 +23,7 @@ class HorecaMiddlewareClientExtension extends Extension
 
         $configuration = $this->getConfiguration($configs, $container);
         $config = $this->processConfiguration($configuration, $configs);
-
+        var_dump($config);die('wtf');
 //        foreach ($config as $key => $value) {
 //            $container->setParameter("horeca.$key", $value);
 //        }
