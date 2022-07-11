@@ -3,7 +3,6 @@ parameters:
     horeca.enable_request_exception_logging: '%env(resolve:HORECA_ENABLE_REQUEST_EXCEPTION_LOGGING)%'
 
 services:
-# TODO: manual service configuration :facepalm:
 
     Horeca\MiddlewareCommonLib\Service\HorecaApiInterface:
         class: Horeca\MiddlewareCommonLib\Service\HorecaApiService
@@ -13,12 +12,11 @@ services:
             - [ setBaseUrl, [ '%env(resolve:HORECA_BASE_URL)%' ] ]
             - [ setApiKey, [ '%env(resolve:HORECA_API_KEY)%' ] ]
             - [ setMiddlewareClientId, [ '%env(resolve:HORECA_MIDDLEWARE_CLIENT_ID)%' ] ]
-        autowire: true
-        autoconfigure: true
 
     Horeca\MiddlewareClientBundle\Service\RequestService:
-        autowire: true
-        autoconfigure: true
+        calls:
+            - [ setRequestLogRepository,[ '@doctrine.orm.default_entity_manager' ] ]
+            - [ setLogger,[ '@logger' ] ]
 
     Horeca\MiddlewareClientBundle\EventListener\RequestListener:
         tags:
@@ -27,5 +25,7 @@ services:
             - { name: kernel.event_listener, event: kernel.exception, method: onKernelException }
         calls:
             - [ enableRequestExceptionLogging, [ '%horeca.enable_request_exception_logging%' ] ]
-        autowire: true
-        autoconfigure: true
+            - [ setRequestLogRepository,[ '@doctrine.orm.default_entity_manager' ] ]
+            - [ setLogger,[ '@logger' ] ]
+            - [ setRequestService,[ '@Horeca\MiddlewareClientBundle\Service\RequestService' ] ]
+            - [ setEnvironment,[ '%kernel.environment%' ] ]
