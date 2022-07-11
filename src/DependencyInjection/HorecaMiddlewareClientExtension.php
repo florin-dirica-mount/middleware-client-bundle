@@ -25,9 +25,9 @@ class HorecaMiddlewareClientExtension extends Extension
         $configuration = $this->getConfiguration($configs, $container);
         $config = $this->processConfiguration($configuration, $configs);
 
-        foreach ($config as $key => $value) {
-            $container->setParameter("horeca.$key", $value);
-        }
+//        foreach ($config as $key => $value) {
+//            $container->setParameter("horeca.$key", $value);
+//        }
     }
 
     public function getAlias(): string
