@@ -21,6 +21,14 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('enable_request_exception_logging')
                     ->defaultTrue()
                 ->end()
+                ->arrayNode('horeca')
+                    ->children()
+                        ->scalarNode('base_url')->end()
+                        ->scalarNode('api_key')->end()
+                        ->scalarNode('shared_key')->end()
+                        ->scalarNode('middleware_client_id')->end()
+                    ->end()
+                ->end()
             ->end()
         ->end();
 
