@@ -15,12 +15,15 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
+
                 ->scalarNode('provider_api_class')
                     ->defaultValue('App\Service\ProviderApi')
                 ->end()
+
                 ->booleanNode('enable_request_exception_logging')
                     ->defaultTrue()
                 ->end()
+
                 ->arrayNode('horeca')
                     ->children()
                         ->scalarNode('base_url')->end()
@@ -29,6 +32,7 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('middleware_client_id')->end()
                     ->end()
                 ->end()
+
             ->end()
         ->end();
 
