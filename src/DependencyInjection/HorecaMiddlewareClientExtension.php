@@ -30,6 +30,11 @@ class HorecaMiddlewareClientExtension extends Extension
         $providerDefinition->setAutowired(true);
         $providerDefinition->setAutoconfigured(true);
         $container->setDefinition(ProviderApiInterface::class, $providerDefinition);
+
+//        $container->getDefinition(RequestListener::class)
+//            ->replaceArgument(0, $container->get('logger'))
+//            ->replaceArgument(1, $container->get(RequestService::class))
+//            ->replaceArgument(2, $container->getParameter('kernel.environment'));
     }
 
     public function getAlias(): string

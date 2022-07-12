@@ -19,13 +19,11 @@ services:
             - [ setLogger,[ '@logger' ] ]
 
     Horeca\MiddlewareClientBundle\EventListener\RequestListener:
+        arguments:
+            - '@logger'
+            - '@Horeca\MiddlewareClientBundle\Service\RequestService'
+            - '%horeca.enable_request_exception_logging%'
         tags:
             - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
             - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse }
             - { name: kernel.event_listener, event: kernel.exception, method: onKernelException }
-        calls:
-            - [ enableRequestExceptionLogging, [ '%horeca.enable_request_exception_logging%' ] ]
-            - [ setRequestLogRepository,[ '@doctrine.orm.default_entity_manager' ] ]
-            - [ setLogger,[ '@logger' ] ]
-            - [ setRequestService,[ '@Horeca\MiddlewareClientBundle\Service\RequestService' ] ]
-            - [ setEnvironment,[ '%kernel.environment%' ] ]
