@@ -2,7 +2,6 @@
 namespace Horeca\MiddlewareClientBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -16,9 +15,13 @@ use function str_replace;
 abstract class ExtendedEntityRepository extends ServiceEntityRepository
 {
 
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, string $entityClass = null)
     {
-        parent::__construct($registry, $this->getEntityNameFromRepositoryName());
+        if (class_exists($entityClass)) {
+            parent::__construct($registry, $entityClass);
+        } else {
+            parent::__construct($registry, $this->getEntityNameFromRepositoryName());
+        }
     }
 
     public function getEntityNameFromRepositoryName()
@@ -71,7 +74,7 @@ abstract class ExtendedEntityRepository extends ServiceEntityRepository
      * @param string $sql
      * @param array $params
      * @return mixed
-     * @throws DBALException
+     * @throws \Doctrine\DBAL\Exception
      */
     public function fetchOne(string $sql, array $params = [])
     {
@@ -85,7 +88,7 @@ abstract class ExtendedEntityRepository extends ServiceEntityRepository
      * @param string $sql
      * @param array $params
      * @return false|mixed
-     * @throws DBALException
+     * @throws \Doctrine\DBAL\Exception
      */
     public function fetchOneAsValue(string $sql, array $params = [])
     {
@@ -101,7 +104,7 @@ abstract class ExtendedEntityRepository extends ServiceEntityRepository
      * @param string $sql
      * @param array $params
      * @return array
-     * @throws DBALException
+     * @throws \Doctrine\DBAL\Exception
      */
     public function fetchAll(string $sql, array $params = [])
     {

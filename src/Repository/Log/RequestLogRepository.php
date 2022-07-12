@@ -2,6 +2,7 @@
 
 namespace Horeca\MiddlewareClientBundle\Repository\Log;
 
+use Doctrine\Persistence\ManagerRegistry;
 use Horeca\MiddlewareClientBundle\Entity\Log\RequestLog;
 use Horeca\MiddlewareClientBundle\Repository\ExtendedEntityRepository;
 
@@ -14,12 +15,17 @@ use Horeca\MiddlewareClientBundle\Repository\ExtendedEntityRepository;
 class RequestLogRepository extends ExtendedEntityRepository
 {
 
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, RequestLog::class);
+    }
+
     /**
      * @throws \Exception
      */
     public function insert(RequestLog $log): int
     {
-        $sql = "INSERT INTO request_logs (id, method, uri, status_code, headers, query_params, body_params, response_body, exception, request_duration)
+        $sql = "INSERT INTO hmc_request_logs (id, method, uri, status_code, headers, query_params, body_params, response_body, exception, request_duration)
 VALUES (UUID(), :method, :uri, :status_code, :headers, :query_params, :body_params, :response_body, :exception, :request_duration)";
 
         $params = [

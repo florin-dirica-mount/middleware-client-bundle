@@ -14,9 +14,9 @@ services:
             - [ setMiddlewareClientId, [ '%env(resolve:HORECA_MIDDLEWARE_CLIENT_ID)%' ] ]
 
     Horeca\MiddlewareClientBundle\Service\RequestService:
-        calls:
-            - [ setRequestLogRepository,[ '@doctrine.orm.default_entity_manager' ] ]
-            - [ setLogger,[ '@logger' ] ]
+        arguments:
+            - '@logger'
+            - '@doctrine.orm.entity_manager'
 
     Horeca\MiddlewareClientBundle\EventListener\RequestListener:
         arguments:
