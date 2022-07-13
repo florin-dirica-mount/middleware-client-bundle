@@ -24,15 +24,6 @@ class Configuration implements ConfigurationInterface
                     ->defaultTrue()
                 ->end()
 
-//                ->arrayNode('horeca')
-//                    ->children()
-//                        ->scalarNode('base_url')->end()
-//                        ->scalarNode('api_key')->end()
-//                        ->scalarNode('shared_key')->end()
-//                        ->scalarNode('middleware_client_id')->end()
-//                    ->end()
-//                ->end()
-
             ->end()
         ->end();
 
