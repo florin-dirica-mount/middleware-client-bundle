@@ -2,6 +2,9 @@
 
 namespace Horeca\MiddlewareClientBundle\DependencyInjection;
 
+use Horeca\MiddlewareClientBundle\Repository\Log\RequestLogRepository;
+use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
+use Horeca\MiddlewareClientBundle\Repository\UserRepository;
 use Horeca\MiddlewareClientBundle\Service\ProviderApiInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -26,19 +29,30 @@ class HorecaMiddlewareClientExtension extends Extension
         $configuration = $this->getConfiguration($configs, $container);
         $config = $this->processConfiguration($configuration, $configs);
 
+        // add provider service definition
         $providerDefinition = new Definition($config['provider_api_class']);
         $providerDefinition->setAutowired(true);
         $providerDefinition->setAutoconfigured(true);
         $container->setDefinition(ProviderApiInterface::class, $providerDefinition);
 
-//        $container->getDefinition(RequestListener::class)
-//            ->replaceArgument(0, $container->get('logger'))
-//            ->replaceArgument(1, $container->get(RequestService::class))
-//            ->replaceArgument(2, $container->getParameter('kernel.environment'));
+        // add repository services definition
+        $this->defineRepositoryService($container, RequestLogRepository::class);
+        $this->defineRepositoryService($container, OrderNotificationRepository::class);
+        $this->defineRepositoryService($container, UserRepository::class);
     }
 
     public function getAlias(): string
     {
         return 'horeca_middleware_client';
+    }
+
+    private function defineRepositoryService(ContainerBuilder $container, $repositoryClass)
+    {
+        $definition = new Definition($repositoryClass);
+        $definition->setAutowired(true);
+        $definition->setAutoconfigured(true);
+        $definition->addTag('doctrine.repository_service');
+
+        $container->setDefinition($repositoryClass, $definition);
     }
 }
