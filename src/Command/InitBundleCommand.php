@@ -37,7 +37,7 @@ class InitBundleCommand extends Command
         // configure transport if missing
         $messengerConfigFile = $this->projectDir . '/config/packages/messenger.yaml';
         $messengerConfig = Yaml::parseFile($messengerConfigFile);
-        if (!in_array($this->orderNotificationTransport, $messengerConfig['framework']['messenger']['transports'])) {
+        if (!in_array($this->orderNotificationTransport, (array) $messengerConfig['framework']['messenger']['transports'])) {
             $output->writeln('Add new messenger transport to `config/packages/messenger.yaml`...');
 
             $messengerConfig['framework']['messenger']['transports'][$this->orderNotificationTransport] = "%env(MESSENGER_TRANSPORT_DSN)%?queue_name={$this->orderNotificationTransport}";
