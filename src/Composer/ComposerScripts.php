@@ -10,4 +10,9 @@ final class ComposerScripts
     {
         die('wtf');
     }
+
+    public static function postUpdate(Event $event)
+    {
+        die('wtf');
+    }
 }
