@@ -6,11 +6,13 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Yaml\Yaml;
 
 class InitBundleCommand extends Command
 {
     protected static $defaultName = 'horeca:middleware-client:init';
 
+    private ?string $orderNotificationTransport;
     private ?string $providerApiClass;
     private string  $projectDir;
 
@@ -18,6 +20,7 @@ class InitBundleCommand extends Command
     {
         parent::__construct();
 
+        $this->orderNotificationTransport = (string) $container->getParameter('horeca.order_notification_messenger_transport') ?: 'hmc_order_notification';
         $this->providerApiClass = (string) $container->getParameter('horeca.provider_api_class');
         $this->projectDir = (string) $container->getParameter('kernel.project_dir');
     }
@@ -31,6 +34,16 @@ class InitBundleCommand extends Command
             $this->generateProviderApiClassFromTemplate($this->providerApiClass);
         }
 
+        // configure transport if missing
+        $messengerConfigFile = $this->projectDir . '/config/packages/messenger.yaml';
+        $messengerConfig = Yaml::parseFile($messengerConfigFile);
+        if (!in_array($this->orderNotificationTransport, $messengerConfig['framework']['messenger']['transports'])) {
+            $output->writeln('Add new messenger transport to `config/packages/messenger.yaml`...');
+
+            $messengerConfig['framework']['messenger']['transports'][$this->orderNotificationTransport] = "%env(MESSENGER_TRANSPORT_DSN)%?queue_name={$this->orderNotificationTransport}";
+            file_put_contents($messengerConfigFile, Yaml::dump($messengerConfig, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
+        }
+
         return 0;
     }
 
@@ -40,8 +53,8 @@ class InitBundleCommand extends Command
         $namespace = dirname($providerApiClass);
         $className = $parts[count($parts) - 1];
 
-        $tpl = "
-<?php
+        $tpl =
+            "<?php
 
 namespace $namespace;
 
@@ -77,9 +90,11 @@ class $className implements ProviderApiInterface
 }
         ";
 
-        $filePath = "{$this->projectDir}/src/$namespace/$className.php";
+        $filePath = str_replace(['/', '\\' . $parts[0] . '\\'], ['\\', '\\'], "{$this->projectDir}/src/$namespace/$className.php");
 
         if (!file_exists($filePath)) {
+            mkdir(dirname($filePath), 07777, true);
+
             file_put_contents($filePath, $tpl);
         }
     }
