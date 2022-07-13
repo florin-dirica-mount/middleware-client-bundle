@@ -40,3 +40,16 @@ services:
             - [ setEntityManager,[ '@doctrine.orm.entity_manager' ] ]
         tags:
             - { name: messenger.message_handler }
+
+    Horeca\MiddlewareClientBundle\Command\InitBundleCommand:
+        arguments:
+            $container: '@service_container'
+        tags:
+            - { name: console.command }
+
+    Horeca\MiddlewareClientBundle\Command\CreateUserCommand:
+        calls:
+            - [ setUserPasswordHasherInterface,[ '@security.user_password_hasher' ] ]
+            - [ setEntityManager,[ '@doctrine.orm.entity_manager' ] ]
+        tags:
+            - { name: console.command }
