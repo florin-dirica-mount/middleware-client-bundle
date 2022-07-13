@@ -24,6 +24,10 @@ class Configuration implements ConfigurationInterface
                     ->defaultTrue()
                 ->end()
 
+                ->scalarNode('order_notification_messenger_transport')
+                    ->defaultValue('hmc_order_notification')
+                ->end()
+
             ->end()
         ->end();
 

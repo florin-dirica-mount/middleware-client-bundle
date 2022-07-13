@@ -2,9 +2,9 @@
 
 namespace Horeca\MiddlewareClientBundle\MessageHandler;
 
+use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\EntityManagerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\LoggerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\SerializerDI;
-use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\OrderNotificationRepositoryDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProviderApiDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Message\OrderNotificationMessage;
@@ -18,8 +18,15 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
     use LoggerDI;
     use SerializerDI;
     use HorecaApiServiceDI;
-    use OrderNotificationRepositoryDI;
+    use EntityManagerDI;
     use ProviderApiDI;
+
+    private string $transport;
+
+    public function __construct(string $transport)
+    {
+        $this->transport = $transport;
+    }
 
     /**
      * @inheritDoc
@@ -34,7 +41,8 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
 
     public function handleOrderNotificationMessage(OrderNotificationMessage $message)
     {
-        $notification = $this->orderNotificationRepository->find($message->getOrderNotificationId());
+        $notification = $this->entityManager->find(OrderNotification::class, $message->getOrderNotificationId());
+
         try {
             /** @var ShoppingCart $cart */
             $cart = $this->deserializeJson($notification->getHorecaPayload(), ShoppingCart::class);
@@ -54,7 +62,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             $notification->changeStatus(OrderNotification::STATUS_NOTIFIED);
             $notification->setNotifiedAt(new \DateTime());
 
-            $this->orderNotificationRepository->flush();
+            $this->entityManager->flush();
 
             $this->horecaApiService->confirmProviderNotified($cart);
         } catch (\Exception $e) {
@@ -64,7 +72,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             $notification->changeStatus(OrderNotification::STATUS_FAILED);
             $notification->setErrorMessage($e->getMessage());
 
-            $this->orderNotificationRepository->flush();
+            $this->entityManager->flush();
         }
     }
 }

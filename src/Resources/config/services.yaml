@@ -1,6 +1,7 @@
 parameters:
-    horeca.api_key: '%env(resolve:HORECA_API_KEY)%'
-    horeca.enable_request_exception_logging: '%env(resolve:HORECA_ENABLE_REQUEST_EXCEPTION_LOGGING)%'
+#    horeca.api_key: '%env(resolve:HORECA_API_KEY)%'
+#    horeca.enable_request_exception_logging: '%env(resolve:HORECA_ENABLE_REQUEST_EXCEPTION_LOGGING)%'
+#    horeca.order_notification_messenger_transport: 'hmc_order_notification'
 
 services:
 
@@ -27,3 +28,15 @@ services:
             - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
             - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse }
             - { name: kernel.event_listener, event: kernel.exception, method: onKernelException }
+
+    Horeca\MiddlewareClientBundle\MessageHandler\OrderNotificationMessageHandler:
+        arguments:
+            $transport: '%horeca.order_notification_messenger_transport%'
+        calls:
+            - [ setLogger,[ '@logger' ] ]
+            - [ setSerializer,[ '@jms_serializer' ] ]
+            - [ setProviderApi,[ '@Horeca\MiddlewareClientBundle\Service\ProviderApiInterface' ] ]
+            - [ setHorecaApiService,[ '@Horeca\MiddlewareCommonLib\Service\HorecaApiInterface' ] ]
+            - [ setEntityManager,[ '@doctrine.orm.entity_manager' ] ]
+        tags:
+            - { name: messenger.message_handler }
