@@ -93,7 +93,10 @@ class $className implements ProviderApiInterface
         $filePath = str_replace(['/', '\\' . $parts[0] . '\\'], ['\\', '\\'], "{$this->projectDir}/src/$namespace/$className.php");
 
         if (!file_exists($filePath)) {
-            mkdir(dirname($filePath), 07777, true);
+
+            if (!file_exists(dirname($filePath))) {
+                mkdir(dirname($filePath), 07777, true);
+            }
 
             file_put_contents($filePath, $tpl);
         }
