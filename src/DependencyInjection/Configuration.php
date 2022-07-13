@@ -16,6 +16,8 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
 
+                ->scalarNode('api_key')->end()
+
                 ->scalarNode('provider_api_class')
                     ->defaultValue('App\Service\ProviderApi')
                 ->end()
