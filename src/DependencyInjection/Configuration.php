@@ -17,6 +17,7 @@ class Configuration implements ConfigurationInterface
             ->children()
 
                 ->scalarNode('api_key')->defaultNull()->end()
+                ->scalarNode('base_url')->defaultNull()->end()
                 ->scalarNode('shared_key')->defaultNull()->end()
                 ->scalarNode('middleware_client_id')->defaultNull()->end()
 
