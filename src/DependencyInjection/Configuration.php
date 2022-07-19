@@ -18,6 +18,7 @@ class Configuration implements ConfigurationInterface
 
                 ->scalarNode('api_key')->defaultNull()->end()
                 ->scalarNode('shared_key')->defaultNull()->end()
+                ->scalarNode('middleware_client_id')->defaultNull()->end()
 
                 ->scalarNode('provider_api_class')
                     ->defaultValue('App\Service\ProviderApi')
