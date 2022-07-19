@@ -27,7 +27,7 @@ abstract class ExtendedEntityRepository extends ServiceEntityRepository
     public function getEntityNameFromRepositoryName()
     {
         $class = get_class($this);
-        return str_replace(['App\\Repository\\', 'Repository'], ['App\\Entity\\', ''], $class);
+        return str_replace(['Horeca\\MiddlewareClientBundle\\Repository\\', 'Repository'], ['Horeca\\MiddlewareClientBundle\\Entity\\', ''], $class);
     }
 
     /**
