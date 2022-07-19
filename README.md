@@ -15,12 +15,6 @@ HORECA_ENABLE_REQUEST_EXCEPTION_LOGGING="Any request exception will be logged to
 
 ```yaml
 horeca_middleware_client:
-    base_url: '%env(resolve:HORECA_BASE_URL)%'
-    api_key: '%env(resolve:HORECA_API_KEY)%'
-    shared_key: '%env(resolve:HORECA_SHARED_KEY)%'
-    middleware_client_id: '%env(resolve:HORECA_MIDDLEWARE_CLIENT_ID)%'
-    enable_request_exception_logging: '%env(resolve:HORECA_ENABLE_REQUEST_EXCEPTION_LOGGING)%'
-
     provider_api_class: App\Service\ProviderApi
     order_notification_messenger_transport: hmc_order_notification
 ```
@@ -31,6 +25,20 @@ horeca_middleware_client:
 horeca:
     resource: '@HorecaMiddlewareClientBundle/Resources/config/horeca_routes.yaml'
     prefix: /
+```
+
+### Update symfony/messenger with transport used by horeca bundle `config/packages/messenger.yaml`
+
+```yaml
+framework:
+    messenger:
+        transports:
+            # (...)
+            hmc_order_notification: '%env(MESSENGER_TRANSPORT_DSN)%?queue_name=hmc_order_notification'
+            # (...)
+        routing:
+            'Horeca\MiddlewareClientBundle\Message\OrderNotificationMessage': hmc_order_notification
+            # (...)
 ```
 
 #### Post-install
