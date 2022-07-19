@@ -23,7 +23,7 @@ horeca_middleware_client:
 
 ```yaml
 horeca:
-    resource: '@HorecaMiddlewareClientBundle/Resources/config/horeca_routes.yaml'
+    resource: '../vendor/horeca/middleware-client-bundle/src/Resources/config/routes.yaml'
     prefix: /
 ```
 
