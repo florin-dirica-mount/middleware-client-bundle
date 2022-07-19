@@ -30,6 +30,7 @@ class HorecaMiddlewareClientExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
 
         $container->setParameter('horeca.api_key', $config['api_key']);
+        $container->setParameter('horeca.shared_key', $config['shared_key']);
         $container->setParameter('horeca.enable_request_exception_logging', $config['enable_request_exception_logging']);
         $container->setParameter('horeca.order_notification_messenger_transport', $config['order_notification_messenger_transport']);
         $container->setParameter('horeca.provider_api_class', $config['provider_api_class']);

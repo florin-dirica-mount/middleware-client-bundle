@@ -5,6 +5,10 @@ parameters:
 
 services:
 
+    Horeca\MiddlewareClientBundle\Controller\:
+        resource: '../../Controller/'
+        tags: [ 'controller.service_arguments' ]
+
     Horeca\MiddlewareCommonLib\Service\HorecaApiInterface:
         class: Horeca\MiddlewareCommonLib\Service\HorecaApiService
         arguments:

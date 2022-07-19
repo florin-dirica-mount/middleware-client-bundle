@@ -2090,16 +2090,16 @@
         },
         {
             "name": "horeca/middleware-common-lib",
-            "version": "1.0.2.7",
+            "version": "1.0.2.8",
             "source": {
                 "type": "git",
                 "url": "https://gitlab.com/horeca-universal/libs/middleware-common-lib.git",
-                "reference": "331ffa6d65cc640c4158efddd4afccba35cc6405"
+                "reference": "eb4fbf7c63a085edeb3980f2cd45a4987d6ec794"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://gitlab.com/api/v4/projects/horeca-universal%2Flibs%2Fmiddleware-common-lib/repository/archive.zip?sha=331ffa6d65cc640c4158efddd4afccba35cc6405",
-                "reference": "331ffa6d65cc640c4158efddd4afccba35cc6405",
+                "url": "https://gitlab.com/api/v4/projects/horeca-universal%2Flibs%2Fmiddleware-common-lib/repository/archive.zip?sha=eb4fbf7c63a085edeb3980f2cd45a4987d6ec794",
+                "reference": "eb4fbf7c63a085edeb3980f2cd45a4987d6ec794",
                 "shasum": ""
             },
             "require": {
@@ -2123,9 +2123,9 @@
                 }
             ],
             "support": {
-                "source": "https://gitlab.com/horeca-universal/libs/middleware-common-lib/-/tree/1.0.2.7"
+                "source": "https://gitlab.com/horeca-universal/libs/middleware-common-lib/-/tree/1.0.2.8"
             },
-            "time": "2022-07-11T13:13:14+03:00"
+            "time": "2022-07-19T12:47:47+03:00"
         },
         {
             "name": "jms/metadata",
@@ -4279,16 +4279,16 @@
         },
         {
             "name": "symfony/doctrine-messenger",
-            "version": "v6.0.8",
+            "version": "v6.0.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/doctrine-messenger.git",
-                "reference": "6a18673b06953120a42d034388be401cb113b687"
+                "reference": "a2320304c45c014f3f8e0c612fcb3f4bbed57282"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/doctrine-messenger/zipball/6a18673b06953120a42d034388be401cb113b687",
-                "reference": "6a18673b06953120a42d034388be401cb113b687",
+                "url": "https://api.github.com/repos/symfony/doctrine-messenger/zipball/a2320304c45c014f3f8e0c612fcb3f4bbed57282",
+                "reference": "a2320304c45c014f3f8e0c612fcb3f4bbed57282",
                 "shasum": ""
             },
             "require": {
@@ -4331,7 +4331,7 @@
             "description": "Symfony Doctrine Messenger Bridge",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/doctrine-messenger/tree/v6.0.8"
+                "source": "https://github.com/symfony/doctrine-messenger/tree/v6.0.10"
             },
             "funding": [
                 {
@@ -4347,7 +4347,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-04-27T17:10:30+00:00"
+            "time": "2022-06-09T12:50:38+00:00"
         },
         {
             "name": "symfony/dotenv",
