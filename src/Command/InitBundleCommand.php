@@ -6,7 +6,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Yaml\Yaml;
 
 class InitBundleCommand extends Command
 {
@@ -31,27 +30,59 @@ class InitBundleCommand extends Command
         if (!class_exists($this->providerApiClass)) {
             $output->writeln('Generate ProviderApi class from template...');
 
+            $this->generateProviderOrderClassFromTemplate('App\\VO\\ProviderOrder');
             $this->generateProviderApiClassFromTemplate($this->providerApiClass);
-        }
-
-        // configure transport if missing
-        $messengerConfigFile = $this->projectDir . '/config/packages/messenger.yaml';
-        $messengerConfig = Yaml::parseFile($messengerConfigFile);
-        if (!in_array($this->orderNotificationTransport, (array) $messengerConfig['framework']['messenger']['transports'])) {
-            $output->writeln('Add new messenger transport to `config/packages/messenger.yaml`...');
-
-            $messengerConfig['framework']['messenger']['transports'][$this->orderNotificationTransport] = "%env(MESSENGER_TRANSPORT_DSN)%?queue_name={$this->orderNotificationTransport}";
-            file_put_contents($messengerConfigFile, Yaml::dump($messengerConfig, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
         }
 
         return 0;
     }
 
+    private function generateProviderOrderClassFromTemplate(string $fqcn)
+    {
+        $namespace = $this->getNamespaceFromFqcn($fqcn);
+        $className = $this->getClassNameFromFqcn($fqcn);
+        $filePath = $this->getFilePathFromFqcn($fqcn);
+        $tpl =
+            "<?php
+
+namespace $namespace;
+
+use Horeca\MiddlewareClientBundle\VO\Provider\ProviderOrderInterface;
+
+class $className implements ProviderOrderInterface
+{
+
+}
+        ";
+
+        $this->writeFile($filePath, $tpl);
+    }
+
+    private function generateProviderCredentialsClassFromTemplate(string $fqcn)
+    {
+        $namespace = $this->getNamespaceFromFqcn($fqcn);
+        $className = $this->getClassNameFromFqcn($fqcn);
+        $filePath = $this->getFilePathFromFqcn($fqcn);
+        $tpl =
+            "<?php
+
+namespace $namespace;
+
+use Horeca\MiddlewareClientBundle\VO\Provider\ProviderCredentialsInterface;
+
+class $className implements ProviderCredentialsInterface
+{
+
+}
+        ";
+
+        $this->writeFile($filePath, $tpl);
+    }
+
     private function generateProviderApiClassFromTemplate(string $providerApiClass)
     {
-        $parts = explode('\\', $providerApiClass);
-        $namespace = dirname($providerApiClass);
-        $className = $parts[count($parts) - 1];
+        $namespace = $this->getNamespaceFromFqcn($providerApiClass);
+        $className = $this->getClassNameFromFqcn($providerApiClass);
 
         $tpl =
             "<?php
@@ -63,18 +94,20 @@ use Horeca\MiddlewareClientBundle\VO\Provider\BaseProviderOrderResponse;
 use Horeca\MiddlewareClientBundle\VO\Provider\ProviderCredentialsInterface;
 use Horeca\MiddlewareClientBundle\VO\Provider\ProviderOrderInterface;
 use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
+use App\VO\ProviderOrder;
+use App\VO\ProviderCredentials;
 
 class $className implements ProviderApiInterface
 {
 
     public function getProviderOrderClass(): string
     {
-        // TODO: Implement getProviderOrderClass() method.
+        return ProviderOrder::class;
     }
 
     public function getProviderCredentialsClass(): string
     {
-        // TODO: Implement getProviderCredentialsClass() method.
+        return ProviderCredentials::class;
     }
 
     public function saveOrder(ProviderOrderInterface \$order, ProviderCredentialsInterface \$credentials): BaseProviderOrderResponse
@@ -90,15 +123,39 @@ class $className implements ProviderApiInterface
 }
         ";
 
-        $filePath = str_replace(['/', '\\' . $parts[0] . '\\'], ['\\', '\\'], "{$this->projectDir}/src/$namespace/$className.php");
+        $filePath = $this->getFilePathFromFqcn($providerApiClass);
 
-        if (!file_exists($filePath)) {
+        $this->writeFile($filePath, $tpl);
+    }
 
-            if (!file_exists(dirname($filePath))) {
-                mkdir(dirname($filePath), 07777, true);
+    private function getFilePathFromFqcn(string $fqcn): string
+    {
+        return dirname($fqcn);
+    }
+
+    private function getNamespaceFromFqcn(string $ns): string
+    {
+        $parts = explode('\\', $ns);
+
+        return $parts[count($parts) - 1];
+    }
+
+    private function getClassNameFromFqcn(string $fqcn): string
+    {
+        $parts = explode('\\', $fqcn);
+
+        return str_replace(['/', '\\' . $parts[0] . '\\'], ['\\', '\\'], "{$this->projectDir}/src/$fqcn.php");
+    }
+
+    private function writeFile(string $path, string $content)
+    {
+        if (!file_exists($path)) {
+            if (!file_exists(dirname($path))) {
+                // -rw-rw-rw-
+                mkdir(dirname($path), 0666, true);
             }
 
-            file_put_contents($filePath, $tpl);
+            file_put_contents($path, $content);
         }
     }
 }

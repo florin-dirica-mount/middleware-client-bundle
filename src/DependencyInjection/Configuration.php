@@ -16,17 +16,8 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
 
-                ->scalarNode('api_key')->defaultNull()->end()
-                ->scalarNode('base_url')->defaultNull()->end()
-                ->scalarNode('shared_key')->defaultNull()->end()
-                ->scalarNode('middleware_client_id')->defaultNull()->end()
-
                 ->scalarNode('provider_api_class')
                     ->defaultValue('App\Service\ProviderApi')
-                ->end()
-
-                ->booleanNode('enable_request_exception_logging')
-                    ->defaultTrue()
                 ->end()
 
                 ->scalarNode('order_notification_messenger_transport')

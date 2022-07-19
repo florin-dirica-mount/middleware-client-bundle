@@ -1,9 +1,7 @@
 Configuration
 =====
 
-#### Environment variables
-
-- define following environment variables
+### Define environment variables
 
 ```dotenv
 HORECA_BASE_URL="The horeca backend URL"
@@ -13,7 +11,7 @@ HORECA_MIDDLEWARE_CLIENT_ID="The middleware client id configured in horeca backe
 HORECA_ENABLE_REQUEST_EXCEPTION_LOGGING="Any request exception will be logged to request_logs table"
 ```
 
-- add bundle configuration in `config/packages/horeca_middleware_client.yaml`
+### Add bundle configuration in `config/packages/horeca_middleware_client.yaml`
 
 ```yaml
 horeca_middleware_client:
@@ -25,6 +23,14 @@ horeca_middleware_client:
 
     provider_api_class: App\Service\ProviderApi
     order_notification_messenger_transport: hmc_order_notification
+```
+
+### Register bundle routes in `config/routes.yaml`
+
+```yaml
+horeca:
+    resource: '@HorecaMiddlewareClientBundle/Resources/config/horeca_routes.yaml'
+    prefix: /
 ```
 
 #### Post-install

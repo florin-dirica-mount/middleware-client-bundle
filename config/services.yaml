@@ -4,11 +4,6 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
-#    horeca.base_url: '%env(resolve:HORECA_BASE_URL)%'
-#    horeca.api_key: '%env(resolve:HORECA_API_KEY)%'
-#    horeca.shared_key: '%env(resolve:HORECA_SHARED_KEY)%'
-#    horeca.middleware_client_id: '%env(resolve:HORECA_MIDDLEWARE_CLIENT_ID)%'
-#    horeca.enable_request_exception_logging: '%env(resolve:HORECA_ENABLE_REQUEST_EXCEPTION_LOGGING)%'
 
 services:
     # default configuration for services in *this* file

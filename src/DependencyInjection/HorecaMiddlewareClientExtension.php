@@ -24,29 +24,8 @@ class HorecaMiddlewareClientExtension extends Extension
             $container,
             new FileLocator(__DIR__ . '/../Resources/config')
         );
-        $loader->load('services.yaml');
 
-        $configuration = $this->getConfiguration($configs, $container);
-        $config = $this->processConfiguration($configuration, $configs);
-
-        $container->setParameter('horeca.base_url', $config['base_url']);
-        $container->setParameter('horeca.api_key', $config['api_key']);
-        $container->setParameter('horeca.shared_key', $config['shared_key']);
-        $container->setParameter('horeca.middleware_client_id', $config['middleware_client_id']);
-        $container->setParameter('horeca.enable_request_exception_logging', $config['enable_request_exception_logging']);
-        $container->setParameter('horeca.order_notification_messenger_transport', $config['order_notification_messenger_transport']);
-        $container->setParameter('horeca.provider_api_class', $config['provider_api_class']);
-
-        // add provider service definition
-        $providerDefinition = new Definition($config['provider_api_class']);
-        $providerDefinition->setAutowired(true);
-        $providerDefinition->setAutoconfigured(true);
-        $container->setDefinition(ProviderApiInterface::class, $providerDefinition);
-
-        // add repository services definition
-        $this->defineRepositoryService($container, RequestLogRepository::class);
-        $this->defineRepositoryService($container, OrderNotificationRepository::class);
-        $this->defineRepositoryService($container, UserRepository::class);
+        $this->loadServices($loader, $configs, $container);
     }
 
     public function getAlias(): string
@@ -63,4 +42,27 @@ class HorecaMiddlewareClientExtension extends Extension
 
         $container->setDefinition($repositoryClass, $definition);
     }
+
+    private function loadServices(YamlFileLoader $loader, array $configs, ContainerBuilder $container): void
+    {
+        $loader->load('services.yaml');
+
+        $configuration = $this->getConfiguration($configs, $container);
+        $config = $this->processConfiguration($configuration, $configs);
+
+        $container->setParameter('horeca.order_notification_messenger_transport', $config['order_notification_messenger_transport']);
+        $container->setParameter('horeca.provider_api_class', $config['provider_api_class']);
+
+        // add provider service definition
+        $providerDefinition = new Definition($config['provider_api_class']);
+        $providerDefinition->setAutowired(true);
+        $providerDefinition->setAutoconfigured(true);
+        $container->setDefinition(ProviderApiInterface::class, $providerDefinition);
+
+        // add repository services definition
+        $this->defineRepositoryService($container, RequestLogRepository::class);
+        $this->defineRepositoryService($container, OrderNotificationRepository::class);
+        $this->defineRepositoryService($container, UserRepository::class);
+    }
+
 }
