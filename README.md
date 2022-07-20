@@ -23,8 +23,9 @@ horeca_middleware_client:
 
 ```yaml
 horeca:
-    resource: '../vendor/horeca/middleware-client-bundle/src/Resources/config/routes.yaml'
+    resource: '../vendor/horeca/middleware-client-bundle/src/Controller/'
     prefix: /
+    type: annotation
 ```
 
 ### Update symfony/messenger with transport used by horeca bundle `config/packages/messenger.yaml`
