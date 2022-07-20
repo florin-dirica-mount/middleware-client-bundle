@@ -1,3 +1,41 @@
+# Disclaimer
+
+- **project is not intended for public use**
+
+# Installation
+
+- update `composer.json` with the bundle recipe
+
+```json
+{
+    "require": {
+        "php": ">=8.0",
+        "horeca/middleware-common-lib": "^1.0.2",
+        "horeca/middleware-client-bundle": "^0.4"
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://gitlab.com/horeca-universal/libs/middleware-common-lib.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/florin-dirica-mount/middleware-client-bundle.git"
+        }
+    ],
+    "extra": {
+        "symfony": {
+            "allow-contrib": true,
+            "require": "^5.0",
+            "endpoint": [
+                "https://api.github.com/repos/florin-dirica-mount/symfony-recipes/contents/index.json",
+                "flex://defaults"
+            ]
+        }
+    }
+}
+```
+
 Configuration
 =====
 
@@ -45,3 +83,55 @@ framework:
 #### Post-install
 
 - run command `php bin/console horeca:middleware-client:init` after package initial installation
+
+# TODO
+
+- example recipe structure
+
+```text
+symfony/
+    console/
+        3.3/
+            bin/
+            manifest.json
+    framework-bundle/
+        3.3/
+            config/
+            public/
+            src/
+            manifest.json
+    requirements-checker/
+        1.0/
+            manifest.json
+```
+
+- update symfony recipe, full config options:
+
+```json
+{
+    "bundles": {
+        "Symfony\\Bundle\\FrameworkBundle\\FrameworkBundle": [
+            "all"
+        ]
+    },
+    "copy-from-recipe": {
+        "config/": "%CONFIG_DIR%/",
+        "public/": "%PUBLIC_DIR%/",
+        "src/": "%SRC_DIR%/"
+    },
+    "composer-scripts": {
+        "cache:clear": "symfony-cmd",
+        "assets:install --symlink --relative %PUBLIC_DIR%": "symfony-cmd"
+    },
+    "env": {
+        "APP_ENV": "dev",
+        "APP_SECRET": "%generate(secret)%"
+    },
+    "gitignore": [
+        ".env",
+        "/public/bundles/",
+        "/var/",
+        "/vendor/"
+    ]
+}
+```
