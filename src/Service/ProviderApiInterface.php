@@ -23,7 +23,7 @@ interface ProviderApiInterface
     /**
      * Saves the order data into the provider system and returns the external order ID, if it is applicable
      */
-    public function saveOrder(ProviderOrderInterface $order, ProviderCredentialsInterface $credentials): BaseProviderOrderResponse;
+    public function saveOrder(ProviderOrderInterface $order, ProviderCredentialsInterface $credentials): ?BaseProviderOrderResponse;
 
     /**
      * Handles the mapping between ShoppingCart and ProviderOrder models
