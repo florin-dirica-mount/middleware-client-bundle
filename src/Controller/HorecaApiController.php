@@ -63,7 +63,7 @@ class HorecaApiController extends AbstractFOSRestController
         return new Response();
     }
 
-    private function authorizeRequest(Request $request)
+    protected function authorizeRequest(Request $request)
     {
         if (!$apiKeyHeader = $request->headers->get('Api-Key')) {
             $this->logger->warning('[/api/order/send] ERROR: Missing api key');

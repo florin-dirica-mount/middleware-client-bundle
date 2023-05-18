@@ -5,6 +5,6 @@ namespace Horeca\MiddlewareClientBundle\VO\Provider;
 class BaseProviderOrderResponse
 {
 
-    public ?string $orderId = null;
+    public mixed $orderId = null;
 
 }
