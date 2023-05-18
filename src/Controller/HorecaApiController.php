@@ -66,7 +66,7 @@ class HorecaApiController extends AbstractFOSRestController
         return new JsonResponse(['success' => true]);
     }
 
-    private function authorizeRequest(Request $request)
+    protected function authorizeRequest(Request $request)
     {
         $routeName = $request->attributes->get('_route');
 
