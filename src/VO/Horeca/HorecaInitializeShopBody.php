@@ -1,0 +1,18 @@
+<?php
+
+namespace Horeca\MiddlewareClientBundle\VO\Horeca;
+
+use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
+use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Validator\Constraints as Assert;
+
+class HorecaInitializeShopBody
+{
+    
+
+    #[Serializer\SerializedName("service_credentials")]
+    #[Serializer\Type("array")]
+    #[Assert\NotNull(message: "app.parameter.provider_credentials.not_null")]
+    public array $providerCredentials = [];
+
+}

@@ -8,8 +8,10 @@ use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\EntityManagerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\LoggerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\MessageBusDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\SerializerDI;
+use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProviderApiDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Message\OrderNotificationMessage;
+use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaInitializeShopBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaSendOrderBody;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
@@ -24,6 +26,7 @@ class HorecaApiController extends AbstractFOSRestController
     use SerializerDI;
     use MessageBusDI;
     use EntityManagerDI;
+    use ProviderApiDI;
 
     #[Rest\Post("/api/order/send", name: "horeca_api_order_send")]
     #[ParamConverter("body", converter: "fos_rest.request_body")]
@@ -64,6 +67,29 @@ class HorecaApiController extends AbstractFOSRestController
         }
 
         return new JsonResponse(['success' => true]);
+    }
+
+    #[Rest\Post("/api/shop/initialize", name: "horeca_api_shop_initialize")]
+    public function initializeShop(Request $request, HorecaInitializeShopBody $body): Response
+    {
+        $routeName = $request->attributes->get('_route');
+
+        $this->logger->info('[/api/shop/initialize] ' . $request->getContent());
+
+        $this->authorizeRequest($request);
+
+        if (!$body->providerCredentials) {
+            $this->logger->warning("[$routeName] ERROR: Missing parameters");
+            throw new BadRequestException('Missing parameters:  service_credentials!');
+        }
+        $credentials = $this->deserializeJson($this->serializeJson($body->providerCredentials), $this->providerApi->getProviderCredentialsClass());
+
+        $ret = $this->providerApi->initializeShop($credentials);
+        if ($ret) {
+            return new JsonResponse(['success' => true]);
+        }
+        return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
+
     }
 
     protected function authorizeRequest(Request $request)

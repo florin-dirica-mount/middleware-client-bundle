@@ -30,4 +30,10 @@ interface ProviderApiInterface
      */
     public function mapShoppingCartToProviderOrder(ShoppingCart $cart): ProviderOrderInterface;
 
+    /**
+     * @param ProviderCredentialsInterface $credentials
+     * @return bool
+     */
+    public function initializeShop(ProviderCredentialsInterface $credentials): bool;
+
 }
