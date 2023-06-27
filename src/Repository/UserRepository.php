@@ -2,6 +2,7 @@
 
 namespace Horeca\MiddlewareClientBundle\Repository;
 
+use Doctrine\Persistence\ManagerRegistry;
 use Horeca\MiddlewareClientBundle\Entity\User;
 
 /**
@@ -12,5 +13,9 @@ use Horeca\MiddlewareClientBundle\Entity\User;
  */
 class UserRepository extends ExtendedEntityRepository
 {
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, User::class);
+    }
 
 }

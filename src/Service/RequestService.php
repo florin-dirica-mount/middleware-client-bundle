@@ -2,9 +2,9 @@
 
 namespace Horeca\MiddlewareClientBundle\Service;
 
-use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\LoggerDI;
-use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\RequestLogRepositoryDI;
+use Doctrine\ORM\EntityManagerInterface;
 use Horeca\MiddlewareClientBundle\Entity\Log\RequestLog;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -12,8 +12,14 @@ class RequestService
 {
     private ?float $requestTime = null;
 
-    use LoggerDI;
-    use RequestLogRepositoryDI;
+    private LoggerInterface        $logger;
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(LoggerInterface $logger, EntityManagerInterface $entityManager)
+    {
+        $this->logger = $logger;
+        $this->entityManager = $entityManager;
+    }
 
     public function init(Request $request): void
     {
@@ -42,7 +48,7 @@ class RequestService
                     . $exception->getTraceAsString());
             }
 
-            $this->requestLogRepository->insert($log);
+            $this->entityManager->getRepository(RequestLog::class)->insert($log);
         } catch (\Exception $e) {
             $this->logger->critical('[createRequestLog] ' . $e->getMessage());
             $this->logger->critical('[createRequestLog] ' . $e->getTraceAsString());

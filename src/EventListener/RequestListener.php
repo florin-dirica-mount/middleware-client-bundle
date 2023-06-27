@@ -3,11 +3,9 @@
 namespace Horeca\MiddlewareClientBundle\EventListener;
 
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
-use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\EnvironmentDI;
-use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\LoggerDI;
-use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\RequestLogRepositoryDI;
-use Horeca\MiddlewareClientBundle\DependencyInjection\Service\RequestServiceDI;
 use Horeca\MiddlewareClientBundle\Exception\ApiException;
+use Horeca\MiddlewareClientBundle\Service\RequestService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -16,18 +14,18 @@ use Symfony\Component\HttpKernel\Event\ResponseEvent;
 
 class RequestListener
 {
-    use LoggerDI;
-    use EnvironmentDI;
-    use RequestServiceDI;
-    use RequestLogRepositoryDI;
 
-    private bool $requestExceptionLoggingEnabled = true;
+    private LoggerInterface $logger;
+    private RequestService  $requestService;
+    private bool            $requestExceptionLoggingEnabled;
 
     private ?\Throwable $exception = null;
 
-    public function enableRequestExceptionLogging(bool $value): void
+    public function __construct(LoggerInterface $logger, RequestService $requestService, bool $requestExceptionLoggingEnabled)
     {
-        $this->requestExceptionLoggingEnabled = $value;
+        $this->logger = $logger;
+        $this->requestService = $requestService;
+        $this->requestExceptionLoggingEnabled = $requestExceptionLoggingEnabled;
     }
 
     public function onKernelRequest(RequestEvent $event): void
@@ -73,7 +71,7 @@ class RequestListener
             $this->logger->info($message);
         }
 
-        if ($this->requestService->isLoggableStatusCode($statusCode)) {
+        if ($this->requestExceptionLoggingEnabled && $this->requestService->isLoggableStatusCode($statusCode)) {
             $this->requestService->createRequestLog($event->getRequest(), $event->getResponse(), $this->exception);
         }
     }

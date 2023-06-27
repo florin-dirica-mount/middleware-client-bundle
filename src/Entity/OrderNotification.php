@@ -22,7 +22,7 @@ class OrderNotification extends AbstractEntity
     #[ORM\Column(name: "horeca_order_id", type: "string", length: 36, nullable: false)]
     private string $horecaOrderId;
 
-    #[ORM\Column(name: "service_order_id", type: "string", length: 36, nullable: false)]
+    #[ORM\Column(name: "service_order_id", type: "string", length: 36, nullable: true)]
     private string $serviceOrderId;
 
     #[ORM\Column(name: "status", type: "string", length: 50, nullable: false, options: ["default" => "received"])]

@@ -7,7 +7,15 @@ parameters:
 
 services:
 
-    horeca.api_client:
+    Horeca\MiddlewareClientBundle\Controller\HorecaApiController:
+        calls:
+            - [ setLogger,[ '@logger' ] ]
+            - [ setSerializer,[ '@jms_serializer' ] ]
+            - [ setMessageBus,[ '@messenger.bus.default' ] ]
+            - [ setEntityManager,[ '@doctrine.orm.entity_manager' ] ]
+        public: true
+
+    Horeca\MiddlewareCommonLib\Service\HorecaApiInterface:
         class: Horeca\MiddlewareCommonLib\Service\HorecaApiService
         arguments:
             - '@jms_serializer'
@@ -16,10 +24,42 @@ services:
             - [ setApiKey, [ '%horeca.api_key%' ] ]
             - [ setMiddlewareClientId, [ '%horeca.middleware_client_id%' ] ]
 
-    horeca.request_listener:
+    Horeca\MiddlewareClientBundle\Service\RequestService:
+        arguments:
+            - '@logger'
+            - '@doctrine.orm.entity_manager'
+
+    Horeca\MiddlewareClientBundle\EventListener\RequestListener:
+        arguments:
+            - '@logger'
+            - '@Horeca\MiddlewareClientBundle\Service\RequestService'
+            - '%horeca.enable_request_exception_logging%'
         tags:
             - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
             - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse }
             - { name: kernel.event_listener, event: kernel.exception, method: onKernelException }
+
+    Horeca\MiddlewareClientBundle\MessageHandler\OrderNotificationMessageHandler:
+        arguments:
+            $transport: '%horeca.order_notification_messenger_transport%'
         calls:
-            - [ enableRequestExceptionLogging, [ '%horeca.enable_request_exception_logging%' ] ]
+            - [ setLogger,[ '@logger' ] ]
+            - [ setSerializer,[ '@jms_serializer' ] ]
+            - [ setProviderApi,[ '@Horeca\MiddlewareClientBundle\Service\ProviderApiInterface' ] ]
+            - [ setHorecaApiService,[ '@Horeca\MiddlewareCommonLib\Service\HorecaApiInterface' ] ]
+            - [ setEntityManager,[ '@doctrine.orm.entity_manager' ] ]
+        tags:
+            - { name: messenger.message_handler }
+
+    Horeca\MiddlewareClientBundle\Command\InitBundleCommand:
+        arguments:
+            $container: '@service_container'
+        tags:
+            - { name: console.command }
+
+    Horeca\MiddlewareClientBundle\Command\CreateUserCommand:
+        calls:
+            - [ setUserPasswordHasherInterface,[ '@security.user_password_hasher' ] ]
+            - [ setEntityManager,[ '@doctrine.orm.entity_manager' ] ]
+        tags:
+            - { name: console.command }

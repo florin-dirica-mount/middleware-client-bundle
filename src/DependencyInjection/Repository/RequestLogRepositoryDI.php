@@ -2,6 +2,8 @@
 
 namespace Horeca\MiddlewareClientBundle\DependencyInjection\Repository;
 
+use Doctrine\ORM\EntityManagerInterface;
+use Horeca\MiddlewareClientBundle\Entity\Log\RequestLog;
 use Horeca\MiddlewareClientBundle\Repository\Log\RequestLogRepository;
 
 trait RequestLogRepositoryDI
@@ -11,8 +13,8 @@ trait RequestLogRepositoryDI
     /**
      * @required
      */
-    public function setRequestLogRepository(RequestLogRepository $requestLogRepository): void
+    public function setRequestLogRepository(EntityManagerInterface $entityManager): void
     {
-        $this->requestLogRepository = $requestLogRepository;
+        $this->requestLogRepository = $entityManager->getRepository(RequestLog::class);
     }
 }

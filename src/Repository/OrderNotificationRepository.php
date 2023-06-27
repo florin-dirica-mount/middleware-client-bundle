@@ -2,6 +2,7 @@
 
 namespace Horeca\MiddlewareClientBundle\Repository;
 
+use Doctrine\Persistence\ManagerRegistry;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 
 /**
@@ -12,6 +13,12 @@ use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
  */
 class OrderNotificationRepository extends ExtendedEntityRepository
 {
+
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, OrderNotification::class);
+    }
+
     public function findOneByHorecaOrderId(string $id): ?OrderNotification
     {
         return $this->findOneBy(['horecaOrderId' => $id]);
