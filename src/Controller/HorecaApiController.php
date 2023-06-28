@@ -70,6 +70,7 @@ class HorecaApiController extends AbstractFOSRestController
     }
 
     #[Rest\Post("/api/shop/initialize", name: "horeca_api_shop_initialize")]
+    #[ParamConverter("body", converter: "fos_rest.request_body")]
     public function initializeShop(Request $request, HorecaInitializeShopBody $body): Response
     {
         $routeName = $request->attributes->get('_route');
