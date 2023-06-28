@@ -20,19 +20,19 @@ class OrderNotification extends AbstractEntity
     const STATUS_FAILED = 'failed';         // an error occurred during processing of this order, at any step
 
     #[ORM\Column(name: "horeca_order_id", type: "string", length: 36, nullable: true)]
-    private string $horecaOrderId;
+    private ?string $horecaOrderId;
 
     #[ORM\Column(name: "service_order_id", type: "string", length: 36, nullable: true)]
-    private string $serviceOrderId;
+    private ?string $serviceOrderId;
 
     #[ORM\Column(name: "status", type: "string", length: 50, nullable: false, options: ["default" => "received"])]
     private string $status;
 
     #[ORM\Column(name: "restaurant_id", type: "string", length: 36, nullable: true)]
-    private string $restaurantId;
+    private ?string $restaurantId;
 
     #[ORM\Column(name: "service_credentials", type: "json", nullable: true)]
-    private string $serviceCredentials;
+    private ?string $serviceCredentials;
 
     #[ORM\Column(name: "horeca_payload", type: "json", nullable: true)]
     private ?string $horecaPayload = null;
@@ -49,7 +49,10 @@ class OrderNotification extends AbstractEntity
     #[ORM\Column(name: "notified_at", type: "datetime", nullable: true)]
     private ?\DateTime $notifiedAt = null;
 
-    #[ORM\OneToMany(mappedBy: "order", targetEntity: OrderStatusEntry::class, cascade: ["persist", "remove"], fetch: "EXTRA_LAZY", orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: "order", targetEntity: OrderStatusEntry::class, cascade: [
+        "persist",
+        "remove"
+    ], fetch: "EXTRA_LAZY", orphanRemoval: true)]
     #[Serializer\Exclude]
     /** @var array|Collection|ArrayCollection */
     private array|Collection|ArrayCollection $statusEntries;
@@ -80,33 +83,33 @@ class OrderNotification extends AbstractEntity
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getHorecaOrderId(): string
+    public function getHorecaOrderId(): ?string
     {
         return $this->horecaOrderId;
     }
 
     /**
-     * @param string $horecaOrderId
+     * @param string|null $horecaOrderId
      */
-    public function setHorecaOrderId(string $horecaOrderId): void
+    public function setHorecaOrderId(?string $horecaOrderId): void
     {
         $this->horecaOrderId = $horecaOrderId;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getServiceOrderId(): string
+    public function getServiceOrderId(): ?string
     {
         return $this->serviceOrderId;
     }
 
     /**
-     * @param string $serviceOrderId
+     * @param string|null $serviceOrderId
      */
-    public function setServiceOrderId(string $serviceOrderId): void
+    public function setServiceOrderId(?string $serviceOrderId): void
     {
         $this->serviceOrderId = $serviceOrderId;
     }
@@ -128,33 +131,33 @@ class OrderNotification extends AbstractEntity
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getRestaurantId(): string
+    public function getRestaurantId(): ?string
     {
         return $this->restaurantId;
     }
 
     /**
-     * @param string $restaurantId
+     * @param string|null $restaurantId
      */
-    public function setRestaurantId(string $restaurantId): void
+    public function setRestaurantId(?string $restaurantId): void
     {
         $this->restaurantId = $restaurantId;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getServiceCredentials(): string
+    public function getServiceCredentials(): ?string
     {
         return $this->serviceCredentials;
     }
 
     /**
-     * @param string $serviceCredentials
+     * @param string|null $serviceCredentials
      */
-    public function setServiceCredentials(string $serviceCredentials): void
+    public function setServiceCredentials(?string $serviceCredentials): void
     {
         $this->serviceCredentials = $serviceCredentials;
     }
