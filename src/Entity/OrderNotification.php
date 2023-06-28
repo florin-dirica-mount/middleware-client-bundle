@@ -19,7 +19,7 @@ class OrderNotification extends AbstractEntity
     const STATUS_NOTIFIED = 'notified';     // target system was notified with the order
     const STATUS_FAILED = 'failed';         // an error occurred during processing of this order, at any step
 
-    #[ORM\Column(name: "horeca_order_id", type: "string", length: 36, nullable: false)]
+    #[ORM\Column(name: "horeca_order_id", type: "string", length: 36, nullable: true)]
     private string $horecaOrderId;
 
     #[ORM\Column(name: "service_order_id", type: "string", length: 36, nullable: true)]
