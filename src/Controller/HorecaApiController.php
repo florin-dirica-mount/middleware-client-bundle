@@ -85,7 +85,7 @@ class HorecaApiController extends AbstractFOSRestController
         }
         $credentials = $this->deserializeJson($this->serializeJson($body->providerCredentials), $this->providerApi->getProviderCredentialsClass());
 
-        $ret = $this->providerApi->initializeShop($credentials);
+        $ret = $this->providerApi->initializeShop($body->horecaExternalServiceId, $credentials);
         if ($ret) {
             return new JsonResponse(['success' => true]);
         }

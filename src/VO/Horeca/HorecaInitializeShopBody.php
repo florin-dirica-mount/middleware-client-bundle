@@ -2,13 +2,17 @@
 
 namespace Horeca\MiddlewareClientBundle\VO\Horeca;
 
-use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class HorecaInitializeShopBody
 {
-    
+
+
+    #[Serializer\SerializedName("horeca_external_service_id")]
+    #[Serializer\Type("string")]
+    #[Assert\NotNull(message: "app.parameter.horeca_external_service_id.not_null")]
+    public string $horecaExternalServiceId;
 
     #[Serializer\SerializedName("service_credentials")]
     #[Serializer\Type("array")]
