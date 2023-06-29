@@ -26,13 +26,6 @@ interface ProviderApiInterface
     public function saveOrder(ProviderOrderInterface $order, ProviderCredentialsInterface $credentials): ?BaseProviderOrderResponse;
 
     /**
-     * @param ShoppingCart $cart
-     * @return BaseProviderOrderResponse|null
-     * Sends the shopping cart data to the horeca backend and returns the external order ID, if it is applicable
-     */
-    public function sendShoppingCart(ShoppingCart $cart): ?BaseProviderOrderResponse;
-
-    /**
      * Handles the mapping between ShoppingCart and ProviderOrder models
      */
     public function mapShoppingCartToProviderOrder(ShoppingCart $cart): ProviderOrderInterface;
