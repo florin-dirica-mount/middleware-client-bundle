@@ -31,6 +31,13 @@ interface ProviderApiInterface
     public function mapShoppingCartToProviderOrder(ShoppingCart $cart): ProviderOrderInterface;
 
     /**
+     * @param $providerOrder
+     * @return ShoppingCart
+     * Handles the mapping between ProviderOrder and ShoppingCart models
+     */
+    public function mapProviderOrderToShoppingCart($providerOrder): ShoppingCart;
+
+    /**
      * @param string $horecaExternalServiceId
      * @param ProviderCredentialsInterface $credentials
      * @return bool
