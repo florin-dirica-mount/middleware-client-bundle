@@ -7,14 +7,11 @@ use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\LoggerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\SerializerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProtocolActionsServiceDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProviderApiDI;
-use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Message\OrderNotificationMessage;
-use Horeca\MiddlewareClientBundle\VO\Provider\ProviderCredentialsInterface;
 use Horeca\MiddlewareCommonLib\DependencyInjection\HorecaApiServiceDI;
-use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
-class OrderNotificationMessageHandler implements MessageSubscriberInterface
+class ExternalServiceOrderNotificationMessageHandler implements MessageSubscriberInterface
 {
     use LoggerDI;
     use SerializerDI;
@@ -36,16 +33,14 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
     public static function getHandledMessages(): iterable
     {
         yield OrderNotificationMessage::class => [
-            'method'         => 'handleOrderNotificationMessage',
-            'from_transport' => 'hmc_order_notification'
+            'method'         => 'handleExternalServiceOrderNotificationMessage',
+            'from_transport' => 'external_service_order_notification'
         ];
     }
 
-    public function handleOrderNotificationMessage(OrderNotificationMessage $message)
+    public function handleExternalServiceOrderNotificationMessage(OrderNotificationMessage $message)
     {
-
-        $this->protocolActionsService->handleHorecaOrderNotification($message->getOrderNotificationId());
-
+        $this->protocolActionsService->handleExternalServiceOrderNotification($message->getOrderNotificationId());
 
     }
 }

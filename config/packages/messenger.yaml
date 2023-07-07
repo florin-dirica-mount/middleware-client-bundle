@@ -12,6 +12,7 @@ framework:
             # failed: 'doctrine://default?queue_name=failed'
             # sync: 'sync://'
             hmc_order_notification: "%env(MESSENGER_TRANSPORT_DSN)%?queue_name=hmc_order_notification"
+            external_service_order_notification: "%env(MESSENGER_TRANSPORT_DSN)%?queue_name=external_service_order_notification"
 
             failed: 'doctrine://default?queue_name=failed'
             sync: 'sync://'
@@ -20,3 +21,4 @@ framework:
             # Route your messages to the transports
             # 'App\Message\YourMessage': async
             'Horeca\MiddlewareClientBundle\Message\OrderNotificationMessage': hmc_order_notification
+            'Horeca\MiddlewareClientBundle\Message\ExternalServiceOrderNotificationMessage': external_service_order_notification

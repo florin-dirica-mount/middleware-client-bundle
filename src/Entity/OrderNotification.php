@@ -17,6 +17,7 @@ class OrderNotification extends AbstractEntity
     const STATUS_RECEIVED = 'received';     // order is received from the source system and it's products can be mapped
     const STATUS_PENDING = 'pending';       // order has products mapped as is ready to be sent to the target system
     const STATUS_NOTIFIED = 'notified';     // target system was notified with the order
+    const STATUS_CONFIRMED = 'confirmed';   // target system has confirmed the order
     const STATUS_FAILED = 'failed';         // an error occurred during processing of this order, at any step
 
     #[ORM\Column(name: "horeca_order_id", type: "string", length: 36, nullable: true)]
