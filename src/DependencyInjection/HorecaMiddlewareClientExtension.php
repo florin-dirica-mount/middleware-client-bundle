@@ -5,6 +5,7 @@ namespace Horeca\MiddlewareClientBundle\DependencyInjection;
 use Horeca\MiddlewareClientBundle\Repository\Log\RequestLogRepository;
 use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
 use Horeca\MiddlewareClientBundle\Repository\UserRepository;
+use Horeca\MiddlewareClientBundle\Service\ProtocolActionsService;
 use Horeca\MiddlewareClientBundle\Service\ProviderApiInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -58,6 +59,12 @@ class HorecaMiddlewareClientExtension extends Extension
         $providerDefinition->setAutowired(true);
         $providerDefinition->setAutoconfigured(true);
         $container->setDefinition(ProviderApiInterface::class, $providerDefinition);
+
+        // add provider service definition
+        $providerDefinition = new Definition(ProtocolActionsService::class);
+        $providerDefinition->setAutowired(true);
+        $providerDefinition->setAutoconfigured(true);
+        $container->setDefinition(ProtocolActionsService::class, $providerDefinition);
 
         // add repository services definition
         $this->defineRepositoryService($container, RequestLogRepository::class);
