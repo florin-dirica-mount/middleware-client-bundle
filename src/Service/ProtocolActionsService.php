@@ -31,6 +31,8 @@ class ProtocolActionsService
             /** @var ProviderOrderInterface $order */
             $order = $this->deserializeJson($notification->getServicePayload(), $this->providerApi->getProviderOrderClass());
 
+            $this->logger->info('[handleExternalServiceOrderNotification] orderId: ' . $order->getO());
+
             $shoppingCart = $this->providerApi->mapProviderOrderToShoppingCart($order);
 
             $notification->setHorecaPayload($this->serializeJson($shoppingCart));
@@ -47,8 +49,8 @@ class ProtocolActionsService
             return $response;
 
         } catch (\Exception $e) {
-            $this->logger->critical('[handleOrderNotificationMessage] Exception: ' . $e->getMessage());
-            $this->logger->critical('[handleOrderNotificationMessage] Exception: ' . $e->getTraceAsString());
+            $this->logger->critical('[handleExternalServiceOrderNotification] Exception: ' . $e->getMessage());
+            $this->logger->critical('[handleExternalServiceOrderNotification] Exception: ' . $e->getTraceAsString());
 
             $notification->changeStatus(OrderNotification::STATUS_FAILED);
             $notification->setErrorMessage($e->getMessage());
