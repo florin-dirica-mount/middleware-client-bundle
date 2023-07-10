@@ -31,7 +31,6 @@ class ProtocolActionsService
             /** @var ProviderOrderInterface $order */
             $order = $this->deserializeJson($notification->getServicePayload(), $this->providerApi->getProviderOrderClass());
 
-            $this->logger->info('[handleExternalServiceOrderNotification] orderId: ' . $order->getO());
 
             $shoppingCart = $this->providerApi->mapProviderOrderToShoppingCart($order);
 
