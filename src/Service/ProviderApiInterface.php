@@ -2,6 +2,7 @@
 
 namespace Horeca\MiddlewareClientBundle\Service;
 
+use App\VO\HorecaRequestDeliveryBody;
 use Horeca\MiddlewareClientBundle\VO\Provider\BaseProviderOrderResponse;
 use Horeca\MiddlewareClientBundle\VO\Provider\ProviderCredentialsInterface;
 use Horeca\MiddlewareClientBundle\VO\Provider\ProviderOrderInterface;
@@ -43,5 +44,7 @@ interface ProviderApiInterface
      * @return bool
      */
     public function initializeShop(string $horecaExternalServiceId, ProviderCredentialsInterface $credentials): bool;
+
+    public function requestDelivery(HorecaRequestDeliveryBody $body, ProviderCredentialsInterface $credentials): bool;
 
 }

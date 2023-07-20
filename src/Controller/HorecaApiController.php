@@ -2,6 +2,7 @@
 
 namespace Horeca\MiddlewareClientBundle\Controller;
 
+use App\VO\HorecaRequestDeliveryBody;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\EntityManagerDI;
@@ -19,6 +20,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class HorecaApiController extends AbstractFOSRestController
 {
@@ -27,6 +30,49 @@ class HorecaApiController extends AbstractFOSRestController
     use MessageBusDI;
     use EntityManagerDI;
     use ProviderApiDI;
+
+
+    #[Rest\Post("/api/delivery/request", name: "horeca_api_request_delivery")]
+    #[ParamConverter("body", converter: "fos_rest.request_body")]
+    public function requestDelivery(Request                   $request,
+                                    HorecaRequestDeliveryBody $body,
+                                    ValidatorInterface        $validator,
+                                    TranslatorInterface       $translator,
+    ): Response
+    {
+
+        $this->authorizeRequest($request);
+
+        $serviceCredentials = $this->serializeJson($body->providerCredentials);
+
+        $credentials = $this->deserializeJson($serviceCredentials, $this->providerApi->getProviderCredentialsClass());
+
+        $errors = $validator->validate($body->form);
+
+        if (count($errors) > 0) {
+            $errorsArray = [];
+
+            foreach ($errors as $violation) {
+                $errorsArray[] = $translator->trans($violation->getMessage(), [], 'validators');
+            }
+
+            return new Response(json_encode($errorsArray));
+        }
+
+        try {
+            $response = $this->providerApi->requestDelivery($body, $credentials);
+            if ($response) {
+                return new JsonResponse(['success' => true]);
+            } else {
+                return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
+            }
+        } catch (\Exception $exception) {
+            $this->logger->critical($exception->getMessage());
+            return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
+        }
+
+    }
+
 
     #[Rest\Post("/api/order/send", name: "horeca_api_order_send")]
     #[ParamConverter("body", converter: "fos_rest.request_body")]
