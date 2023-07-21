@@ -2,7 +2,7 @@
 
 namespace Horeca\MiddlewareClientBundle\Service;
 
-use App\VO\Horeca\HorecaRequestDeliveryBody;
+use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaRequestDeliveryBody;
 use Horeca\MiddlewareClientBundle\VO\Provider\BaseProviderOrderResponse;
 use Horeca\MiddlewareClientBundle\VO\Provider\ProviderCredentialsInterface;
 use Horeca\MiddlewareClientBundle\VO\Provider\ProviderOrderInterface;
