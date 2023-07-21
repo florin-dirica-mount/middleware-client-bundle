@@ -1,6 +1,6 @@
 <?php
 
-namespace App\VO\Horeca;
+namespace Horeca\MiddlewareClientBundle\VO\Horeca;
 
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
