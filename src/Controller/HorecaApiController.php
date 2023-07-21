@@ -2,7 +2,7 @@
 
 namespace Horeca\MiddlewareClientBundle\Controller;
 
-use App\VO\HorecaRequestDeliveryBody;
+use App\VO\Horeca\HorecaRequestDeliveryBody;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\EntityManagerDI;

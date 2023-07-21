@@ -1,6 +1,6 @@
 <?php
 
-namespace App\VO;
+namespace App\VO\Horeca;
 
 use JMS\Serializer\Annotation as Serializer;
 
