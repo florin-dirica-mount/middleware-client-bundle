@@ -6,6 +6,10 @@ use JMS\Serializer\Annotation as Serializer;
 
 class Place
 {
+    #[Serializer\SerializedName("horeca_id")]
+    #[Serializer\Type("string")]
+    public ?string $horecaId = null;
+
     #[Serializer\SerializedName("name")]
     #[Serializer\Type("string")]
     public ?string $name = null;
