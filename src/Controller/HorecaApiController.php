@@ -2,7 +2,6 @@
 
 namespace Horeca\MiddlewareClientBundle\Controller;
 
-use App\VO\Horeca\HorecaRequestDeliveryBody;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\EntityManagerDI;
@@ -13,6 +12,7 @@ use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProviderApiDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Message\OrderNotificationMessage;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaInitializeShopBody;
+use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaRequestDeliveryBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaSendOrderBody;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
