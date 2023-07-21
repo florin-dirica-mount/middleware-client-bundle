@@ -12,12 +12,12 @@ class HorecaRequestDeliveryForm
     #[Serializer\Type("string")]
     public ?string $externalId = null;
 
-    #[Serializer\Type("DateTime<'Y-m-d H:i:s'>")]
+    #[Serializer\Type("DateTime<'Y-m-d H:i:s','Europe/Bucharest'>")]
     #[Serializer\SerializedName('pickup_starting_with')]
     #[Assert\NotNull(message: "app.parameter.pickup_starting_with.not_null")]
     public \DateTime $pickupStartingWith;
 
-    #[Serializer\Type("DateTime<'Y-m-d H:i:s'>")]
+    #[Serializer\Type("DateTime<'Y-m-d H:i:s','Europe/Bucharest'>")]
     #[Serializer\SerializedName('deliver_before')]
     public ?\DateTime $deliverBefore = null;
 
