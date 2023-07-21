@@ -8,6 +8,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 class HorecaRequestDeliveryForm
 {
 
+    #[Serializer\SerializedName("delivery_request_id")]
+    #[Serializer\Type("string")]
+    public $deliveryRequestId;
+
     #[Serializer\SerializedName("external_id")]
     #[Serializer\Type("string")]
     public ?string $externalId = null;
