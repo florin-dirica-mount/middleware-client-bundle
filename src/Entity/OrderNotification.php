@@ -43,7 +43,7 @@ class OrderNotification extends AbstractEntity
     private string $type;
 
     #[ORM\Column(name: "source", type: "string", length: 50, nullable: true)]
-    private string $source;
+    private ?string $source;
 
     #[ORM\Column(name: "restaurant_id", type: "string", length: 36, nullable: true)]
     private ?string $restaurantId;
@@ -285,14 +285,15 @@ class OrderNotification extends AbstractEntity
         $this->type = $type;
     }
 
-    public function getSource(): string
+    public function getSource(): ?string
     {
         return $this->source;
     }
 
-    public function setSource(string $source): void
+    public function setSource(?string $source): void
     {
         $this->source = $source;
     }
+
 
 }
