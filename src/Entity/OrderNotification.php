@@ -11,6 +11,9 @@ use JMS\Serializer\Annotation as Serializer;
 #[ORM\Entity(repositoryClass: OrderNotificationRepository::class)]
 #[ORM\Table(name: "hmc_order_notifications")]
 #[ORM\Index(columns: ["created_at", "status"], name: "hmc_order_notifications_created_at_status_idx")]
+#[ORM\Index(columns: ["horeca_order_id", "type"], name: "hmc_order_notifications_type_idx")]
+#[ORM\Index(columns: ["service_order_id", "type"], name: "hmc_order_notifications_service_order_id_type_idx")]
+#[ORM\Index(columns: ["restaurant_id", "type"], name: "hmc_order_notifications_restaurant_id_type_idx")]
 #[ORM\Index(columns: ["horeca_order_id"], name: "hmc_order_notifications_horeca_order_id_idx")]
 class OrderNotification extends AbstractEntity
 {
@@ -20,6 +23,10 @@ class OrderNotification extends AbstractEntity
     const STATUS_CONFIRMED = 'confirmed';   // target system has confirmed the order
     const STATUS_FAILED = 'failed';         // an error occurred during processing of this order, at any step
 
+
+    const TYPE_NEW_ORDER = 'new-order';
+    const TYPE_ORDER_UPDATE = 'order-update';
+
     #[ORM\Column(name: "horeca_order_id", type: "string", length: 36, nullable: true)]
     private ?string $horecaOrderId;
 
@@ -28,6 +35,9 @@ class OrderNotification extends AbstractEntity
 
     #[ORM\Column(name: "status", type: "string", length: 50, nullable: false, options: ["default" => "received"])]
     private string $status;
+
+    #[ORM\Column(name: "status", type: "string", length: 50, nullable: false, options: ["default" => "order-update"])]
+    private string $type;
 
     #[ORM\Column(name: "restaurant_id", type: "string", length: 36, nullable: true)]
     private ?string $restaurantId;
@@ -257,6 +267,16 @@ class OrderNotification extends AbstractEntity
     public function setStatusEntries(ArrayCollection|Collection|array $statusEntries): void
     {
         $this->statusEntries = $statusEntries;
+    }
+
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): void
+    {
+        $this->type = $type;
     }
 
 }
