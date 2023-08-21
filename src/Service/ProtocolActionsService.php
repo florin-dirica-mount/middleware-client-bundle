@@ -27,6 +27,15 @@ class ProtocolActionsService
 
         $notification = $this->entityManager->find(OrderNotification::class, $orderNotificationId);
         try {
+            if(!$notification->getServicePayload() || $notification->getRestaurantId()){
+                $this->logger->warning('[handleExternalServiceOrderNotification] missing ServicePayload or RestaurantId. Action aborted for notification: ' . $notification->getId());
+
+                $notification->changeStatus(OrderNotification::STATUS_FAILED);
+                $notification->setErrorMessage('Missing ServicePayload. Action aborted');
+
+                $this->entityManager->flush();
+                return null;
+            }
 
             /** @var ProviderOrderInterface $order */
             $order = $this->deserializeJson($notification->getServicePayload(), $this->providerApi->getProviderOrderClass());
