@@ -27,9 +27,9 @@ class OrderStatusEntry extends AbstractEntity
         $this->createdAt = new \DateTime();
     }
 
-    public function toString(): string
+    public function __toString(): string
     {
-        return (string) $this->status;
+        return sprintf('%s - [%s]', $this->status, $this->createdAt->format('d-m-Y H:i:s'));
     }
 
     public function getStatus(): ?string
