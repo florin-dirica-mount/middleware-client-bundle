@@ -36,7 +36,7 @@ class OrderNotification extends AbstractEntity
     #[ORM\Column(name: "status", type: "string", length: 50, nullable: false, options: ["default" => "received"])]
     private string $status;
 
-    #[ORM\Column(name: "type", type: "string", length: 50, nullable: false, options: ["default" => "order-update"])]
+    #[ORM\Column(name: "type", type: "string", length: 50, nullable: false, options: ["default" => "new-order"])]
     private string $type;
 
     #[ORM\Column(name: "restaurant_id", type: "string", length: 36, nullable: true)]
