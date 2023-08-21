@@ -27,6 +27,9 @@ class OrderNotification extends AbstractEntity
     const TYPE_NEW_ORDER = 'new-order';
     const TYPE_ORDER_UPDATE = 'order-update';
 
+    const SOURCE_HORECA = 'horeca';
+    const SOURCE_EXTERNAL_SERVICE = 'external-service';
+
     #[ORM\Column(name: "horeca_order_id", type: "string", length: 36, nullable: true)]
     private ?string $horecaOrderId;
 
@@ -38,6 +41,9 @@ class OrderNotification extends AbstractEntity
 
     #[ORM\Column(name: "type", type: "string", length: 50, nullable: false, options: ["default" => "new-order"])]
     private string $type;
+
+    #[ORM\Column(name: "source", type: "string", length: 50, nullable: true)]
+    private string $source;
 
     #[ORM\Column(name: "restaurant_id", type: "string", length: 36, nullable: true)]
     private ?string $restaurantId;
@@ -277,6 +283,16 @@ class OrderNotification extends AbstractEntity
     public function setType(string $type): void
     {
         $this->type = $type;
+    }
+
+    public function getSource(): string
+    {
+        return $this->source;
+    }
+
+    public function setSource(string $source): void
+    {
+        $this->source = $source;
     }
 
 }
