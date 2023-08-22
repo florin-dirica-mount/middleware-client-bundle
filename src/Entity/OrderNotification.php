@@ -84,7 +84,7 @@ class OrderNotification extends AbstractEntity
 
     public function __toString()
     {
-        return sprintf('%s - %s', $this->horecaOrderId, $this->status);
+        return sprintf('%s - %s', $this->status, $this->horecaOrderId);
     }
 
     /**
