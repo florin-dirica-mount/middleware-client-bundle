@@ -71,6 +71,7 @@ class OrderNotification extends AbstractEntity
         "remove"
     ], fetch: "EXTRA_LAZY", orphanRemoval: true)]
     #[Serializer\Exclude]
+    #[ORM\OrderBy(["createdAt" => "ASC"])]
     /** @var array|Collection|ArrayCollection */
     private array|Collection|ArrayCollection $statusEntries;
 
