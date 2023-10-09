@@ -99,6 +99,7 @@ class HorecaApiController extends AbstractFOSRestController
 
         if (!$this->entityManager->getRepository(OrderNotification::class)->findOneByHorecaOrderId($body->cart->getId())) {
             $order = new OrderNotification();
+            $order->setType(OrderNotification::TYPE_NEW_ORDER);
             $order->setHorecaOrderId($body->cart->getId());
             $order->setHorecaPayload($this->serializeJson($body->cart));
             $order->setServiceCredentials($this->serializeJson($body->providerCredentials));
