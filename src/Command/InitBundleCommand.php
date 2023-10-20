@@ -14,6 +14,7 @@ class InitBundleCommand extends Command
     private ?string $orderNotificationTransport;
     private ?string $providerApiClass;
     private string  $projectDir;
+    private string $tenantCredentialsClass;
 
     public function __construct(ContainerInterface $container)
     {
@@ -21,10 +22,11 @@ class InitBundleCommand extends Command
 
         $this->orderNotificationTransport = (string) $container->getParameter('horeca.order_notification_messenger_transport') ?: 'hmc_order_notification';
         $this->providerApiClass = (string) $container->getParameter('horeca.provider_api_class');
+        $this->tenantCredentialsClass = (string) $container->getParameter('horeca.tenant_credentials_class');
         $this->projectDir = (string) $container->getParameter('kernel.project_dir');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $output->writeln('Check if provider api class exists...');
         if (!class_exists($this->providerApiClass)) {
@@ -32,12 +34,13 @@ class InitBundleCommand extends Command
 
             $this->generateProviderOrderClassFromTemplate('App\\VO\\ProviderOrder');
             $this->generateProviderApiClassFromTemplate($this->providerApiClass);
+            $this->generateTenantCredentialsClassFromTemplate($this->tenantCredentialsClass);
         }
 
         return 0;
     }
 
-    private function generateProviderOrderClassFromTemplate(string $fqcn)
+    private function generateProviderOrderClassFromTemplate(string $fqcn): void
     {
         $namespace = $this->getNamespaceFromFqcn($fqcn);
         $className = $this->getClassNameFromFqcn($fqcn);
@@ -58,7 +61,7 @@ class $className implements ProviderOrderInterface
         $this->writeFile($filePath, $tpl);
     }
 
-    private function generateProviderCredentialsClassFromTemplate(string $fqcn)
+    private function generateProviderCredentialsClassFromTemplate(string $fqcn): void
     {
         $namespace = $this->getNamespaceFromFqcn($fqcn);
         $className = $this->getClassNameFromFqcn($fqcn);
@@ -79,7 +82,7 @@ class $className implements ProviderCredentialsInterface
         $this->writeFile($filePath, $tpl);
     }
 
-    private function generateProviderApiClassFromTemplate(string $providerApiClass)
+    private function generateProviderApiClassFromTemplate(string $providerApiClass): void
     {
         $namespace = $this->getNamespaceFromFqcn($providerApiClass);
         $className = $this->getClassNameFromFqcn($providerApiClass);
@@ -124,6 +127,31 @@ class $className implements ProviderApiInterface
         ";
 
         $filePath = $this->getFilePathFromFqcn($providerApiClass);
+
+        $this->writeFile($filePath, $tpl);
+    }
+
+    private function generateTenantCredentialsClassFromTemplate(?string $tenantCredentialsClassName): void
+    {
+        $namespace = $this->getNamespaceFromFqcn($tenantCredentialsClassName);
+        $className = $this->getClassNameFromFqcn($tenantCredentialsClassName);
+
+        $tpl =
+            "<?php
+
+namespace $namespace;
+
+use Doctrine\ORM\Mapping as ORM;
+use Horeca\MiddlewareClientBundle\Entity\BaseTenantCredentials;
+
+#[ORM\Entity(repositoryClass: \"App\Repository\TenantCredentialsRepository\")]
+class $className extends BaseTenantCredentials
+{
+    // add your custom fields here
+}
+        ";
+
+        $filePath = $this->getFilePathFromFqcn($tenantCredentialsClassName);
 
         $this->writeFile($filePath, $tpl);
     }

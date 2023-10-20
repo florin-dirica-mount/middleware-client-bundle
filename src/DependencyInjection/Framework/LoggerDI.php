@@ -11,7 +11,7 @@ trait LoggerDI
     /**
      * @required
      */
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
     }

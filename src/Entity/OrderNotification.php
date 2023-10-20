@@ -23,12 +23,16 @@ class OrderNotification extends AbstractEntity
     const STATUS_CONFIRMED = 'confirmed';   // target system has confirmed the order
     const STATUS_FAILED = 'failed';         // an error occurred during processing of this order, at any step
 
-
     const TYPE_NEW_ORDER = 'new-order';
     const TYPE_ORDER_UPDATE = 'order-update';
 
     const SOURCE_HORECA = 'horeca';
     const SOURCE_EXTERNAL_SERVICE = 'external-service';
+
+    #[ORM\ManyToOne(targetEntity: Tenant::class, cascade: ["persist"])]
+    #[ORM\JoinColumn(name: "tenant_id", referencedColumnName: "id", nullable: true, onDelete: "CASCADE")]
+    #[Serializer\Exclude]
+    private ?Tenant $tenant = null;
 
     #[ORM\Column(name: "horeca_order_id", type: "string", length: 36, nullable: true)]
     private ?string $horecaOrderId;
@@ -66,18 +70,21 @@ class OrderNotification extends AbstractEntity
     #[ORM\Column(name: "notified_at", type: "datetime", nullable: true)]
     private ?\DateTime $notifiedAt = null;
 
+    /**
+     * @var Collection<int, OrderStatusEntry>|OrderStatusEntry[]
+     */
     #[ORM\OneToMany(mappedBy: "order", targetEntity: OrderStatusEntry::class, cascade: [
         "persist",
         "remove"
     ], fetch: "EXTRA_LAZY", orphanRemoval: true)]
     #[Serializer\Exclude]
     #[ORM\OrderBy(["createdAt" => "ASC"])]
-    /** @var array|Collection|ArrayCollection */
-    private array|Collection|ArrayCollection $statusEntries;
+    private Collection|array $statusEntries;
 
     public function __construct()
     {
         parent::__construct();
+
         $this->statusEntries = new ArrayCollection();
         $this->changeStatus(OrderNotification::STATUS_RECEIVED);
     }
@@ -261,17 +268,17 @@ class OrderNotification extends AbstractEntity
     }
 
     /**
-     * @return array|ArrayCollection|Collection
+     * @return Collection<int, OrderStatusEntry>|OrderStatusEntry[]
      */
-    public function getStatusEntries(): ArrayCollection|Collection|array
+    public function getStatusEntries(): Collection|array
     {
         return $this->statusEntries;
     }
 
     /**
-     * @param array|ArrayCollection|Collection $statusEntries
+     * @param Collection<int, OrderStatusEntry>|OrderStatusEntry[] $statusEntries
      */
-    public function setStatusEntries(ArrayCollection|Collection|array $statusEntries): void
+    public function setStatusEntries(Collection|array $statusEntries): void
     {
         $this->statusEntries = $statusEntries;
     }
@@ -294,6 +301,16 @@ class OrderNotification extends AbstractEntity
     public function setSource(?string $source): void
     {
         $this->source = $source;
+    }
+
+    public function getTenant(): ?Tenant
+    {
+        return $this->tenant;
+    }
+
+    public function setTenant(?Tenant $tenant): void
+    {
+        $this->tenant = $tenant;
     }
 
 

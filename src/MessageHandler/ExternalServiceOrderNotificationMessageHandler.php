@@ -7,8 +7,10 @@ use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\LoggerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\SerializerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProtocolActionsServiceDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProviderApiDI;
+use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Message\OrderNotificationMessage;
 use Horeca\MiddlewareCommonLib\DependencyInjection\HorecaApiServiceDI;
+use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
 class ExternalServiceOrderNotificationMessageHandler implements MessageSubscriberInterface
@@ -38,9 +40,22 @@ class ExternalServiceOrderNotificationMessageHandler implements MessageSubscribe
         ];
     }
 
-    public function handleExternalServiceOrderNotificationMessage(OrderNotificationMessage $message)
+    public function handleExternalServiceOrderNotificationMessage(OrderNotificationMessage $message): void
     {
-        $this->protocolActionsService->handleExternalServiceOrderNotification($message->getOrderNotificationId());
+        $notification = $this->entityManager->find(OrderNotification::class, $message->getOrderNotificationId());
 
+        try {
+            $this->protocolActionsService->handleExternalServiceOrderNotification($notification);
+        } catch (\Exception $e) {
+            $this->logger->error('[handleExternalServiceOrderNotification] Exception: ' . $e->getMessage());
+            $this->logger->error('[handleExternalServiceOrderNotification] Exception: ' . $e->getTraceAsString());
+
+            $notification->changeStatus(OrderNotification::STATUS_FAILED);
+            $notification->setErrorMessage($e->getMessage());
+
+            $this->entityManager->flush();
+
+            throw new UnrecoverableMessageHandlingException($e->getMessage());
+        }
     }
 }

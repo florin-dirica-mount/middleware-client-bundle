@@ -4,6 +4,7 @@ namespace Horeca\MiddlewareClientBundle\DependencyInjection;
 
 use Horeca\MiddlewareClientBundle\Repository\Log\RequestLogRepository;
 use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
+use Horeca\MiddlewareClientBundle\Repository\TenantRepository;
 use Horeca\MiddlewareClientBundle\Repository\UserRepository;
 use Horeca\MiddlewareClientBundle\Service\ProtocolActionsService;
 use Horeca\MiddlewareClientBundle\Service\ProviderApiInterface;
@@ -19,7 +20,7 @@ class HorecaMiddlewareClientExtension extends Extension
     /**
      * @throws \Exception
      */
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container): void
     {
         $loader = new YamlFileLoader(
             $container,
@@ -34,7 +35,7 @@ class HorecaMiddlewareClientExtension extends Extension
         return 'horeca_middleware_client';
     }
 
-    private function defineRepositoryService(ContainerBuilder $container, $repositoryClass)
+    private function defineRepositoryService(ContainerBuilder $container, $repositoryClass): void
     {
         $definition = new Definition($repositoryClass);
         $definition->setAutowired(true);
@@ -53,6 +54,7 @@ class HorecaMiddlewareClientExtension extends Extension
 
         $container->setParameter('horeca.order_notification_messenger_transport', $config['order_notification_messenger_transport']);
         $container->setParameter('horeca.provider_api_class', $config['provider_api_class']);
+        $container->setParameter('horeca.tenant_credentials_class', $config['tenant_credentials_class']);
 
         // add provider service definition
         $providerDefinition = new Definition($config['provider_api_class']);
@@ -70,6 +72,7 @@ class HorecaMiddlewareClientExtension extends Extension
         $this->defineRepositoryService($container, RequestLogRepository::class);
         $this->defineRepositoryService($container, OrderNotificationRepository::class);
         $this->defineRepositoryService($container, UserRepository::class);
+        $this->defineRepositoryService($container, TenantRepository::class);
     }
 
 }

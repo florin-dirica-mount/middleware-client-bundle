@@ -8,7 +8,7 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 class Configuration implements ConfigurationInterface
 {
 
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('horeca_middleware_client');
         $rootNode = $treeBuilder->getRootNode();
@@ -18,6 +18,10 @@ class Configuration implements ConfigurationInterface
 
                 ->scalarNode('provider_api_class')
                     ->defaultValue('App\Service\ProviderApi')
+                ->end()
+
+                ->scalarNode('tenant_credentials_class')
+                    ->defaultValue('App\Entity\TenantCredentials')
                 ->end()
 
                 ->scalarNode('order_notification_messenger_transport')
