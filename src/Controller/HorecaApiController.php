@@ -46,7 +46,7 @@ class HorecaApiController extends AbstractFOSRestController
 
         try {
             if (!$body->providerCredentials && $tenant) {
-                $credentialsClass = $this->getParameter('horeca.tenant_credentials_class');
+                $credentialsClass = $this->getParameter('horeca.provider_credentials_class');
                 $credentials = $this->tenantRepository->findTenantCredentials($tenant, $credentialsClass);
             } elseif ($body->providerCredentials) {
                 $serviceCredentials = $this->serializeJson($body->providerCredentials);
@@ -142,7 +142,7 @@ class HorecaApiController extends AbstractFOSRestController
 
         try {
             if (!$body->providerCredentials && $tenant) {
-                $credentialsClass = $this->getParameter('horeca.tenant_credentials_class');
+                $credentialsClass = $this->getParameter('horeca.provider_credentials_class');
                 $credentials = $this->tenantRepository->findTenantCredentials($tenant, $credentialsClass);
             } elseif ($body->providerCredentials) {
                 $credentials = $this->deserializeJson($this->serializeJson($body->providerCredentials), $this->providerApi->getProviderCredentialsClass());

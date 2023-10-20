@@ -54,11 +54,11 @@ HORECA_ENABLE_REQUEST_EXCEPTION_LOGGING="Any request exception will be logged to
 ```yaml
 horeca_middleware_client:
     provider_api_class: App\Service\ProviderApi
-    tenant_credentials_class: App\Entity\TenantCredentials # this entity must extend Horeca\MiddlewareClientBundle\Entity\BaseTenantCredentials
+    provider_credentials_class: App\Entity\ProviderCredentials # this entity must extend Horeca\MiddlewareClientBundle\Entity\BaseProviderCredentials
     order_notification_messenger_transport: hmc_order_notification
 ```
 
-- Create entity for tenant credentials at `App\Entity\TenantCredentials`
+- Create entity for tenant provider credentials at `App\Entity\ProviderCredentials`
 
 ```php
 <?php
@@ -66,10 +66,10 @@ horeca_middleware_client:
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Horeca\MiddlewareClientBundle\Entity\BaseTenantCredentials;
+use Horeca\MiddlewareClientBundle\Entity\BaseProviderCredentials;
 
 #[ORM\Entity(repositoryClass: "App\Repository\TenantCredentialsRepository")]
-class TenantCredentials extends BaseTenantCredentials
+class TenantCredentials extends BaseProviderCredentials
 {
     // add your custom fields here
 }

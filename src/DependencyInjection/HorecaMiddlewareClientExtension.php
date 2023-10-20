@@ -54,7 +54,7 @@ class HorecaMiddlewareClientExtension extends Extension
 
         $container->setParameter('horeca.order_notification_messenger_transport', $config['order_notification_messenger_transport']);
         $container->setParameter('horeca.provider_api_class', $config['provider_api_class']);
-        $container->setParameter('horeca.tenant_credentials_class', $config['tenant_credentials_class']);
+        $container->setParameter('horeca.provider_credentials_class', $config['provider_credentials_class']);
 
         // add provider service definition
         $providerDefinition = new Definition($config['provider_api_class']);

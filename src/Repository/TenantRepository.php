@@ -2,7 +2,7 @@
 
 namespace Horeca\MiddlewareClientBundle\Repository;
 
-use Horeca\MiddlewareClientBundle\Entity\BaseTenantCredentials;
+use Horeca\MiddlewareClientBundle\Entity\BaseProviderCredentials;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
 
 /**
@@ -22,13 +22,13 @@ class TenantRepository extends ExtendedEntityRepository
     /**
      * @throws \Exception
      */
-    public function findTenantCredentials(Tenant $tenant, string $credentialsClass): ?BaseTenantCredentials
+    public function findTenantCredentials(Tenant $tenant, string $credentialsClass): ?BaseProviderCredentials
     {
         if (!class_exists($credentialsClass)) {
             throw new \Exception(sprintf('Class %s does not exist', $credentialsClass));
         }
-        if (!is_subclass_of($credentialsClass, BaseTenantCredentials::class)) {
-            throw new \Exception(sprintf('Class %s is not a subclass of %s', $credentialsClass, BaseTenantCredentials::class));
+        if (!is_subclass_of($credentialsClass, BaseProviderCredentials::class)) {
+            throw new \Exception(sprintf('Class %s is not a subclass of %s', $credentialsClass, BaseProviderCredentials::class));
         }
 
         $repo = $this->getEntityManager()->getRepository($credentialsClass);

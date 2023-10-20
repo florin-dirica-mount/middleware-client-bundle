@@ -14,7 +14,7 @@ class InitBundleCommand extends Command
     private ?string $orderNotificationTransport;
     private ?string $providerApiClass;
     private string  $projectDir;
-    private string $tenantCredentialsClass;
+    private string $providerCredentialsClass;
 
     public function __construct(ContainerInterface $container)
     {
@@ -22,7 +22,7 @@ class InitBundleCommand extends Command
 
         $this->orderNotificationTransport = (string) $container->getParameter('horeca.order_notification_messenger_transport') ?: 'hmc_order_notification';
         $this->providerApiClass = (string) $container->getParameter('horeca.provider_api_class');
-        $this->tenantCredentialsClass = (string) $container->getParameter('horeca.tenant_credentials_class');
+        $this->providerCredentialsClass = (string) $container->getParameter('horeca.provider_credentials_class');
         $this->projectDir = (string) $container->getParameter('kernel.project_dir');
     }
 
@@ -34,7 +34,7 @@ class InitBundleCommand extends Command
 
             $this->generateProviderOrderClassFromTemplate('App\\VO\\ProviderOrder');
             $this->generateProviderApiClassFromTemplate($this->providerApiClass);
-            $this->generateTenantCredentialsClassFromTemplate($this->tenantCredentialsClass);
+            $this->generateTenantCredentialsClassFromTemplate($this->providerCredentialsClass);
         }
 
         return 0;
@@ -142,10 +142,10 @@ class $className implements ProviderApiInterface
 namespace $namespace;
 
 use Doctrine\ORM\Mapping as ORM;
-use Horeca\MiddlewareClientBundle\Entity\BaseTenantCredentials;
+use Horeca\MiddlewareClientBundle\Entity\BaseProviderCredentials;
 
 #[ORM\Entity(repositoryClass: \"App\Repository\TenantCredentialsRepository\")]
-class $className extends BaseTenantCredentials
+class $className extends BaseProviderCredentials
 {
     // add your custom fields here
 }

@@ -25,11 +25,11 @@ class ProtocolActionsService
     use LoggerDI;
     use TenantRepositoryDI;
 
-    private string $tenantCredentialsClass;
+    private string $providerCredentialsClass;
 
     public function __construct(ContainerInterface $container)
     {
-        $this->tenantCredentialsClass = (string) $container->getParameter('horeca.tenant_credentials_class');
+        $this->providerCredentialsClass = (string) $container->getParameter('horeca.provider_credentials_class');
     }
 
     public function handleExternalServiceOrderNotification(OrderNotification $notification): ?SendShoppingCartResponse
@@ -73,7 +73,7 @@ class ProtocolActionsService
         $this->logger->info('[handleOrderNotificationMessage] CartId: ' . $cart->getId());
 
         if ($notification->getTenant() && !$notification->getServiceCredentials()) {
-            $credentials = $this->tenantRepository->findTenantCredentials($notification->getTenant(), $this->tenantCredentialsClass);
+            $credentials = $this->tenantRepository->findTenantCredentials($notification->getTenant(), $this->providerCredentialsClass);
         } elseif ($notification->getServiceCredentials()) {
             /** @var ProviderCredentialsInterface $credentials */
             $credentials = $this->deserializeJson($notification->getServiceCredentials(), $this->providerApi->getProviderCredentialsClass());

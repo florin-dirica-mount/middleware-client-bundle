@@ -20,8 +20,8 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue('App\Service\ProviderApi')
                 ->end()
 
-                ->scalarNode('tenant_credentials_class')
-                    ->defaultValue('App\Entity\TenantCredentials')
+                ->scalarNode('provider_credentials_class')
+                    ->defaultValue('App\Entity\ProviderCredentials')
                 ->end()
 
                 ->scalarNode('order_notification_messenger_transport')
