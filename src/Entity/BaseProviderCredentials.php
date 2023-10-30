@@ -17,10 +17,16 @@ abstract class BaseProviderCredentials implements ProviderCredentialsInterface
     #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
     protected $id = null;
 
-    #[ORM\OneToOne(targetEntity: Tenant::class, cascade: ['persist'])]
+    #[ORM\ManyToOne(targetEntity: Tenant::class, cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'tenant_id', referencedColumnName: 'id', unique: true, nullable: false, onDelete: 'CASCADE')]
     #[Exclude]
     private Tenant $tenant;
+
+    #[ORM\Column(name: 'name', type: 'string', nullable: false)]
+    protected ?string $name = null;
+
+    #[ORM\Column(name: 'active', type: 'boolean', options: ['default' => 1])]
+    protected bool $active = true;
 
     #[ORM\Column(name: "created_at", type: "datetime", nullable: false, options: ["default" => "CURRENT_TIMESTAMP"])]
     protected \DateTime $createdAt;
@@ -63,6 +69,26 @@ abstract class BaseProviderCredentials implements ProviderCredentialsInterface
     public function setTenant(Tenant $tenant): void
     {
         $this->tenant = $tenant;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): void
+    {
+        $this->active = $active;
     }
 
 }
