@@ -33,6 +33,9 @@ class TenantRepository extends ExtendedEntityRepository
 
         $repo = $this->getEntityManager()->getRepository($credentialsClass);
 
-        return $repo->findOneBy(['tenant' => $tenant]);
+        return $repo->findOneBy([
+            'tenant' => $tenant,
+            'active' => true
+        ]);
     }
 }

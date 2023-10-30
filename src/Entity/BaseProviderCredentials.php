@@ -18,11 +18,11 @@ abstract class BaseProviderCredentials implements ProviderCredentialsInterface
     protected $id = null;
 
     #[ORM\ManyToOne(targetEntity: Tenant::class, cascade: ['persist'])]
-    #[ORM\JoinColumn(name: 'tenant_id', referencedColumnName: 'id', unique: true, nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'tenant_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     #[Exclude]
     private Tenant $tenant;
 
-    #[ORM\Column(name: 'name', type: 'string', nullable: false)]
+    #[ORM\Column(name: 'name', type: 'string', nullable: true)]
     protected ?string $name = null;
 
     #[ORM\Column(name: 'active', type: 'boolean', options: ['default' => 1])]
