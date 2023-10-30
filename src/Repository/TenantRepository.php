@@ -16,7 +16,10 @@ class TenantRepository extends ExtendedEntityRepository
 
     public function findOneByApiKey(string $key): ?Tenant
     {
-        return $this->findOneBy(['apiKey' => $key]);
+        return $this->findOneBy([
+            'apiKey' => $key,
+            'active' => true
+        ]);
     }
 
     /**
