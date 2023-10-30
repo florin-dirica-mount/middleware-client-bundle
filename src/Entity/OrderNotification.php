@@ -86,7 +86,8 @@ class OrderNotification extends AbstractEntity
         parent::__construct();
 
         $this->statusEntries = new ArrayCollection();
-        $this->changeStatus(OrderNotification::STATUS_RECEIVED);
+        $this->type = self::TYPE_NEW_ORDER;
+        $this->changeStatus(self::STATUS_RECEIVED);
     }
 
     public function __toString()
