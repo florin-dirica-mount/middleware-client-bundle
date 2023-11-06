@@ -170,24 +170,40 @@ class HorecaApiController extends AbstractFOSRestController
     {
         $routeName = $request->attributes->get('_route');
 
-        if (!$apiKeyHeader = $request->headers->get('Api-Key')) {
-            $this->logger->warning("[$routeName] ERROR: Missing api key");
+        $auth = $request->headers->get('Authorization');
+        if (!$auth) {
+            $auth = $request->headers->get('Api-Key');
+        }
+
+        if (!$auth) {
+            $this->logger->warning("[$routeName] ERROR: Missing authorization/api key");
 
             throw new AccessDeniedException();
         }
 
-        if (!$horecaApiKey = $this->getParameter('horeca.shared_key')) {
-            $this->logger->critical("[$routeName] ERROR: Invalid service configuration!");
+        switch ($auth) {
+            case str_starts_with($auth, 'Basic '):
+                $base64Credentials = substr($auth, 6);
 
-            throw new \RuntimeException("Invalid service configuration!");
+                $credentials = base64_decode($base64Credentials);
+
+                list($id, $api_key) = explode(':', $credentials);
+                $tenant = $this->tenantRepository->findOneByApiKeyAndId((string)$api_key, (string)$id);
+                if (!$tenant) {
+                    $this->logger->warning("[$routeName] ERROR: Invalid id/api key");
+
+                    throw new AccessDeniedException();
+                }
+                break;
+            default:
+                $tenant = $this->tenantRepository->findOneByApiKey((string)$auth);
+                if (!$tenant) {
+                    $this->logger->warning("[$routeName] ERROR: Invalid api key");
+
+                    throw new AccessDeniedException();
+                }
         }
 
-        if ($apiKeyHeader !== $horecaApiKey) {
-            $this->logger->warning("[$routeName] ERROR: Invalid api key");
-
-            throw new AccessDeniedException();
-        }
-
-        return $this->tenantRepository->findOneByApiKey((string) $apiKeyHeader);
+        return $tenant;
     }
 }
