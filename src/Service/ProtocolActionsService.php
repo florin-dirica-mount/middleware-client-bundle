@@ -7,6 +7,7 @@ use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\LoggerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\SerializerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\TenantRepositoryDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProviderApiDI;
+use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantApiServiceDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\VO\Provider\BaseProviderOrderResponse;
 use Horeca\MiddlewareClientBundle\VO\Provider\ProviderCredentialsInterface;
@@ -24,6 +25,7 @@ class ProtocolActionsService
     use SerializerDI;
     use LoggerDI;
     use TenantRepositoryDI;
+    use TenantApiServiceDI;
 
     private string $providerCredentialsClass;
 
@@ -97,7 +99,7 @@ class ProtocolActionsService
 
         $this->entityManager->flush();
 
-        $this->horecaApiService->confirmProviderNotified($cart);
+        $this->tenantApiService->confirmProviderNotified($notification);
 
         return $response;
     }
