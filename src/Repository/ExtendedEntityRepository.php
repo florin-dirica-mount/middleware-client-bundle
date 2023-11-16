@@ -2,32 +2,29 @@
 namespace Horeca\MiddlewareClientBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
-use Exception;
-use function get_class;
-use function str_replace;
 
 abstract class ExtendedEntityRepository extends ServiceEntityRepository
 {
 
     public function __construct(ManagerRegistry $registry, string $entityClass = null)
     {
-        if (class_exists($entityClass)) {
+        if ($entityClass) {
             parent::__construct($registry, $entityClass);
         } else {
             parent::__construct($registry, $this->getEntityNameFromRepositoryName());
         }
     }
 
-    public function getEntityNameFromRepositoryName()
+    public function getEntityNameFromRepositoryName(): string
     {
-        $class = get_class($this);
-        return str_replace(['Horeca\\MiddlewareClientBundle\\Repository\\', 'Repository'], ['Horeca\\MiddlewareClientBundle\\Entity\\', ''], $class);
+        $class = \get_class($this);
+        return (string) \str_replace(['Horeca\\MiddlewareClientBundle\\Repository\\', 'Repository'], ['Horeca\\MiddlewareClientBundle\\Entity\\', ''], $class);
     }
 
     /**
@@ -58,7 +55,7 @@ abstract class ExtendedEntityRepository extends ServiceEntityRepository
      * @param int $limit The maximum number of results to return
      * @param int $offset The offset to start from when returning results
      * @return array
-     * @throws Exception
+     * @throws \Exception
      */
     protected function getAll($query, $params = [], $limit = 0, $offset = 0)
     {
@@ -71,24 +68,18 @@ abstract class ExtendedEntityRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param string $sql
-     * @param array $params
-     * @return mixed
-     * @throws \Doctrine\DBAL\Exception
+     * @throws \Exception
      */
-    public function fetchOne(string $sql, array $params = [])
+    public function fetchOne(string $sql, array $params = []): mixed
     {
-        $stmt = $this->getEntityManager()->getConnection()->prepare($sql);
-        $stmt->execute($params);
-
-        return $stmt->fetch();
+        return $this->getEntityManager()
+            ->getConnection()
+            ->executeQuery($sql, $params)
+            ->fetchAssociative();
     }
 
     /**
-     * @param string $sql
-     * @param array $params
-     * @return false|mixed
-     * @throws \Doctrine\DBAL\Exception
+     * @throws \Exception
      */
     public function fetchOneAsValue(string $sql, array $params = [])
     {
@@ -101,24 +92,18 @@ abstract class ExtendedEntityRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param string $sql
-     * @param array $params
-     * @return array
-     * @throws \Doctrine\DBAL\Exception
+     * @throws \Exception
      */
-    public function fetchAll(string $sql, array $params = [])
+    public function fetchAll(string $sql, array $params = []): array
     {
-        $stmt = $this->getEntityManager()->getConnection()->prepare($sql);
-        $stmt->execute($params);
-
-        return $stmt->fetchAll();
+        return $this->getEntityManager()
+            ->getConnection()
+            ->executeQuery($sql, $params)
+            ->fetchAssociative();
     }
 
     /**
-     * @param string $sql
-     * @param array $params
-     * @return int
-     * @throws Exception
+     * @throws \Exception
      */
     public function executeSql(string $sql, array $params = []): int
     {
@@ -132,7 +117,7 @@ abstract class ExtendedEntityRepository extends ServiceEntityRepository
      * @param $object
      * @throws ORMException
      */
-    public function persist($object)
+    public function persist($object): void
     {
         $this->getEntityManager()->persist($object);
     }
@@ -142,7 +127,7 @@ abstract class ExtendedEntityRepository extends ServiceEntityRepository
      * @param $object
      * @throws ORMException
      */
-    public function remove($object)
+    public function remove($object): void
     {
         $this->getEntityManager()->remove($object);
     }
@@ -152,7 +137,7 @@ abstract class ExtendedEntityRepository extends ServiceEntityRepository
      * @param $object
      * @throws ORMException
      */
-    public function refresh($object)
+    public function refresh($object): void
     {
         $this->getEntityManager()->refresh($object);
     }
@@ -160,26 +145,17 @@ abstract class ExtendedEntityRepository extends ServiceEntityRepository
     /**
      * Detach the object from the entity manager
      * @param $object
-     * @throws Exception
+     * @throws \Exception
      */
-    public function detach($object)
+    public function detach($object): void
     {
         $this->getEntityManager()->detach($object);
     }
 
     /**
-     * Flush one object or all objects from the entity manager to the database
-     * @param $object
-     */
-    public function flush($object = null)
-    {
-        $this->getEntityManager()->flush($object);
-    }
-
-    /**
      * Start a database transaction
      */
-    public function begin()
+    public function begin(): void
     {
         $this->getEntityManager()->getConnection()->beginTransaction();
     }
@@ -187,7 +163,7 @@ abstract class ExtendedEntityRepository extends ServiceEntityRepository
     /**
      * Commit the database transaction
      */
-    public function commit()
+    public function commit(): void
     {
         $this->getEntityManager()->getConnection()->commit();
     }
@@ -195,16 +171,15 @@ abstract class ExtendedEntityRepository extends ServiceEntityRepository
     /**
      * Rollback the database transaction
      */
-    public function rollback()
+    public function rollback(): void
     {
         $this->getEntityManager()->getConnection()->rollback();
     }
 
     /**
-     * @return EntityManager
-     * @throws Exception
+     * @throws \Exception
      */
-    public function getEntityManager()
+    public function getEntityManager(): EntityManagerInterface
     {
         return $this->_em;
     }
@@ -214,7 +189,7 @@ abstract class ExtendedEntityRepository extends ServiceEntityRepository
      * @param array $arr
      * @return string
      */
-    protected function sql_and_in(string $column, array $arr)
+    protected function sql_and_in(string $column, array $arr): string
     {
         $values = array_map(function ($val) {
             if (is_int($val)) {
@@ -232,7 +207,7 @@ abstract class ExtendedEntityRepository extends ServiceEntityRepository
      * @param array $values
      * @return string
      */
-    public function sql_in(string $column, string $inclusion, array $values)
+    public function sql_in(string $column, string $inclusion, array $values): string
     {
         $values = array_map(function ($val) {
             if (is_int($val)) {
@@ -252,7 +227,7 @@ abstract class ExtendedEntityRepository extends ServiceEntityRepository
      * @param array $values
      * @return string
      */
-    protected function sql_build_json_contains(string $column, array $values)
+    protected function sql_build_json_contains(string $column, array $values): string
     {
         $parts = [];
         foreach ($values as $value) {

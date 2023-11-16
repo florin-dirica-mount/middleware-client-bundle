@@ -2,6 +2,7 @@
 
 namespace Horeca\MiddlewareClientBundle\Repository;
 
+use Doctrine\Persistence\ManagerRegistry;
 use Horeca\MiddlewareClientBundle\Entity\BaseProviderCredentials;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
 
@@ -13,6 +14,11 @@ use Horeca\MiddlewareClientBundle\Entity\Tenant;
  */
 class TenantRepository extends ExtendedEntityRepository
 {
+
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, Tenant::class);
+    }
 
     public function findOneByApiKey(string $key): ?Tenant
     {
