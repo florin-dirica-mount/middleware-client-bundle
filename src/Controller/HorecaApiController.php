@@ -45,14 +45,12 @@ class HorecaApiController extends AbstractFOSRestController
         $tenant = $this->authorizeTenant($request);
 
         try {
-            if (!$body->providerCredentials && $tenant) {
+            if (!$body->providerCredentials) {
                 $credentialsClass = $this->getParameter('horeca.provider_credentials_class');
                 $credentials = $this->tenantRepository->findTenantCredentials($tenant, $credentialsClass);
-            } elseif ($body->providerCredentials) {
+            } else {
                 $serviceCredentials = $this->serializeJson($body->providerCredentials);
                 $credentials = $this->deserializeJson($serviceCredentials, $this->providerApi->getProviderCredentialsClass());
-            } else {
-                throw new BadRequestException('Missing parameters: service_credentials!');
             }
 
             $errors = $this->validator->validate($body->form);
@@ -141,14 +139,11 @@ class HorecaApiController extends AbstractFOSRestController
         $tenant = $this->authorizeTenant($request);
 
         try {
-            if (!$body->providerCredentials && $tenant) {
+            if (!$body->providerCredentials) {
                 $credentialsClass = $this->getParameter('horeca.provider_credentials_class');
                 $credentials = $this->tenantRepository->findTenantCredentials($tenant, $credentialsClass);
-            } elseif ($body->providerCredentials) {
-                $credentials = $this->deserializeJson($this->serializeJson($body->providerCredentials), $this->providerApi->getProviderCredentialsClass());
             } else {
-                $this->logger->warning("[$routeName] ERROR: Missing parameters");
-                throw new BadRequestException('Missing parameters:  service_credentials!');
+                $credentials = $this->deserializeJson($this->serializeJson($body->providerCredentials), $this->providerApi->getProviderCredentialsClass());
             }
 
             if (!$this->providerApi->initializeShop($body->horecaExternalServiceId, $credentials)) {
@@ -166,42 +161,21 @@ class HorecaApiController extends AbstractFOSRestController
     /**
      * @throws AccessDeniedException
      */
-    protected function authorizeTenant(Request $request): ?Tenant
+    protected function authorizeTenant(Request $request): Tenant
     {
-        $routeName = $request->attributes->get('_route');
+        if ($auth = $request->headers->get('Authorization')) {
+            $credentials = base64_decode(substr($auth, 6));
+            list($id, $apiKey) = explode(':', $credentials);
 
-        $auth = $request->headers->get('Authorization');
-        if (!$auth) {
-            $auth = $request->headers->get('Api-Key');
+            $tenant = $this->tenantRepository->findOneByApiKeyAndId($apiKey, $id);
+        } elseif ($auth = $request->headers->get('Api-Key')) {
+            $tenant = $this->tenantRepository->findOneByApiKey((string) $auth);
+        } else {
+            $tenant = null;
         }
 
-        if (!$auth) {
-            $this->logger->warning("[$routeName] ERROR: Missing authorization/api key");
-
+        if (!$tenant) {
             throw new AccessDeniedException();
-        }
-
-        switch ($auth) {
-            case str_starts_with($auth, 'Basic '):
-                $base64Credentials = substr($auth, 6);
-
-                $credentials = base64_decode($base64Credentials);
-
-                list($id, $api_key) = explode(':', $credentials);
-                $tenant = $this->tenantRepository->findOneByApiKeyAndId((string)$api_key, (string)$id);
-                if (!$tenant) {
-                    $this->logger->warning("[$routeName] ERROR: Invalid id/api key");
-
-                    throw new AccessDeniedException();
-                }
-                break;
-            default:
-                $tenant = $this->tenantRepository->findOneByApiKey((string)$auth);
-                if (!$tenant) {
-                    $this->logger->warning("[$routeName] ERROR: Invalid api key");
-
-                    throw new AccessDeniedException();
-                }
         }
 
         return $tenant;
