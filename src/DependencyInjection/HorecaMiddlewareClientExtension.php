@@ -2,7 +2,6 @@
 
 namespace Horeca\MiddlewareClientBundle\DependencyInjection;
 
-use Horeca\MiddlewareClientBundle\Repository\Log\RequestLogRepository;
 use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
 use Horeca\MiddlewareClientBundle\Repository\TenantRepository;
 use Horeca\MiddlewareClientBundle\Repository\UserRepository;
@@ -69,7 +68,6 @@ class HorecaMiddlewareClientExtension extends Extension
         $container->setDefinition(ProtocolActionsService::class, $providerDefinition);
 
         // add repository services definition
-        $this->defineRepositoryService($container, RequestLogRepository::class);
         $this->defineRepositoryService($container, OrderNotificationRepository::class);
         $this->defineRepositoryService($container, UserRepository::class);
         $this->defineRepositoryService($container, TenantRepository::class);

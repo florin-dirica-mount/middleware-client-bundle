@@ -11,6 +11,8 @@ class InitBundleCommand extends Command
 {
     protected static $defaultName = 'horeca:middleware-client:init';
 
+    // TODO: generate admin & fix provider class generation
+
     private ?string $orderNotificationTransport;
     private ?string $providerApiClass;
     private string  $projectDir;

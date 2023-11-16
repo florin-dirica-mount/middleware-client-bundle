@@ -4,185 +4,126 @@ namespace Horeca\MiddlewareClientBundle\Entity\Log;
 
 use Doctrine\ORM\Mapping as ORM;
 use Horeca\MiddlewareClientBundle\Entity\AbstractEntity;
-use Horeca\MiddlewareClientBundle\Repository\Log\RequestLogRepository;
 
-#[ORM\Entity(repositoryClass: RequestLogRepository::class)]
-#[ORM\Table(name: "hmc_request_logs")]
-#[ORM\Index(columns: ["created_at", "uri"], name: "hmc_request_logs_created_at_uri_idx")]
-#[ORM\Index(columns: ["created_at", "status_code"], name: "hmc_request_logs_created_at_status_code_idx")]
-#[ORM\Index(columns: ["created_at", "method", "uri", "status_code"], name: "hmc_request_logs_created_at_method_uri_status_code_idx")]
-class RequestLog extends AbstractEntity
+#[ORM\MappedSuperclass]
+abstract class RequestLog extends AbstractEntity
 {
 
     #[ORM\Column(name: "method", type: "string", length: 10, nullable: false)]
-    private string $method;
+    protected string $method;
 
     #[ORM\Column(name: "uri", type: "string", nullable: false)]
-    private string $uri;
+    protected string $uri;
 
     #[ORM\Column(name: "status_code", type: "integer", nullable: false)]
-    private int $statusCode;
+    protected int $statusCode;
 
     #[ORM\Column(name: "headers", type: "json", nullable: true)]
-    private ?string $headers = null;
+    protected ?string $headers = null;
 
     #[ORM\Column(name: "query_params", type: "json", nullable: true)]
-    private ?string $queryParams = null;
+    protected ?string $query = null;
 
     #[ORM\Column(name: "body_params", type: "json", nullable: true)]
-    private ?string $bodyParams = null;
+    protected ?string $body = null;
 
     #[ORM\Column(name: "response_body", type: "json", nullable: true)]
-    private ?string $responseBody = null;
+    protected ?string $response = null;
 
     #[ORM\Column(name: "exception", type: "json", nullable: true)]
-    private ?string $exception = null;
+    protected ?string $exception = null;
 
     #[ORM\Column(name: "request_duration", type: "float", nullable: true)]
-    private ?float $requestDuration = null;
+    protected ?float $duration = null;
 
-    /**
-     * @return string
-     */
     public function getMethod(): string
     {
         return $this->method;
     }
 
-    /**
-     * @param string $method
-     */
     public function setMethod(string $method): void
     {
         $this->method = $method;
     }
 
-    /**
-     * @return string
-     */
     public function getUri(): string
     {
         return $this->uri;
     }
 
-    /**
-     * @param string $uri
-     */
     public function setUri(string $uri): void
     {
         $this->uri = $uri;
     }
 
-    /**
-     * @return int
-     */
     public function getStatusCode(): int
     {
         return $this->statusCode;
     }
 
-    /**
-     * @param int $statusCode
-     */
     public function setStatusCode(int $statusCode): void
     {
         $this->statusCode = $statusCode;
     }
 
-    /**
-     * @return string|null
-     */
     public function getHeaders(): ?string
     {
         return $this->headers;
     }
 
-    /**
-     * @param string|null $headers
-     */
     public function setHeaders(?string $headers): void
     {
         $this->headers = $headers;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getQueryParams(): ?string
+    public function getQuery(): ?string
     {
-        return $this->queryParams;
+        return $this->query;
     }
 
-    /**
-     * @param string|null $queryParams
-     */
-    public function setQueryParams(?string $queryParams): void
+    public function setQuery(?string $query): void
     {
-        $this->queryParams = $queryParams;
+        $this->query = $query;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getBodyParams(): ?string
+    public function getBody(): ?string
     {
-        return $this->bodyParams;
+        return $this->body;
     }
 
-    /**
-     * @param string|null $bodyParams
-     */
-    public function setBodyParams(?string $bodyParams): void
+    public function setBody(?string $body): void
     {
-        $this->bodyParams = $bodyParams;
+        $this->body = $body;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getResponseBody(): ?string
+    public function getResponse(): ?string
     {
-        return $this->responseBody;
+        return $this->response;
     }
 
-    /**
-     * @param string|null $responseBody
-     */
-    public function setResponseBody(?string $responseBody): void
+    public function setResponse(?string $response): void
     {
-        $this->responseBody = $responseBody;
+        $this->response = $response;
     }
 
-    /**
-     * @return float|null
-     */
-    public function getRequestDuration(): ?float
-    {
-        return $this->requestDuration;
-    }
-
-    /**
-     * @param float|null $requestDuration
-     */
-    public function setRequestDuration(?float $requestDuration): void
-    {
-        $this->requestDuration = $requestDuration;
-    }
-
-    /**
-     * @return string|null
-     */
     public function getException(): ?string
     {
         return $this->exception;
     }
 
-    /**
-     * @param string|null $exception
-     */
     public function setException(?string $exception): void
     {
         $this->exception = $exception;
+    }
+
+    public function getDuration(): ?float
+    {
+        return $this->duration;
+    }
+
+    public function setDuration(?float $duration): void
+    {
+        $this->duration = $duration;
     }
 
 }

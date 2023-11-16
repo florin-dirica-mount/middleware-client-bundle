@@ -31,6 +31,11 @@ abstract class BaseProviderCredentials implements ProviderCredentialsInterface
     #[ORM\Column(name: "created_at", type: "datetime", nullable: false, options: ["default" => "CURRENT_TIMESTAMP"])]
     protected \DateTime $createdAt;
 
+    public function __construct()
+    {
+        $this->createdAt = new \DateTime();
+    }
+
     public function getId()
     {
         return $this->id;
