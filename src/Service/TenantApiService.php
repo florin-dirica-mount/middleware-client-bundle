@@ -15,7 +15,7 @@ class TenantApiService
 {
     use SerializerDI;
 
-    private Client $client;
+    private ?Client $client = null;
 
     /**
      * @throws HorecaException
