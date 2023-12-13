@@ -16,8 +16,6 @@ services:
             $transport: '%horeca.order_notification_messenger_transport%'
         calls:
             - [ setLogger,[ '@logger' ] ]
-            - [ setSerializer,[ '@jms_serializer' ] ]
-            - [ setProviderApi,[ '@Horeca\MiddlewareClientBundle\Service\ProviderApiInterface' ] ]
             - [ setEntityManager,[ '@doctrine.orm.entity_manager' ] ]
             - [ setProtocolActionsService,[ '@Horeca\MiddlewareClientBundle\Service\ProtocolActionsService' ] ]
         tags:
