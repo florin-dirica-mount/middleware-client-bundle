@@ -2,6 +2,7 @@
 
 namespace Horeca\MiddlewareClientBundle\Service;
 
+use Horeca\MiddlewareClientBundle\Entity\Tenant;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaRequestDeliveryBody;
 use Horeca\MiddlewareClientBundle\VO\Provider\BaseProviderOrderResponse;
 use Horeca\MiddlewareClientBundle\VO\Provider\ProviderCredentialsInterface;
@@ -29,14 +30,15 @@ interface ProviderApiInterface
     /**
      * Handles the mapping between ShoppingCart and ProviderOrder models
      */
-    public function mapShoppingCartToProviderOrder(ShoppingCart $cart): ProviderOrderInterface;
+    public function mapShoppingCartToProviderOrder(Tenant $tenant, ShoppingCart $cart): ProviderOrderInterface;
 
     /**
+     * @param Tenant $tenant
      * @param $providerOrder
      * @return ShoppingCart
      * Handles the mapping between ProviderOrder and ShoppingCart models
      */
-    public function mapProviderOrderToShoppingCart($providerOrder): ShoppingCart;
+    public function mapProviderOrderToShoppingCart(Tenant $tenant, $providerOrder): ShoppingCart;
 
     /**
      * @param string $horecaExternalServiceId

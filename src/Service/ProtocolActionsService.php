@@ -50,7 +50,7 @@ class ProtocolActionsService
 
         /** @var ProviderOrderInterface $order */
         $order = $this->deserializeJson($notification->getServicePayload(), $this->providerApi->getProviderOrderClass());
-        $shoppingCart = $this->providerApi->mapProviderOrderToShoppingCart($order);
+        $shoppingCart = $this->providerApi->mapProviderOrderToShoppingCart($notification->getTenant(), $order);
 
         $notification->setHorecaPayload($this->serializeJson($shoppingCart));
 
@@ -89,7 +89,7 @@ class ProtocolActionsService
             throw new \Exception('Missing parameters: provider credentials!');
         }
 
-        $providerOrder = $this->providerApi->mapShoppingCartToProviderOrder($cart);
+        $providerOrder = $this->providerApi->mapShoppingCartToProviderOrder($notification->getTenant(), $cart);
         $notification->setServicePayload($this->serializeJson($providerOrder));
 
         $response = $this->providerApi->saveOrder($providerOrder, $credentials);
