@@ -35,10 +35,10 @@ class OrderNotification extends AbstractEntity
     private ?Tenant $tenant = null;
 
     #[ORM\Column(name: "horeca_order_id", type: "string", length: 36, nullable: true)]
-    private ?string $horecaOrderId;
+    private ?string $horecaOrderId = null;
 
     #[ORM\Column(name: "service_order_id", type: "string", length: 36, nullable: true)]
-    private ?string $serviceOrderId;
+    private ?string $serviceOrderId = null;
 
     #[ORM\Column(name: "status", type: "string", length: 50, nullable: false, options: ["default" => "received"])]
     private string $status;
@@ -47,13 +47,13 @@ class OrderNotification extends AbstractEntity
     private string $type;
 
     #[ORM\Column(name: "source", type: "string", length: 50, nullable: true)]
-    private ?string $source;
+    private ?string $source = null;
 
     #[ORM\Column(name: "restaurant_id", type: "string", length: 36, nullable: true)]
-    private ?string $restaurantId;
+    private ?string $restaurantId = null;
 
     #[ORM\Column(name: "service_credentials", type: "json", nullable: true)]
-    private ?string $serviceCredentials;
+    private ?string $serviceCredentials = null;
 
     #[ORM\Column(name: "horeca_payload", type: "json", nullable: true)]
     private ?string $horecaPayload = null;
