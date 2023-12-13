@@ -2,8 +2,6 @@
 
 namespace Horeca\MiddlewareClientBundle\DependencyInjection\Repository;
 
-use Doctrine\ORM\EntityManagerInterface;
-use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
 
 trait OrderNotificationRepositoryDI
@@ -13,8 +11,8 @@ trait OrderNotificationRepositoryDI
     /**
      * @required
      */
-    public function setOrderNotificationRepository(EntityManagerInterface $entityManager): void
+    public function setOrderNotificationRepository(OrderNotificationRepository $repository): void
     {
-        $this->orderNotificationRepository = $entityManager->getRepository(OrderNotification::class);
+        $this->orderNotificationRepository = $repository;
     }
 }

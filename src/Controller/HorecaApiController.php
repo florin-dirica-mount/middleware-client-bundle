@@ -11,9 +11,9 @@ use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\SerializerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\TranslatorDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\ValidatorDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\TenantRepositoryDI;
+use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProtocolActionsServiceDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProviderApiDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
-use Horeca\MiddlewareClientBundle\Entity\Tenant;
 use Horeca\MiddlewareClientBundle\Message\OrderNotificationMessage;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaInitializeShopBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaRequestDeliveryBody;
@@ -23,7 +23,6 @@ use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class HorecaApiController extends AbstractFOSRestController
 {
@@ -35,6 +34,7 @@ class HorecaApiController extends AbstractFOSRestController
     use TenantRepositoryDI;
     use TranslatorDI;
     use ValidatorDI;
+    use ProtocolActionsServiceDI;
 
     #[Rest\Post("/api/delivery/request", name: "horeca_api_request_delivery")]
     #[ParamConverter("body", converter: "fos_rest.request_body")]
@@ -42,7 +42,7 @@ class HorecaApiController extends AbstractFOSRestController
     {
         $this->logger->info(sprintf('[%s] %s', $request->attributes->get('_route'), $request->getContent()));
 
-        $tenant = $this->authorizeTenant($request);
+        $tenant = $this->protocolActionsService->authorizeTenant($request);
 
         try {
             if (!$body->providerCredentials) {
@@ -85,7 +85,7 @@ class HorecaApiController extends AbstractFOSRestController
         $routeName = $request->attributes->get('_route');
         $this->logger->info(sprintf('[%s] %s', $routeName, $request->getContent()));
 
-        $tenant = $this->authorizeTenant($request);
+        $tenant = $this->protocolActionsService->authorizeTenant($request);
 
         try {
             if (!$body->cart) {
@@ -136,7 +136,7 @@ class HorecaApiController extends AbstractFOSRestController
         $routeName = $request->attributes->get('_route');
         $this->logger->info(sprintf('[%s] %s', $routeName, $request->getContent()));
 
-        $tenant = $this->authorizeTenant($request);
+        $tenant = $this->protocolActionsService->authorizeTenant($request);
 
         try {
             if (!$body->providerCredentials) {
@@ -156,28 +156,5 @@ class HorecaApiController extends AbstractFOSRestController
 
             return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
         }
-    }
-
-    /**
-     * @throws AccessDeniedException
-     */
-    protected function authorizeTenant(Request $request): Tenant
-    {
-        if ($auth = $request->headers->get('Authorization')) {
-            $credentials = base64_decode(substr($auth, 6));
-            list($id, $apiKey) = explode(':', $credentials);
-
-            $tenant = $this->tenantRepository->findOneByApiKeyAndId($apiKey, $id);
-        } elseif ($auth = $request->headers->get('Api-Key')) {
-            $tenant = $this->tenantRepository->findOneByApiKey((string) $auth);
-        } else {
-            $tenant = null;
-        }
-
-        if (!$tenant) {
-            throw new AccessDeniedException('Invalid credentials');
-        }
-
-        return $tenant;
     }
 }

@@ -2,8 +2,6 @@
 
 namespace Horeca\MiddlewareClientBundle\DependencyInjection\Repository;
 
-use Doctrine\ORM\EntityManagerInterface;
-use Horeca\MiddlewareClientBundle\Entity\Tenant;
 use Horeca\MiddlewareClientBundle\Repository\TenantRepository;
 
 trait TenantRepositoryDI
@@ -13,8 +11,8 @@ trait TenantRepositoryDI
     /**
      * @required
      */
-    public function setTenantRepository(EntityManagerInterface $entityManager): void
+    public function setTenantRepository(TenantRepository $repository): void
     {
-        $this->tenantRepository = $entityManager->getRepository(Tenant::class);
+        $this->tenantRepository = $repository;
     }
 }
