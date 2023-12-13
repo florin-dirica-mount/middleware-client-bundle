@@ -9,6 +9,7 @@ use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
 use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
+use Horeca\MiddlewareCommonLib\Model\Protocol\SendShoppingCartResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 class TenantApiService
@@ -33,6 +34,24 @@ class TenantApiService
             $response = $this->getClient($notification->getTenant())->post($uri);
 
             return $response->getStatusCode() === Response::HTTP_OK;
+        } catch (GuzzleException|\Exception $e) {
+            throw new HorecaException($e->getMessage());
+        }
+    }
+
+    /**
+     * @throws HorecaException
+     */
+    public function sendShoppingCart(Tenant $tenant, ShoppingCart $cart, $restaurantId): SendShoppingCartResponse
+    {
+        try {
+            $uri = sprintf('/middleware/order/%s', $restaurantId);
+
+            $response = $this->getClient($tenant)->post($uri, [
+                'json' => json_decode($this->serializer->serialize($cart, 'json'), true)
+            ]);
+
+            return $this->serializer->deserialize($response->getBody()->getContents(), SendShoppingCartResponse::class, 'json');
         } catch (GuzzleException|\Exception $e) {
             throw new HorecaException($e->getMessage());
         }

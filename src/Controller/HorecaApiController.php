@@ -175,7 +175,7 @@ class HorecaApiController extends AbstractFOSRestController
         }
 
         if (!$tenant) {
-            throw new AccessDeniedException();
+            throw new AccessDeniedException('Invalid credentials');
         }
 
         return $tenant;

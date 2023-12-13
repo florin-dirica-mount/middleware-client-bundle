@@ -12,7 +12,7 @@ use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\VO\Provider\BaseProviderOrderResponse;
 use Horeca\MiddlewareClientBundle\VO\Provider\ProviderCredentialsInterface;
 use Horeca\MiddlewareClientBundle\VO\Provider\ProviderOrderInterface;
-use Horeca\MiddlewareCommonLib\DependencyInjection\HorecaApiServiceDI;
+use Horeca\MiddlewareCommonLib\Exception\HorecaException;
 use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
 use Horeca\MiddlewareCommonLib\Model\Protocol\SendShoppingCartResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -21,7 +21,6 @@ class ProtocolActionsService
 {
     use EntityManagerDI;
     use ProviderApiDI;
-    use HorecaApiServiceDI;
     use SerializerDI;
     use LoggerDI;
     use TenantRepositoryDI;
@@ -34,6 +33,9 @@ class ProtocolActionsService
         $this->providerCredentialsClass = (string) $container->getParameter('horeca.provider_credentials_class');
     }
 
+    /**
+     * @throws HorecaException
+     */
     public function handleExternalServiceOrderNotification(OrderNotification $notification): ?SendShoppingCartResponse
     {
         if (!$notification->getServicePayload() || !$notification->getRestaurantId()) {
@@ -52,7 +54,7 @@ class ProtocolActionsService
 
         $notification->setHorecaPayload($this->serializeJson($shoppingCart));
 
-        $response = $this->horecaApiService->sendShoppingCart($shoppingCart, $notification->getRestaurantId());
+        $response = $this->tenantApiService->sendShoppingCart($notification->getTenant(), $shoppingCart, $notification->getRestaurantId());
 
         $notification->setResponsePayload($this->serializeJson($response));
         $notification->setHorecaOrderId($response->horecaOrderId);

@@ -1,9 +1,5 @@
 parameters:
-    horeca.base_url: '%env(resolve:HORECA_BASE_URL)%'
-    horeca.api_key: '%env(resolve:HORECA_API_KEY)%'
-    horeca.shared_key: '%env(resolve:HORECA_SHARED_KEY)%'
-    horeca.middleware_client_id: '%env(resolve:HORECA_MIDDLEWARE_CLIENT_ID)%'
-    horeca.enable_request_exception_logging: '%env(resolve:HORECA_ENABLE_REQUEST_EXCEPTION_LOGGING)%'
+    horeca.enable_request_exception_logging: '%env(default:false:HORECA_ENABLE_REQUEST_EXCEPTION_LOGGING)%'
 
 services:
 
@@ -15,15 +11,6 @@ services:
             - [ setEntityManager,[ '@doctrine.orm.entity_manager' ] ]
         public: true
 
-    Horeca\MiddlewareCommonLib\Service\HorecaApiInterface:
-        class: Horeca\MiddlewareCommonLib\Service\HorecaApiService
-        arguments:
-            - '@jms_serializer'
-        calls:
-            - [ setBaseUrl, [ '%horeca.base_url%' ] ]
-            - [ setApiKey, [ '%horeca.api_key%' ] ]
-            - [ setMiddlewareClientId, [ '%horeca.middleware_client_id%' ] ]
-
     Horeca\MiddlewareClientBundle\MessageHandler\OrderNotificationMessageHandler:
         arguments:
             $transport: '%horeca.order_notification_messenger_transport%'
@@ -31,7 +18,6 @@ services:
             - [ setLogger,[ '@logger' ] ]
             - [ setSerializer,[ '@jms_serializer' ] ]
             - [ setProviderApi,[ '@Horeca\MiddlewareClientBundle\Service\ProviderApiInterface' ] ]
-            - [ setHorecaApiService,[ '@Horeca\MiddlewareCommonLib\Service\HorecaApiInterface' ] ]
             - [ setEntityManager,[ '@doctrine.orm.entity_manager' ] ]
             - [ setProtocolActionsService,[ '@Horeca\MiddlewareClientBundle\Service\ProtocolActionsService' ] ]
         tags:
