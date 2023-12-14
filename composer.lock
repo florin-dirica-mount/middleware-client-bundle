@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4da9494e11d6a86e288367d8622a4293",
+    "content-hash": "e072d078a42958959d493f452efaf9d6",
     "packages": [
         {
             "name": "brick/math",
@@ -2115,23 +2115,25 @@
         },
         {
             "name": "horeca/middleware-common-lib",
-            "version": "1.0.5.2",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://gitlab.com/horeca-universal/libs/middleware-common-lib.git",
-                "reference": "b87fb3bd3a7814d8f617e67949040a65d1a4c299"
+                "reference": "445173547838c822a8016d140e7a633dae371a65"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://gitlab.com/api/v4/projects/horeca-universal%2Flibs%2Fmiddleware-common-lib/repository/archive.zip?sha=b87fb3bd3a7814d8f617e67949040a65d1a4c299",
-                "reference": "b87fb3bd3a7814d8f617e67949040a65d1a4c299",
+                "url": "https://gitlab.com/api/v4/projects/horeca-universal%2Flibs%2Fmiddleware-common-lib/repository/archive.zip?sha=445173547838c822a8016d140e7a633dae371a65",
+                "reference": "445173547838c822a8016d140e7a633dae371a65",
                 "shasum": ""
             },
             "require": {
+                "doctrine/annotations": "^1.14",
                 "ext-json": "*",
                 "guzzlehttp/guzzle": "^7.4",
                 "jms/serializer-bundle": "^4.0",
-                "php": ">=7.4"
+                "php": ">=7.4",
+                "symfony/validator": "^5.4"
             },
             "require-dev": {
                 "phpunit/phpunit": "^9.5"
@@ -2149,9 +2151,9 @@
                 }
             ],
             "support": {
-                "source": "https://gitlab.com/horeca-universal/libs/middleware-common-lib/-/tree/1.0.5.2"
+                "source": "https://gitlab.com/horeca-universal/libs/middleware-common-lib/-/tree/1.1.0"
             },
-            "time": "2023-10-04T15:18:17+03:00"
+            "time": "2023-12-14T15:47:20+02:00"
         },
         {
             "name": "jms/metadata",
