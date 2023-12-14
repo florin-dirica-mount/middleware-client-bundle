@@ -14,12 +14,12 @@ use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\TenantRepositor
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProtocolActionsServiceDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProviderApiDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
+use Horeca\MiddlewareClientBundle\Exception\ApiException;
 use Horeca\MiddlewareClientBundle\Message\OrderNotificationMessage;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaInitializeShopBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaRequestDeliveryBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaSendOrderBody;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -77,7 +77,6 @@ class HorecaApiController extends AbstractFOSRestController
         }
     }
 
-
     #[Rest\Post("/api/order/send", name: "horeca_api_order_send")]
     #[ParamConverter("body", converter: "fos_rest.request_body")]
     public function sendOrder(Request $request, HorecaSendOrderBody $body): Response
@@ -88,10 +87,15 @@ class HorecaApiController extends AbstractFOSRestController
         $tenant = $this->protocolActionsService->authorizeTenant($request);
 
         try {
-            if (!$body->cart) {
-                $this->logger->warning("[$routeName] ERROR: Missing parameters");
+            $errors = $this->validator->validate($body);
+            if ($errors->count() > 0) {
+                $messages = [];
+                foreach ($errors as $error) {
+                    $messages[] = $error->getMessage();
+                }
+                $this->logger->info(sprintf('[%s.%d] Request body errors: ', __METHOD__, __LINE__), $messages);
 
-                throw new BadRequestException('Missing parameters: cart, service_credentials!');
+                throw new ApiException($errors->get(0)->getMessage());
             }
 
             $existingOrder = $this->entityManager->getRepository(OrderNotification::class)->findOneByHorecaOrderId($body->cart->getId());

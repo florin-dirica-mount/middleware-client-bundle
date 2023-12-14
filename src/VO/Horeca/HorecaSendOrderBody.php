@@ -16,7 +16,6 @@ class HorecaSendOrderBody
 
     #[Serializer\SerializedName("service_credentials")]
     #[Serializer\Type("array")]
-    #[Assert\NotNull(message: "app.parameter.provider_credentials.not_null")]
     public array $providerCredentials = [];
 
 }
