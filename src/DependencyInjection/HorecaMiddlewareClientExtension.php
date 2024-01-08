@@ -8,6 +8,7 @@ use Horeca\MiddlewareClientBundle\Repository\UserRepository;
 use Horeca\MiddlewareClientBundle\Service\ProtocolActionsService;
 use Horeca\MiddlewareClientBundle\Service\ProviderApiInterface;
 use Horeca\MiddlewareClientBundle\Service\TenantApiService;
+use Horeca\MiddlewareClientBundle\Service\TenantApiServiceInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -69,9 +70,10 @@ class HorecaMiddlewareClientExtension extends Extension
         $container->setDefinition(ProtocolActionsService::class, $providerDefinition);
 
         $providerDefinition = new Definition(TenantApiService::class);
+        $providerDefinition->setClass(TenantApiService::class);
         $providerDefinition->setAutowired(true);
         $providerDefinition->setAutoconfigured(true);
-        $container->setDefinition(TenantApiService::class, $providerDefinition);
+        $container->setDefinition(TenantApiServiceInterface::class, $providerDefinition);
 
         // add repository services definition
         $this->defineRepositoryService($container, OrderNotificationRepository::class);

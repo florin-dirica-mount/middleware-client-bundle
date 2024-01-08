@@ -2,21 +2,17 @@
 
 namespace Horeca\MiddlewareClientBundle\DependencyInjection\Service;
 
-
-use Horeca\MiddlewareClientBundle\Service\TenantApiService;
+use Horeca\MiddlewareClientBundle\Service\TenantApiServiceInterface;
 
 trait TenantApiServiceDI
 {
-    /**
-     * @var TenantApiService
-     */
-    protected $tenantApiService;
+    protected TenantApiServiceInterface $tenantApiService;
 
     /**
      * @required
-     * @param TenantApiService $tenantApiService
+     * @param TenantApiServiceInterface $tenantApiService
      */
-    public function setTenantApiService(TenantApiService $tenantApiService)
+    public function setTenantApiService(TenantApiServiceInterface $tenantApiService): void
     {
         $this->tenantApiService = $tenantApiService;
     }

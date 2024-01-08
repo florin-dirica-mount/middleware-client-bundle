@@ -12,7 +12,7 @@ use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
 use Horeca\MiddlewareCommonLib\Model\Protocol\SendShoppingCartResponse;
 use Symfony\Component\HttpFoundation\Response;
 
-class TenantApiService
+class TenantApiService implements TenantApiServiceInterface
 {
     use SerializerDI;
 
