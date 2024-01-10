@@ -43,8 +43,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
         try {
             $this->protocolActionsService->sendProviderOrderNotification($notification);
         } catch (\Exception $e) {
-            $this->logger->error('[handleOrderNotificationMessage] Exception: ' . $e->getMessage());
-            $this->logger->error('[handleOrderNotificationMessage] Exception: ' . $e->getTraceAsString());
+            $this->orderLogger->error(__METHOD__, __LINE__, $e->getMessage());
 
             $notification->changeStatus(OrderNotification::STATUS_FAILED);
             $notification->setErrorMessage($e->getMessage());
