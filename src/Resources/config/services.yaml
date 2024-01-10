@@ -11,15 +11,15 @@ services:
             - [ setEntityManager,[ '@doctrine.orm.entity_manager' ] ]
         public: true
 
-    Horeca\MiddlewareClientBundle\MessageHandler\OrderNotificationMessageHandler:
-        arguments:
-            $transport: '%horeca.order_notification_messenger_transport%'
-        calls:
-            - [ setLogger,[ '@logger' ] ]
-            - [ setEntityManager,[ '@doctrine.orm.entity_manager' ] ]
-            - [ setProtocolActionsService,[ '@Horeca\MiddlewareClientBundle\Service\ProtocolActionsService' ] ]
-        tags:
-            - { name: messenger.message_handler }
+#    Horeca\MiddlewareClientBundle\MessageHandler\OrderNotificationMessageHandler:
+#        arguments:
+#            $transport: '%horeca.order_notification_messenger_transport%'
+#        calls:
+#            - [ setLogger,[ '@logger' ] ]
+#            - [ setEntityManager,[ '@doctrine.orm.entity_manager' ] ]
+#            - [ setProtocolActionsService,[ '@Horeca\MiddlewareClientBundle\Service\ProtocolActionsService' ] ]
+#        tags:
+#            - { name: messenger.message_handler }
 
     Horeca\MiddlewareClientBundle\Command\InitBundleCommand:
         arguments:
