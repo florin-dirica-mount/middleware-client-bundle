@@ -5,6 +5,7 @@ namespace Horeca\MiddlewareClientBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Horeca\MiddlewareClientBundle\Entity\Log\OrderLog;
 use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
 use JMS\Serializer\Annotation as Serializer;
 
@@ -81,11 +82,20 @@ class OrderNotification extends AbstractEntity
     #[ORM\OrderBy(["createdAt" => "ASC"])]
     private Collection|array $statusEntries;
 
+    /**
+     * @var Collection<int, OrderLog>|OrderLog[]
+     */
+    #[ORM\OneToMany(mappedBy: "order", targetEntity: OrderLog::class, cascade: ["persist", "remove"], fetch: "EXTRA_LAZY", orphanRemoval: true)]
+    #[Serializer\Exclude]
+    #[ORM\OrderBy(["createdAt" => "DESC"])]
+    private Collection|array $logs;
+
     public function __construct()
     {
         parent::__construct();
 
         $this->statusEntries = new ArrayCollection();
+        $this->logs = new ArrayCollection();
         $this->type = self::TYPE_NEW_ORDER;
         $this->changeStatus(self::STATUS_RECEIVED);
     }
@@ -314,5 +324,27 @@ class OrderNotification extends AbstractEntity
         $this->tenant = $tenant;
     }
 
+    /**
+     * @return Collection<int, OrderLog>|OrderLog[]
+     */
+    public function getLogs(): Collection|array
+    {
+        return $this->logs;
+    }
 
+    /**
+     * @param Collection<int, OrderLog>|OrderLog[] $logs
+     */
+    public function setLogs(Collection|array $logs): void
+    {
+        $this->logs = $logs;
+    }
+
+    public function addLog(OrderLog $log): void
+    {
+        $log->setOrder($this);
+        if (!$this->getLogs()->contains($log)) {
+            $this->getLogs()->add($log);
+        }
+    }
 }
