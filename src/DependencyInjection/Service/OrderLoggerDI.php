@@ -9,7 +9,9 @@ trait OrderLoggerDI
 {
     protected OrderLogger $orderLogger;
 
-    #[Required]
+    /**
+     * @required
+     */
     public function setOrderLogger(OrderLogger $orderLogger): void
     {
         $this->orderLogger = $orderLogger;
