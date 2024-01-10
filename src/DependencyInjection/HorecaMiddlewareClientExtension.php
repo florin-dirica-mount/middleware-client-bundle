@@ -49,8 +49,6 @@ class HorecaMiddlewareClientExtension extends Extension
 
     private function loadServices(YamlFileLoader $loader, array $configs, ContainerBuilder $container): void
     {
-        $loader->load('services.yaml');
-
         $configuration = $this->getConfiguration($configs, $container);
         $config = $this->processConfiguration($configuration, $configs);
 
@@ -85,6 +83,8 @@ class HorecaMiddlewareClientExtension extends Extension
         $this->defineRepositoryService($container, OrderNotificationRepository::class);
         $this->defineRepositoryService($container, UserRepository::class);
         $this->defineRepositoryService($container, TenantRepository::class);
+
+        $loader->load('services.yaml');
     }
 
 }

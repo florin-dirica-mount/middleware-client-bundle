@@ -7,7 +7,7 @@ use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\LoggerDI;
 use Horeca\MiddlewareClientBundle\Entity\Log\OrderLog;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 
-final class OrderLogger
+class OrderLogger
 {
     use EntityManagerDI;
     use LoggerDI;

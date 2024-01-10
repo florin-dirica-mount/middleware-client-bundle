@@ -18,6 +18,9 @@ services:
         exclude:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
+            - '../src/Message/'
+            - '../src/Exception/'
+            - '../src/VO/'
             - '../src/Kernel.php'
 
     # add more service definitions when explicit configuration is needed
