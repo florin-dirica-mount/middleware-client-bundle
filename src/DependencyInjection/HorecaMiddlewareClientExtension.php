@@ -5,6 +5,7 @@ namespace Horeca\MiddlewareClientBundle\DependencyInjection;
 use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
 use Horeca\MiddlewareClientBundle\Repository\TenantRepository;
 use Horeca\MiddlewareClientBundle\Repository\UserRepository;
+use Horeca\MiddlewareClientBundle\Service\OrderLogger;
 use Horeca\MiddlewareClientBundle\Service\ProtocolActionsService;
 use Horeca\MiddlewareClientBundle\Service\ProviderApiInterface;
 use Horeca\MiddlewareClientBundle\Service\TenantApiService;
@@ -74,6 +75,11 @@ class HorecaMiddlewareClientExtension extends Extension
         $providerDefinition->setAutowired(true);
         $providerDefinition->setAutoconfigured(true);
         $container->setDefinition(TenantApiServiceInterface::class, $providerDefinition);
+
+        $providerDefinition = new Definition(OrderLogger::class);
+        $providerDefinition->setAutowired(true);
+        $providerDefinition->setAutoconfigured(true);
+        $container->setDefinition(OrderLogger::class, $providerDefinition);
 
         // add repository services definition
         $this->defineRepositoryService($container, OrderNotificationRepository::class);
