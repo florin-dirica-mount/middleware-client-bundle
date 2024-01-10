@@ -2,27 +2,27 @@
 
 namespace Horeca\MiddlewareClientBundle\MessageHandler;
 
-use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\EntityManagerDI;
-use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\LoggerDI;
-use Horeca\MiddlewareClientBundle\DependencyInjection\Service\OrderLoggerDI;
-use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProtocolActionsServiceDI;
+use Doctrine\ORM\EntityManagerInterface;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Message\OrderNotificationMessage;
+use Horeca\MiddlewareClientBundle\Service\OrderLogger;
+use Horeca\MiddlewareClientBundle\Service\ProtocolActionsService;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
 class OrderNotificationMessageHandler implements MessageSubscriberInterface
 {
-    use LoggerDI;
-    use EntityManagerDI;
-    use ProtocolActionsServiceDI;
-    use OrderLoggerDI;
+    private OrderLogger $orderLogger;
+    private ProtocolActionsService $protocolActionsService;
+    private EntityManagerInterface $entityManager;
 
-    private string $transport;
-
-    public function __construct(string $transport)
+    public function __construct(OrderLogger            $orderLogger,
+                                ProtocolActionsService $protocolActionsService,
+                                EntityManagerInterface $entityManager)
     {
-        $this->transport = $transport;
+        $this->orderLogger = $orderLogger;
+        $this->protocolActionsService = $protocolActionsService;
+        $this->entityManager = $entityManager;
     }
 
     /**
@@ -39,9 +39,14 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
     public function handleOrderNotificationMessage(OrderNotificationMessage $message): void
     {
         $notification = $this->entityManager->find(OrderNotification::class, $message->getOrderNotificationId());
+        if (!$notification) {
+            return;
+        }
 
         try {
             $this->protocolActionsService->sendProviderOrderNotification($notification);
+
+            $this->orderLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleOrderNotificationMessage');
         } catch (\Exception $e) {
             $this->orderLogger->error(__METHOD__, __LINE__, $e->getMessage());
 
@@ -50,11 +55,9 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
 
             $this->entityManager->flush();
 
+            $this->orderLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleOrderNotificationMessage');
+
             throw new UnrecoverableMessageHandlingException($e->getMessage());
-        } finally {
-            if ($notification) {
-                $this->orderLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleOrderNotificationMessage');
-            }
         }
     }
 }
