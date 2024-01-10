@@ -4,6 +4,7 @@ namespace Horeca\MiddlewareClientBundle\MessageHandler;
 
 use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\EntityManagerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\LoggerDI;
+use Horeca\MiddlewareClientBundle\DependencyInjection\Service\OrderLoggerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProtocolActionsServiceDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Message\OrderNotificationMessage;
@@ -15,6 +16,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
     use LoggerDI;
     use EntityManagerDI;
     use ProtocolActionsServiceDI;
+    use OrderLoggerDI;
 
     private string $transport;
 
@@ -50,6 +52,10 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             $this->entityManager->flush();
 
             throw new UnrecoverableMessageHandlingException($e->getMessage());
+        } finally {
+            if ($notification) {
+                $this->orderLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleOrderNotificationMessage');
+            }
         }
     }
 }

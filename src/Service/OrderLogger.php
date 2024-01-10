@@ -41,6 +41,10 @@ final class OrderLogger
 
     public function saveTo(OrderNotification $order, string $action): void
     {
+        if (empty($this->buffer)) {
+            return;
+        }
+
         $log = new OrderLog(OrderLog::LEVEL_INFO, implode("\n", $this->buffer));
         $log->setAction($action);
         $order->addLog($log);
