@@ -39,6 +39,13 @@ class OrderLogger
         $this->buffer[] = $this->format(OrderLog::LEVEL_CRITICAL, $method, $line, $log);
     }
 
+    public function logMemoryUsage(): void
+    {
+        $memory = round(memory_get_usage() / 1024 / 1024, 2);
+
+        $this->info(__METHOD__, __LINE__, sprintf('Memory usage: %s %s', $memory, $unit));
+    }
+
     public function saveTo(OrderNotification $order, string $action): void
     {
         if (empty($this->buffer)) {

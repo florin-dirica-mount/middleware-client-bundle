@@ -38,6 +38,8 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
 
     public function handleOrderNotificationMessage(OrderNotificationMessage $message): void
     {
+        $this->orderLogger->logMemoryUsage();
+
         $notification = $this->entityManager->find(OrderNotification::class, $message->getOrderNotificationId());
 
         try {
@@ -53,6 +55,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             throw new UnrecoverableMessageHandlingException($e->getMessage());
         } finally {
             if ($notification) {
+                $this->orderLogger->logMemoryUsage();
                 $this->orderLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleOrderNotificationMessage');
             }
         }
