@@ -98,29 +98,30 @@ class HorecaApiController extends AbstractFOSRestController
                 throw new ApiException($errors->get(0)->getMessage());
             }
 
-            $existingOrder = $this->entityManager->getRepository(OrderNotification::class)->findOneByHorecaOrderId($body->cart->getId());
-            if ($existingOrder) {
-                $this->logger->info("[$routeName] Order already received: " . $existingOrder->getId());
+            $order = $this->entityManager->getRepository(OrderNotification::class)->findOneByHorecaOrderId($body->cart->getId());
+            $dispatchMessage = false;
+            if (!$order) {
+                $this->logger->info(sprintf('[%s.%d] New order received: %s', __METHOD__, __LINE__, $body->cart->getId()));
 
-                return new JsonResponse(['success' => true]);
-            }
-
-            if (!$this->entityManager->getRepository(OrderNotification::class)->findOneByHorecaOrderId($body->cart->getId())) {
                 $order = new OrderNotification();
                 $order->setType(OrderNotification::TYPE_NEW_ORDER);
-                $order->setHorecaOrderId($body->cart->getId());
-                $order->setHorecaPayload($this->serializeJson($body->cart));
-                $order->setRestaurantId($body->cart->getRestaurant()->getId());
-                $order->setTenant($tenant);
 
-                if ($body->providerCredentials) {
-                    $order->setServiceCredentials($this->serializeJson($body->providerCredentials));
-                }
+                $dispatchMessage = true;
+            }
 
-                $this->entityManager->persist($order);
-                $this->entityManager->flush();
+            $order->setTenant($tenant);
+            $order->setHorecaOrderId($body->cart->getId());
+            $order->setHorecaPayload($this->serializeJson($body->cart));
+            $order->setRestaurantId($body->cart->getRestaurant()->getId());
 
-                $this->logger->info("[$routeName] Created new order: " . $order->getId());
+            if ($body->providerCredentials) {
+                $order->setServiceCredentials($this->serializeJson($body->providerCredentials));
+            }
+
+            $this->entityManager->persist($order);
+            $this->entityManager->flush();
+
+            if ($dispatchMessage) {
                 $this->messageBus->dispatch(new OrderNotificationMessage($order));
                 $this->logger->info("[$routeName] Dispatched new order: " . $order->getId());
             }
@@ -128,6 +129,7 @@ class HorecaApiController extends AbstractFOSRestController
             return new JsonResponse(['success' => true]);
         } catch (\Exception $e) {
             $this->logger->error(sprintf('[%s] %s', __METHOD__, $e->getMessage()));
+            $this->logger->error(sprintf('[%s] %s', __METHOD__, $e->getTraceAsString()));
 
             return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
         }
