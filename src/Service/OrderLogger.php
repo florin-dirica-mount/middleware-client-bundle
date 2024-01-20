@@ -43,7 +43,7 @@ class OrderLogger
     {
         $memory = round(memory_get_usage() / 1024 / 1024, 2);
 
-        $this->info(__METHOD__, __LINE__, sprintf('Memory usage: %s %s', $memory, $unit));
+        $this->info(__METHOD__, __LINE__, "Memory usage: $memory MB");
     }
 
     public function saveTo(OrderNotification $order, string $action): void
