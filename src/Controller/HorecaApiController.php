@@ -5,6 +5,7 @@ namespace Horeca\MiddlewareClientBundle\Controller;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\EntityManagerDI;
+use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\EnvironmentDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\LoggerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\MessageBusDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\SerializerDI;
@@ -35,6 +36,7 @@ class HorecaApiController extends AbstractFOSRestController
     use TranslatorDI;
     use ValidatorDI;
     use ProtocolActionsServiceDI;
+    use EnvironmentDI;
 
     #[Rest\Post("/api/delivery/request", name: "horeca_api_request_delivery")]
     #[ParamConverter("body", converter: "fos_rest.request_body")]
@@ -131,7 +133,20 @@ class HorecaApiController extends AbstractFOSRestController
             $this->logger->error(sprintf('[%s] %s', __METHOD__, $e->getMessage()));
             $this->logger->error(sprintf('[%s] %s', __METHOD__, $e->getTraceAsString()));
 
-            return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
+            $data = [
+                'success' => false
+            ];
+
+            if ($this->isProdEnv()) {
+                $data['error'] = $e instanceof ApiException ? $e->getMessage() : 'An error occurred while processing your request. Please try again later.';
+            } else {
+                $data['error'] = $e->getMessage();
+            }
+            if ($this->isTestEnv()) {
+                $data['trace'] = $e->getTraceAsString();
+            }
+
+            return new JsonResponse($data, Response::HTTP_BAD_REQUEST);
         }
     }
 
