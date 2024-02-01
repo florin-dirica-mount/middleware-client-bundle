@@ -2,15 +2,31 @@
 
 namespace Horeca\MiddlewareClientBundle\Service;
 
-use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\EntityManagerDI;
-use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\LoggerDI;
+use Doctrine\ORM\EntityManagerInterface;
 use Horeca\MiddlewareClientBundle\Entity\Log\OrderLog;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
+use Psr\Log\LoggerInterface;
 
 class OrderLogger
 {
-    use EntityManagerDI;
-    use LoggerDI;
+    protected EntityManagerInterface $entityManager;
+    protected LoggerInterface $logger;
+
+    /**
+     * @required
+     */
+    public function setLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
+    }
+
+    /**
+     * @required
+     */
+    public function setEntityManager(EntityManagerInterface $entityManager): void
+    {
+        $this->entityManager = $entityManager;
+    }
 
     private array $buffer = [];
 

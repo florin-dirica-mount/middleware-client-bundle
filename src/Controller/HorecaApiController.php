@@ -2,69 +2,65 @@
 
 namespace Horeca\MiddlewareClientBundle\Controller;
 
-use FOS\RestBundle\Controller\AbstractFOSRestController;
-use FOS\RestBundle\Controller\Annotations as Rest;
-use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\EntityManagerDI;
-use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\EnvironmentDI;
-use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\LoggerDI;
-use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\MessageBusDI;
-use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\SerializerDI;
-use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\TranslatorDI;
-use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\ValidatorDI;
+use Doctrine\ORM\EntityManagerInterface;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\TenantRepositoryDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProtocolActionsServiceDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProviderApiDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
+use Horeca\MiddlewareClientBundle\Entity\Tenant;
 use Horeca\MiddlewareClientBundle\Exception\ApiException;
 use Horeca\MiddlewareClientBundle\Message\OrderNotificationMessage;
+use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
+use Horeca\MiddlewareClientBundle\Repository\TenantRepository;
+use Horeca\MiddlewareClientBundle\Service\ProtocolActionsService;
+use Horeca\MiddlewareClientBundle\Service\ProviderApiInterface;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaInitializeShopBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaRequestDeliveryBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaSendOrderBody;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Horeca\MiddlewareCommonLib\Exception\HorecaException;
+use JMS\Serializer\SerializerInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
-class HorecaApiController extends AbstractFOSRestController
+class HorecaApiController extends AbstractController
 {
-    use LoggerDI;
-    use SerializerDI;
-    use MessageBusDI;
-    use EntityManagerDI;
-    use ProviderApiDI;
     use TenantRepositoryDI;
-    use TranslatorDI;
-    use ValidatorDI;
+    use ProviderApiDI;
     use ProtocolActionsServiceDI;
-    use EnvironmentDI;
 
-    #[Rest\Post("/api/delivery/request", name: "horeca_api_request_delivery")]
-    #[ParamConverter("body", converter: "fos_rest.request_body")]
-    public function requestDelivery(Request $request, HorecaRequestDeliveryBody $body): Response
+    protected SerializerInterface $serializer;
+    protected LoggerInterface $logger;
+    private ValidatorInterface $validator;
+    private TranslatorInterface $translator;
+
+    public function __construct(SerializerInterface $serializer,
+                                LoggerInterface     $logger,
+                                ValidatorInterface  $validator,
+                                TranslatorInterface $translator)
     {
-        $this->logger->info(sprintf('[%s] %s', $request->attributes->get('_route'), $request->getContent()));
+        $this->serializer = $serializer;
+        $this->logger = $logger;
+        $this->validator = $validator;
+        $this->translator = $translator;
+    }
 
-        $tenant = $this->protocolActionsService->authorizeTenant($request);
-
+    public function requestDelivery(Request $request): Response
+    {
         try {
-            if (!$body->providerCredentials) {
-                $credentialsClass = $this->getParameter('horeca.provider_credentials_class');
-                $credentials = $this->tenantRepository->findTenantCredentials($tenant, $credentialsClass);
-            } else {
-                $serviceCredentials = $this->serializeJson($body->providerCredentials);
-                $credentials = $this->deserializeJson($serviceCredentials, $this->providerApi->getProviderCredentialsClass());
-            }
+            /** @var HorecaRequestDeliveryBody $body */
+            $body = $this->deserializeRequestBody($request, HorecaSendOrderBody::class);
+            $tenant = $this->protocolActionsService->authorizeTenant($request);
+            $credentials = $this->parseTenantCredentials($tenant, $body->providerCredentials);
 
-            $errors = $this->validator->validate($body->form);
-
+            $errors = $this->validateObject($body->form);
             if (count($errors) > 0) {
-                $errorsArray = [];
-
-                foreach ($errors as $violation) {
-                    $errorsArray[] = $this->translator->trans($violation->getMessage(), [], 'validators');
-                }
-
-                return new Response(json_encode($errorsArray));
+                return new Response(json_encode($errors));
             }
 
             if (!$this->providerApi->requestDelivery($body, $credentials)) {
@@ -77,28 +73,17 @@ class HorecaApiController extends AbstractFOSRestController
         }
     }
 
-    #[Rest\Post("/api/order/send", name: "horeca_api_order_send")]
-    #[ParamConverter("body", converter: "fos_rest.request_body")]
-    public function sendOrder(Request $request, HorecaSendOrderBody $body): Response
+    public function sendOrder(Request                     $request,
+                              EntityManagerInterface      $entityManager,
+                              MessageBusInterface         $messageBus,
+                              OrderNotificationRepository $orderNotificationRepository): Response
     {
-        $routeName = $request->attributes->get('_route');
-        $this->logger->info(sprintf('[%s] %s', $routeName, $request->getContent()));
-
-        $tenant = $this->protocolActionsService->authorizeTenant($request);
-
         try {
-            $errors = $this->validator->validate($body);
-            if ($errors->count() > 0) {
-                $messages = [];
-                foreach ($errors as $error) {
-                    $messages[] = $error->getMessage();
-                }
-                $this->logger->info(sprintf('[%s.%d] Request body errors: ', __METHOD__, __LINE__), $messages);
+            /** @var HorecaSendOrderBody $body */
+            $body = $this->deserializeRequestBody($request, HorecaSendOrderBody::class);
+            $tenant = $this->protocolActionsService->authorizeTenant($request);
 
-                throw new ApiException($errors->get(0)->getMessage());
-            }
-
-            $order = $this->entityManager->getRepository(OrderNotification::class)->findOneByHorecaOrderId($body->cart->getId());
+            $order = $orderNotificationRepository->findOneByHorecaOrderId($body->cart->getId());
             $dispatchMessage = false;
             if (!$order) {
                 $this->logger->info(sprintf('[%s.%d] New order received: %s', __METHOD__, __LINE__, $body->cart->getId()));
@@ -111,19 +96,18 @@ class HorecaApiController extends AbstractFOSRestController
 
             $order->setTenant($tenant);
             $order->setHorecaOrderId($body->cart->getId());
-            $order->setHorecaPayload($this->serializeJson($body->cart));
+            $order->setHorecaPayload($this->serializer->serialize($body->cart, 'json'));
             $order->setRestaurantId($body->cart->getRestaurant()->getId());
 
             if ($body->providerCredentials) {
-                $order->setServiceCredentials($this->serializeJson($body->providerCredentials));
+                $order->setServiceCredentials($this->serializer->serialize($body->providerCredentials, 'json'));
             }
 
-            $this->entityManager->persist($order);
-            $this->entityManager->flush();
+            $entityManager->persist($order);
+            $entityManager->flush();
 
             if ($dispatchMessage) {
-                $this->messageBus->dispatch(new OrderNotificationMessage($order));
-                $this->logger->info("[$routeName] Dispatched new order: " . $order->getId());
+                $messageBus->dispatch(new OrderNotificationMessage($order));
             }
 
             return new JsonResponse(['success' => true]);
@@ -132,22 +116,13 @@ class HorecaApiController extends AbstractFOSRestController
         }
     }
 
-    #[Rest\Post("/api/shop/initialize", name: "horeca_api_shop_initialize")]
-    #[ParamConverter("body", converter: "fos_rest.request_body")]
-    public function initializeShop(Request $request, HorecaInitializeShopBody $body): Response
+    public function initializeShop(Request $request): Response
     {
-        $routeName = $request->attributes->get('_route');
-        $this->logger->info(sprintf('[%s] %s', $routeName, $request->getContent()));
-
-        $tenant = $this->protocolActionsService->authorizeTenant($request);
-
         try {
-            if (!$body->providerCredentials) {
-                $credentialsClass = $this->getParameter('horeca.provider_credentials_class');
-                $credentials = $this->tenantRepository->findTenantCredentials($tenant, $credentialsClass);
-            } else {
-                $credentials = $this->deserializeJson($this->serializeJson($body->providerCredentials), $this->providerApi->getProviderCredentialsClass());
-            }
+            /** @var HorecaInitializeShopBody $body */
+            $body = $this->deserializeRequestBody($request, HorecaInitializeShopBody::class);
+            $tenant = $this->protocolActionsService->authorizeTenant($request);
+            $credentials = $this->parseTenantCredentials($tenant, $body->providerCredentials);
 
             if (!$this->providerApi->initializeShop($body->horecaExternalServiceId, $credentials)) {
                 return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
@@ -157,6 +132,56 @@ class HorecaApiController extends AbstractFOSRestController
         } catch (\Exception $e) {
             return $this->handleException($e);
         }
+    }
+
+    private function parseTenantCredentials(Tenant $tenant, ?array $inputCredentials): object
+    {
+        if (empty($inputCredentials)) {
+            $credentialsClass = $this->getParameter('horeca.provider_credentials_class');
+            $credentials = $this->tenantRepository->findTenantCredentials($tenant, $credentialsClass);
+        } else {
+            $credentialsJson = $this->serializer->serialize($inputCredentials, 'json');
+            $credentials = $this->deserializeObject($credentialsJson, $this->providerApi->getProviderCredentialsClass());
+        }
+
+        return $credentials;
+    }
+
+    /**
+     * @throws ApiException
+     */
+    private function deserializeRequestBody(Request $request, string $type): object
+    {
+        $routeName = $request->attributes->get('_route');
+        $this->logger->info(sprintf('[%s] %s', $routeName, $request->getContent()));
+
+        $body = $this->deserializeObject($request->getContent(), $type);
+
+        $errors = $this->validateObject($body);
+        if (count($errors) > 0) {
+            throw new ApiException(json_encode($errors));
+        }
+
+        return $body;
+    }
+
+    private function deserializeObject(string $json, string $type): object
+    {
+        return $this->serializer->deserialize($json, $type, 'json');
+    }
+
+    private function validateObject(object $object): array
+    {
+        $errorMessages = [];
+        $errors = $this->validator->validate($object);
+        if (count($errors) > 0) {
+
+            foreach ($errors as $violation) {
+                $errorMessages[] = $this->translator->trans($violation->getMessage(), [], 'validators');
+            }
+        }
+
+        return $errorMessages;
     }
 
     private function handleException(\Exception $e): JsonResponse
@@ -174,7 +199,9 @@ class HorecaApiController extends AbstractFOSRestController
             $data['trace'] = $e->getTraceAsString();
         }
 
-        $code = $e instanceof ApiException ? Response::HTTP_BAD_REQUEST : Response::HTTP_INTERNAL_SERVER_ERROR;
+        $code = ($e instanceof HorecaException || $e instanceof ApiException)
+            ? Response::HTTP_BAD_REQUEST
+            : Response::HTTP_INTERNAL_SERVER_ERROR;
 
         return new JsonResponse($data, $code);
     }

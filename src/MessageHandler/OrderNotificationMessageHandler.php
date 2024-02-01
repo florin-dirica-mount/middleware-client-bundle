@@ -2,27 +2,44 @@
 
 namespace Horeca\MiddlewareClientBundle\MessageHandler;
 
-use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\EntityManagerDI;
-use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\LoggerDI;
+use Doctrine\ORM\EntityManagerInterface;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\OrderLoggerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProtocolActionsServiceDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Message\OrderNotificationMessage;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
 class OrderNotificationMessageHandler implements MessageSubscriberInterface
 {
-    use LoggerDI;
-    use EntityManagerDI;
-    use ProtocolActionsServiceDI;
+    private static ?string $transport = null;
+
     use OrderLoggerDI;
+    use ProtocolActionsServiceDI;
 
-    private string $transport;
+    protected EntityManagerInterface $entityManager;
+    protected LoggerInterface $logger;
 
-    public function __construct(string $transport)
+    /**
+     * @required
+     */
+    public function setLogger(LoggerInterface $logger): void
     {
-        $this->transport = $transport;
+        $this->logger = $logger;
+    }
+
+    /**
+     * @required
+     */
+    public function setEntityManager(EntityManagerInterface $entityManager): void
+    {
+        $this->entityManager = $entityManager;
+    }
+
+    public function __construct(?string $transport)
+    {
+        self::$transport = $transport;
     }
 
     /**
@@ -32,7 +49,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
     {
         yield OrderNotificationMessage::class => [
             'method'         => 'handleOrderNotificationMessage',
-            'from_transport' => 'hmc_order_notification'
+            'from_transport' => self::$transport ?: OrderNotificationMessage::TRANSPORT_DEFAULT
         ];
     }
 

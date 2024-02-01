@@ -2,6 +2,7 @@
 
 namespace Horeca\MiddlewareClientBundle\Repository;
 
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Horeca\MiddlewareClientBundle\Entity\BaseProviderCredentials;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
@@ -12,7 +13,7 @@ use Horeca\MiddlewareClientBundle\Entity\Tenant;
  * @method Tenant[]|array findAll()
  * @method Tenant[]|array findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class TenantRepository extends ExtendedEntityRepository
+class TenantRepository extends ServiceEntityRepository
 {
 
     public function __construct(ManagerRegistry $registry)
@@ -49,7 +50,7 @@ class TenantRepository extends ExtendedEntityRepository
             throw new \Exception(sprintf('Class %s is not a subclass of %s', $credentialsClass, BaseProviderCredentials::class));
         }
 
-        $repo = $this->getEntityManager()->getRepository($credentialsClass);
+        $repo = $this->_em->getRepository($credentialsClass);
 
         return $repo->findOneBy([
             'tenant' => $tenant,

@@ -26,7 +26,7 @@ class HorecaMiddlewareClientExtension extends Extension
     {
         $loader = new YamlFileLoader(
             $container,
-            new FileLocator(__DIR__ . '/../Resources/config')
+            new FileLocator(__DIR__ . '/../../Resources/config')
         );
 
         $this->loadServices($loader, $configs, $container);
@@ -37,16 +37,6 @@ class HorecaMiddlewareClientExtension extends Extension
         return 'horeca_middleware_client';
     }
 
-    private function defineRepositoryService(ContainerBuilder $container, $repositoryClass): void
-    {
-        $definition = new Definition($repositoryClass);
-        $definition->setAutowired(true);
-        $definition->setAutoconfigured(true);
-        $definition->addTag('doctrine.repository_service');
-
-        $container->setDefinition($repositoryClass, $definition);
-    }
-
     private function loadServices(YamlFileLoader $loader, array $configs, ContainerBuilder $container): void
     {
         $configuration = $this->getConfiguration($configs, $container);
@@ -55,34 +45,6 @@ class HorecaMiddlewareClientExtension extends Extension
         $container->setParameter('horeca.order_notification_messenger_transport', $config['order_notification_messenger_transport']);
         $container->setParameter('horeca.provider_api_class', $config['provider_api_class']);
         $container->setParameter('horeca.provider_credentials_class', $config['provider_credentials_class']);
-
-        // add provider service definition
-        $providerDefinition = new Definition($config['provider_api_class']);
-        $providerDefinition->setAutowired(true);
-        $providerDefinition->setAutoconfigured(true);
-        $container->setDefinition(ProviderApiInterface::class, $providerDefinition);
-
-        // add provider service definition
-        $providerDefinition = new Definition(ProtocolActionsService::class);
-        $providerDefinition->setAutowired(true);
-        $providerDefinition->setAutoconfigured(true);
-        $container->setDefinition(ProtocolActionsService::class, $providerDefinition);
-
-        $providerDefinition = new Definition(TenantApiService::class);
-        $providerDefinition->setClass(TenantApiService::class);
-        $providerDefinition->setAutowired(true);
-        $providerDefinition->setAutoconfigured(true);
-        $container->setDefinition(TenantApiServiceInterface::class, $providerDefinition);
-
-        $providerDefinition = new Definition(OrderLogger::class);
-        $providerDefinition->setAutowired(true);
-        $providerDefinition->setAutoconfigured(true);
-        $container->setDefinition(OrderLogger::class, $providerDefinition);
-
-        // add repository services definition
-        $this->defineRepositoryService($container, OrderNotificationRepository::class);
-        $this->defineRepositoryService($container, UserRepository::class);
-        $this->defineRepositoryService($container, TenantRepository::class);
 
         $loader->load('services.yaml');
     }

@@ -2,25 +2,35 @@
 
 namespace Horeca\MiddlewareClientBundle\MessageHandler;
 
-use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\EntityManagerDI;
-use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\LoggerDI;
+use Doctrine\ORM\EntityManagerInterface;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProtocolActionsServiceDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Message\OrderNotificationMessage;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
 class ExternalServiceOrderNotificationMessageHandler implements MessageSubscriberInterface
 {
-    use LoggerDI;
-    use EntityManagerDI;
     use ProtocolActionsServiceDI;
 
-    private string $transport;
+    protected EntityManagerInterface $entityManager;
+    protected LoggerInterface $logger;
 
-    public function __construct(string $transport)
+    /**
+     * @required
+     */
+    public function setLogger(LoggerInterface $logger): void
     {
-        $this->transport = $transport;
+        $this->logger = $logger;
+    }
+
+    /**
+     * @required
+     */
+    public function setEntityManager(EntityManagerInterface $entityManager): void
+    {
+        $this->entityManager = $entityManager;
     }
 
     /**

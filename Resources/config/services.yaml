@@ -1,0 +1,42 @@
+parameters:
+    horeca.order_notification_messenger_transport:
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire:      true      # Automatically injects dependencies in your services.
+        autoconfigure: true
+        public:        false
+
+    Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository:
+        tags:
+            - { name: doctrine.repository_service }
+
+    Horeca\MiddlewareClientBundle\Repository\UserRepository:
+        tags:
+            - { name: doctrine.repository_service }
+
+    Horeca\MiddlewareClientBundle\Repository\TenantRepository:
+        tags:
+            - { name: doctrine.repository_service }
+
+    Horeca\MiddlewareClientBundle\Controller\HorecaApiController:
+        tags: [ 'controller.service_arguments' ]
+
+    Horeca\MiddlewareClientBundle\Service\ProtocolActionsService:
+        arguments:
+            $providerCredentialsClass: '%horeca.provider_credentials_class%'
+
+    Horeca\MiddlewareClientBundle\Service\ProviderApiInterface:
+        class: '%horeca.provider_api_class%'    # It is defined in the bundle's config file
+
+    Horeca\MiddlewareClientBundle\Service\TenantApiServiceInterface:
+        class: Horeca\MiddlewareClientBundle\Service\TenantApiService
+
+    Horeca\MiddlewareClientBundle\Service\OrderLogger:
+
+    Horeca\MiddlewareClientBundle\MessageHandler\OrderNotificationMessageHandler:
+        arguments:
+            $transport: '%horeca.order_notification_messenger_transport%'
+        tags:
+            - { name: messenger.message_handler }

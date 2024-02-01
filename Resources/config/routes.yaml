@@ -1,0 +1,14 @@
+horeca_api_request_delivery:
+    path: /api/delivery/request
+    controller: Horeca\MiddlewareClientBundle\Controller\HorecaApiController::requestDelivery
+    methods: [POST]
+
+horeca_api_order_send:
+    path: /api/order/send
+    controller: Horeca\MiddlewareClientBundle\Controller\HorecaApiController::sendOrder
+    methods: [POST]
+
+horeca_api_shop_initialize:
+    path: /api/shop/initialize
+    controller: Horeca\MiddlewareClientBundle\Controller\HorecaApiController::initializeShop
+    methods: [POST]

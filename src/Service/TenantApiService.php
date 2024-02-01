@@ -4,19 +4,27 @@ namespace Horeca\MiddlewareClientBundle\Service;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\SerializerDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
 use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
 use Horeca\MiddlewareCommonLib\Model\Protocol\SendShoppingCartResponse;
+use JMS\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class TenantApiService implements TenantApiServiceInterface
 {
-    use SerializerDI;
-
     private ?Client $client = null;
+
+    protected SerializerInterface $serializer;
+
+    /**
+     * @required
+     */
+    public function setSerializer(SerializerInterface $serializer): void
+    {
+        $this->serializer = $serializer;
+    }
 
     /**
      * @throws HorecaException
@@ -24,7 +32,7 @@ class TenantApiService implements TenantApiServiceInterface
     public function confirmProviderNotified(OrderNotification $notification): bool
     {
         try {
-            $cart = $this->deserializeJson($notification->getHorecaPayload(), ShoppingCart::class);
+            $cart = $this->serializer->deserialize($notification->getHorecaPayload(), ShoppingCart::class, 'json');
 
             if (!$cart->getId()) {
                 throw new HorecaException('Missing API parameter: cart.id');

@@ -2,9 +2,7 @@
 
 namespace Horeca\MiddlewareClientBundle\Service;
 
-use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\EntityManagerDI;
-use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\LoggerDI;
-use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\SerializerDI;
+use Doctrine\ORM\EntityManagerInterface;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\TenantRepositoryDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProviderApiDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantApiServiceDI;
@@ -16,28 +14,53 @@ use Horeca\MiddlewareClientBundle\VO\Provider\ProviderOrderInterface;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
 use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
 use Horeca\MiddlewareCommonLib\Model\Protocol\SendShoppingCartResponse;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use JMS\Serializer\SerializerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class ProtocolActionsService
 {
-    use EntityManagerDI;
     use ProviderApiDI;
-    use SerializerDI;
-    use LoggerDI;
     use TenantRepositoryDI;
     use TenantApiServiceDI;
 
-    private string $providerCredentialsClass;
+    protected EntityManagerInterface $entityManager;
+    protected LoggerInterface $logger;
+    protected SerializerInterface $serializer;
 
-    public function __construct(ContainerInterface $container)
+    /**
+     * @required
+     */
+    public function setSerializer(SerializerInterface $serializer): void
     {
-        $this->providerCredentialsClass = (string) $container->getParameter('horeca.provider_credentials_class');
+        $this->serializer = $serializer;
     }
 
     /**
-     * @throws AccessDeniedException
+     * @required
+     */
+    public function setLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
+    }
+
+    /**
+     * @required
+     */
+    public function setEntityManager(EntityManagerInterface $entityManager): void
+    {
+        $this->entityManager = $entityManager;
+    }
+
+    private string $providerCredentialsClass;
+
+    public function __construct(string $providerCredentialsClass)
+    {
+        $this->providerCredentialsClass = $providerCredentialsClass;
+    }
+
+    /**
+     * @throws HorecaException
      */
     public function authorizeTenant(Request $request): Tenant
     {
@@ -53,15 +76,12 @@ class ProtocolActionsService
         }
 
         if (!$tenant) {
-            throw new AccessDeniedException('Invalid credentials');
+            throw new HorecaException('Invalid credentials');
         }
 
         return $tenant;
     }
 
-    /**
-     * @throws HorecaException
-     */
     public function handleExternalServiceOrderNotification(OrderNotification $notification): ?SendShoppingCartResponse
     {
         if (!$notification->getServicePayload() || !$notification->getRestaurantId()) {
@@ -75,14 +95,14 @@ class ProtocolActionsService
         }
 
         /** @var ProviderOrderInterface $order */
-        $order = $this->deserializeJson($notification->getServicePayload(), $this->providerApi->getProviderOrderClass());
+        $order = $this->serializer->deserialize($notification->getServicePayload(), $this->providerApi->getProviderOrderClass(), 'json');
         $shoppingCart = $this->providerApi->mapProviderOrderToShoppingCart($notification->getTenant(), $order);
 
-        $notification->setHorecaPayload($this->serializeJson($shoppingCart));
+        $notification->setHorecaPayload($this->serializer->serialize($shoppingCart, 'json'));
 
         $response = $this->tenantApiService->sendShoppingCart($notification->getTenant(), $shoppingCart, $notification->getRestaurantId());
 
-        $notification->setResponsePayload($this->serializeJson($response));
+        $notification->setResponsePayload($this->serializer->serialize($response, 'json'));
         $notification->setHorecaOrderId($response->horecaOrderId);
         $notification->changeStatus(OrderNotification::STATUS_NOTIFIED);
         $notification->setNotifiedAt(new \DateTime());
@@ -98,7 +118,7 @@ class ProtocolActionsService
     public function sendProviderOrderNotification(OrderNotification $notification): ?BaseProviderOrderResponse
     {
         /** @var ShoppingCart $cart */
-        $cart = $this->deserializeJson($notification->getHorecaPayload(), ShoppingCart::class);
+        $cart = $this->serializer->deserialize($notification->getHorecaPayload(), ShoppingCart::class, 'json');
 
         $this->logger->info('[handleOrderNotificationMessage] CartId: ' . $cart->getId());
 
@@ -106,7 +126,7 @@ class ProtocolActionsService
             $credentials = $this->tenantRepository->findTenantCredentials($notification->getTenant(), $this->providerCredentialsClass);
         } elseif ($notification->getServiceCredentials()) {
             /** @var ProviderCredentialsInterface $credentials */
-            $credentials = $this->deserializeJson($notification->getServiceCredentials(), $this->providerApi->getProviderCredentialsClass());
+            $credentials = $this->serializer->deserialize($notification->getServiceCredentials(), $this->providerApi->getProviderCredentialsClass(), 'json');
         } else {
             $credentials = null;
         }
@@ -116,11 +136,11 @@ class ProtocolActionsService
         }
 
         $providerOrder = $this->providerApi->mapShoppingCartToProviderOrder($notification->getTenant(), $cart);
-        $notification->setServicePayload($this->serializeJson($providerOrder));
+        $notification->setServicePayload($this->serializer->serialize($providerOrder, 'json'));
 
         $response = $this->providerApi->saveOrder($providerOrder, $credentials);
 
-        $notification->setResponsePayload($this->serializeJson($response));
+        $notification->setResponsePayload($this->serializer->serialize($response, 'json'));
         $notification->setServiceOrderId((string) $response->orderId);
         $notification->changeStatus(OrderNotification::STATUS_NOTIFIED);
         $notification->setNotifiedAt(new \DateTime());

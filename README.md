@@ -46,16 +46,24 @@ HORECA_BASE_URL="The horeca backend URL"
 HORECA_API_KEY="The API key used to send requests to horeca backend"
 HORECA_SHARED_KEY="The API key horeca backend uses to send requests to middleware api"
 HORECA_MIDDLEWARE_CLIENT_ID="The middleware client id configured in horeca backend. Used to send requests to horeca backend"
-HORECA_ENABLE_REQUEST_EXCEPTION_LOGGING="Any request exception will be logged to request_logs table"
 ```
 
-### Add bundle configuration in `config/packages/horeca_middleware_client.yaml`
+### Add bundle configuration
+
+- `config/packages/horeca_middleware_client.yaml`
 
 ```yaml
 horeca_middleware_client:
     provider_api_class: App\Service\ProviderApi
     provider_credentials_class: App\Entity\ProviderCredentials # this entity must extend Horeca\MiddlewareClientBundle\Entity\BaseProviderCredentials
     order_notification_messenger_transport: hmc_order_notification
+```
+
+- `config/routes/horeca_middleware_client.yaml`
+
+```yaml
+horeca_middleware_client:
+    resource: "@HorecaMiddlewareClientBundle/Resources/config/routes.yaml"
 ```
 
 - Create entity for tenant provider credentials at `App\Entity\ProviderCredentials`
