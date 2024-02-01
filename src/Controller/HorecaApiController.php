@@ -72,10 +72,8 @@ class HorecaApiController extends AbstractFOSRestController
             }
 
             return new JsonResponse(['success' => true]);
-        } catch (\Exception $exception) {
-            $this->logger->error($exception->getMessage());
-
-            return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
+        } catch (\Exception $e) {
+            return $this->handleException($e);
         }
     }
 
@@ -130,23 +128,7 @@ class HorecaApiController extends AbstractFOSRestController
 
             return new JsonResponse(['success' => true]);
         } catch (\Exception $e) {
-            $this->logger->error(sprintf('[%s] %s', __METHOD__, $e->getMessage()));
-            $this->logger->error(sprintf('[%s] %s', __METHOD__, $e->getTraceAsString()));
-
-            $data = [
-                'success' => false
-            ];
-
-            if ($this->isProdEnv()) {
-                $data['error'] = $e instanceof ApiException ? $e->getMessage() : 'An error occurred while processing your request. Please try again later.';
-            } else {
-                $data['error'] = $e->getMessage();
-            }
-            if ($this->isTestEnv()) {
-                $data['trace'] = $e->getTraceAsString();
-            }
-
-            return new JsonResponse($data, Response::HTTP_BAD_REQUEST);
+            return $this->handleException($e);
         }
     }
 
@@ -173,9 +155,27 @@ class HorecaApiController extends AbstractFOSRestController
 
             return new JsonResponse(['success' => true]);
         } catch (\Exception $e) {
-            $this->logger->error(sprintf('[%s] %s', __METHOD__, $e->getMessage()));
-
-            return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
+            return $this->handleException($e);
         }
+    }
+
+    private function handleException(\Exception $e): JsonResponse
+    {
+        $this->logger->error(sprintf('[%s] %s', __METHOD__, $e->getMessage()));
+        $this->logger->error(sprintf('[%s] %s', __METHOD__, $e->getTraceAsString()));
+
+        $data = [
+            'success' => false,
+            'message' => $e->getMessage(),
+        ];
+
+        $env = $this->getParameter('kernel.environment');
+        if ($env === 'test') {
+            $data['trace'] = $e->getTraceAsString();
+        }
+
+        $code = $e instanceof ApiException ? Response::HTTP_BAD_REQUEST : Response::HTTP_INTERNAL_SERVER_ERROR;
+
+        return new JsonResponse($data, $code);
     }
 }
