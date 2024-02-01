@@ -6,14 +6,12 @@ use Doctrine\ORM\EntityManagerInterface;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\TenantRepositoryDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProtocolActionsServiceDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProviderApiDI;
+use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantServiceDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
 use Horeca\MiddlewareClientBundle\Exception\ApiException;
 use Horeca\MiddlewareClientBundle\Message\OrderNotificationMessage;
 use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
-use Horeca\MiddlewareClientBundle\Repository\TenantRepository;
-use Horeca\MiddlewareClientBundle\Service\ProtocolActionsService;
-use Horeca\MiddlewareClientBundle\Service\ProviderApiInterface;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaInitializeShopBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaRequestDeliveryBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaSendOrderBody;
@@ -33,21 +31,13 @@ class HorecaApiController extends AbstractController
     use TenantRepositoryDI;
     use ProviderApiDI;
     use ProtocolActionsServiceDI;
+    use TenantServiceDI;
 
-    protected SerializerInterface $serializer;
-    protected LoggerInterface $logger;
-    private ValidatorInterface $validator;
-    private TranslatorInterface $translator;
-
-    public function __construct(SerializerInterface $serializer,
-                                LoggerInterface     $logger,
-                                ValidatorInterface  $validator,
-                                TranslatorInterface $translator)
+    public function __construct(protected SerializerInterface $serializer,
+                                protected LoggerInterface     $logger,
+                                protected ValidatorInterface  $validator,
+                                protected TranslatorInterface $translator)
     {
-        $this->serializer = $serializer;
-        $this->logger = $logger;
-        $this->validator = $validator;
-        $this->translator = $translator;
     }
 
     public function requestDelivery(Request $request): Response
@@ -56,7 +46,7 @@ class HorecaApiController extends AbstractController
             /** @var HorecaRequestDeliveryBody $body */
             $body = $this->deserializeRequestBody($request, HorecaSendOrderBody::class);
             $tenant = $this->protocolActionsService->authorizeTenant($request);
-            $credentials = $this->parseTenantCredentials($tenant, $body->providerCredentials);
+            $credentials = $this->tenantService->compileTenantCredentials($tenant, $body->providerCredentials);
 
             $errors = $this->validateObject($body->form);
             if (count($errors) > 0) {
@@ -90,8 +80,11 @@ class HorecaApiController extends AbstractController
 
                 $order = new OrderNotification();
                 $order->setType(OrderNotification::TYPE_NEW_ORDER);
+                $order->setSource(OrderNotification::SOURCE_HORECA);
 
                 $dispatchMessage = true;
+            } else {
+                $order->setType(OrderNotification::TYPE_ORDER_UPDATE);
             }
 
             $order->setTenant($tenant);
@@ -100,7 +93,7 @@ class HorecaApiController extends AbstractController
             $order->setRestaurantId($body->cart->getRestaurant()->getId());
 
             if ($body->providerCredentials) {
-                $order->setServiceCredentials($this->serializer->serialize($body->providerCredentials, 'json'));
+                $order->setServiceCredentials($body->providerCredentials);
             }
 
             $entityManager->persist($order);
@@ -122,7 +115,7 @@ class HorecaApiController extends AbstractController
             /** @var HorecaInitializeShopBody $body */
             $body = $this->deserializeRequestBody($request, HorecaInitializeShopBody::class);
             $tenant = $this->protocolActionsService->authorizeTenant($request);
-            $credentials = $this->parseTenantCredentials($tenant, $body->providerCredentials);
+            $credentials = $this->tenantService->compileTenantCredentials($tenant, $body->providerCredentials);
 
             if (!$this->providerApi->initializeShop($body->horecaExternalServiceId, $credentials)) {
                 return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
@@ -132,19 +125,6 @@ class HorecaApiController extends AbstractController
         } catch (\Exception $e) {
             return $this->handleException($e);
         }
-    }
-
-    private function parseTenantCredentials(Tenant $tenant, ?array $inputCredentials): object
-    {
-        if (empty($inputCredentials)) {
-            $credentialsClass = $this->getParameter('horeca.provider_credentials_class');
-            $credentials = $this->tenantRepository->findTenantCredentials($tenant, $credentialsClass);
-        } else {
-            $credentialsJson = $this->serializer->serialize($inputCredentials, 'json');
-            $credentials = $this->deserializeObject($credentialsJson, $this->providerApi->getProviderCredentialsClass());
-        }
-
-        return $credentials;
     }
 
     /**

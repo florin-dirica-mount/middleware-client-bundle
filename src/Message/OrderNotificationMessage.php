@@ -2,7 +2,6 @@
 
 namespace Horeca\MiddlewareClientBundle\Message;
 
-
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 
 class OrderNotificationMessage

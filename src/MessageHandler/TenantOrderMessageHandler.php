@@ -7,14 +7,18 @@ use Horeca\MiddlewareClientBundle\DependencyInjection\Service\OrderLoggerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProtocolActionsServiceDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Message\OrderNotificationMessage;
+use Horeca\MiddlewareClientBundle\Message\TenantOrderConfirmProviderNotifiedMessage;
+use Horeca\MiddlewareClientBundle\Message\TenantOrderProcessMappingMessage;
+use Horeca\MiddlewareClientBundle\Message\TenantOrderSendToProviderMessage;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
-class OrderNotificationMessageHandler implements MessageSubscriberInterface
+/**
+ * Handles orders from Tenant to Provider
+ */
+class TenantOrderMessageHandler implements MessageSubscriberInterface
 {
-    private static ?string $transport = null;
-
     use OrderLoggerDI;
     use ProtocolActionsServiceDI;
 
@@ -37,30 +41,35 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
         $this->entityManager = $entityManager;
     }
 
-    public function __construct(?string $transport)
-    {
-        self::$transport = $transport;
-    }
-
     /**
      * @inheritDoc
      */
     public static function getHandledMessages(): iterable
     {
-        yield OrderNotificationMessage::class => [
-            'method'         => 'handleOrderNotificationMessage',
-            'from_transport' => self::$transport ?: OrderNotificationMessage::TRANSPORT_DEFAULT
+        yield TenantOrderProcessMappingMessage::class => [
+            'method'         => 'handleTenantOrderProcessMappingMessage',
+            'from_transport' => TenantOrderProcessMappingMessage::TRANSPORT_DEFAULT
+        ];
+
+        yield TenantOrderSendToProviderMessage::class => [
+            'method'         => 'handleTenantOrderSendToProviderMessage',
+            'from_transport' => TenantOrderSendToProviderMessage::TRANSPORT_DEFAULT
+        ];
+
+        yield TenantOrderConfirmProviderNotifiedMessage::class => [
+            'method'         => 'handleTenantOrderConfirmProviderNotifiedMessage',
+            'from_transport' => TenantOrderConfirmProviderNotifiedMessage::TRANSPORT_DEFAULT
         ];
     }
 
-    public function handleOrderNotificationMessage(OrderNotificationMessage $message): void
+    public function handleTenantOrderProcessMappingMessage(OrderNotificationMessage $message): void
     {
         $this->orderLogger->logMemoryUsage();
 
         $notification = $this->entityManager->find(OrderNotification::class, $message->getOrderNotificationId());
 
         try {
-            $this->protocolActionsService->sendProviderOrderNotification($notification);
+            $this->protocolActionsService->sendTenantOrderToProvider($notification);
         } catch (\Exception $e) {
             $this->orderLogger->error(__METHOD__, __LINE__, $e->getMessage());
 

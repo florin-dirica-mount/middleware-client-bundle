@@ -10,7 +10,10 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
-class ExternalServiceOrderNotificationMessageHandler implements MessageSubscriberInterface
+/**
+ * Handles orders from Provider to Tenant
+ */
+class ProviderOrderMessageHandler implements MessageSubscriberInterface
 {
     use ProtocolActionsServiceDI;
 
@@ -49,7 +52,7 @@ class ExternalServiceOrderNotificationMessageHandler implements MessageSubscribe
         $notification = $this->entityManager->find(OrderNotification::class, $message->getOrderNotificationId());
 
         try {
-            $this->protocolActionsService->handleExternalServiceOrderNotification($notification);
+            $this->protocolActionsService->sendProviderOrderToTenant($notification);
         } catch (\Exception $e) {
             $this->logger->error('[handleExternalServiceOrderNotification] Exception: ' . $e->getMessage());
             $this->logger->error('[handleExternalServiceOrderNotification] Exception: ' . $e->getTraceAsString());

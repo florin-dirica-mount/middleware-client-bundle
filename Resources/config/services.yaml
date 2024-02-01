@@ -27,6 +27,10 @@ services:
         arguments:
             $providerCredentialsClass: '%horeca.provider_credentials_class%'
 
+    Horeca\MiddlewareClientBundle\Service\TenantService:
+        arguments:
+            $providerCredentialsClass: '%horeca.provider_credentials_class%'
+
     Horeca\MiddlewareClientBundle\Service\ProviderApiInterface:
         class: '%horeca.provider_api_class%'    # It is defined in the bundle's config file
 
@@ -35,8 +39,10 @@ services:
 
     Horeca\MiddlewareClientBundle\Service\OrderLogger:
 
-    Horeca\MiddlewareClientBundle\MessageHandler\OrderNotificationMessageHandler:
-        arguments:
-            $transport: '%horeca.order_notification_messenger_transport%'
+    Horeca\MiddlewareClientBundle\MessageHandler\TenantOrderMessageHandler:
+        tags:
+            - { name: messenger.message_handler }
+
+    Horeca\MiddlewareClientBundle\MessageHandler\ProviderOrderMessageHandler:
         tags:
             - { name: messenger.message_handler }

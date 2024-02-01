@@ -6,8 +6,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\TenantRepositoryDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProviderApiDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantApiServiceDI;
+use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantServiceDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
+use Horeca\MiddlewareClientBundle\Exception\ApiException;
+use Horeca\MiddlewareClientBundle\Exception\OrderMappingException;
 use Horeca\MiddlewareClientBundle\VO\Provider\BaseProviderOrderResponse;
 use Horeca\MiddlewareClientBundle\VO\Provider\ProviderCredentialsInterface;
 use Horeca\MiddlewareClientBundle\VO\Provider\ProviderOrderInterface;
@@ -17,46 +20,24 @@ use Horeca\MiddlewareCommonLib\Model\Protocol\SendShoppingCartResponse;
 use JMS\Serializer\SerializerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ProtocolActionsService
 {
+    const AUTHORIZATION_HEADER = 'Authorization';
+    const API_KEY_HEADER = 'Api-Key';
+
     use ProviderApiDI;
     use TenantRepositoryDI;
     use TenantApiServiceDI;
+    use TenantServiceDI;
 
-    protected EntityManagerInterface $entityManager;
-    protected LoggerInterface $logger;
-    protected SerializerInterface $serializer;
-
-    /**
-     * @required
-     */
-    public function setSerializer(SerializerInterface $serializer): void
+    public function __construct(protected string                 $providerCredentialsClass,
+                                protected EntityManagerInterface $entityManager,
+                                protected LoggerInterface        $logger,
+                                protected ValidatorInterface     $validator,
+                                protected SerializerInterface    $serializer)
     {
-        $this->serializer = $serializer;
-    }
-
-    /**
-     * @required
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
-    }
-
-    /**
-     * @required
-     */
-    public function setEntityManager(EntityManagerInterface $entityManager): void
-    {
-        $this->entityManager = $entityManager;
-    }
-
-    private string $providerCredentialsClass;
-
-    public function __construct(string $providerCredentialsClass)
-    {
-        $this->providerCredentialsClass = $providerCredentialsClass;
     }
 
     /**
@@ -64,12 +45,12 @@ class ProtocolActionsService
      */
     public function authorizeTenant(Request $request): Tenant
     {
-        if ($auth = $request->headers->get('Authorization')) {
+        if ($auth = $request->headers->get(self::AUTHORIZATION_HEADER)) {
             $credentials = base64_decode(substr($auth, 6));
             list($id, $apiKey) = explode(':', $credentials);
 
             $tenant = $this->tenantRepository->findOneByApiKeyAndId($apiKey, $id);
-        } elseif ($auth = $request->headers->get('Api-Key')) {
+        } elseif ($auth = $request->headers->get(self::API_KEY_HEADER)) {
             $tenant = $this->tenantRepository->findOneByApiKey((string) $auth);
         } else {
             $tenant = null;
@@ -82,7 +63,7 @@ class ProtocolActionsService
         return $tenant;
     }
 
-    public function handleExternalServiceOrderNotification(OrderNotification $notification): ?SendShoppingCartResponse
+    public function sendProviderOrderToTenant(OrderNotification $notification): ?SendShoppingCartResponse
     {
         if (!$notification->getServicePayload() || !$notification->getRestaurantId()) {
             $this->logger->warning('[handleExternalServiceOrderNotification] missing ServicePayload or RestaurantId. Action aborted for notification: ' . $notification->getId());
@@ -113,31 +94,43 @@ class ProtocolActionsService
     }
 
     /**
-     * @throws \Exception
+     * @throws ApiException
      */
-    public function sendProviderOrderNotification(OrderNotification $notification): ?BaseProviderOrderResponse
+    public function mapTenantOrderToProviderOrder(OrderNotification $order): ProviderOrderInterface
     {
         /** @var ShoppingCart $cart */
-        $cart = $this->serializer->deserialize($notification->getHorecaPayload(), ShoppingCart::class, 'json');
+        $cart = $this->serializer->deserialize($order->getHorecaPayload(), ShoppingCart::class, 'json');
 
-        $this->logger->info('[handleOrderNotificationMessage] CartId: ' . $cart->getId());
-
-        if ($notification->getTenant() && !$notification->getServiceCredentials()) {
-            $credentials = $this->tenantRepository->findTenantCredentials($notification->getTenant(), $this->providerCredentialsClass);
-        } elseif ($notification->getServiceCredentials()) {
-            /** @var ProviderCredentialsInterface $credentials */
-            $credentials = $this->serializer->deserialize($notification->getServiceCredentials(), $this->providerApi->getProviderCredentialsClass(), 'json');
-        } else {
-            $credentials = null;
+        $errors = $this->validator->validate($cart);
+        if (count($errors) > 0) {
+            throw new OrderMappingException($errors->get(0)->getMessage());
         }
 
-        if (!$credentials) {
-            throw new \Exception('Missing parameters: provider credentials!');
+        $providerOrder = $this->providerApi->mapShoppingCartToProviderOrder($order->getTenant(), $cart);
+        $order->setServicePayload($this->serializer->serialize($providerOrder, 'json'));
+
+        $order->changeStatus(OrderNotification::STATUS_MAPPED);
+        $order->setNotifiedAt(new \DateTime());
+
+        $this->entityManager->persist($order);
+        $this->entityManager->flush();
+
+        return $providerOrder;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function sendTenantOrderToProvider(OrderNotification $notification): ?BaseProviderOrderResponse
+    {
+        $providerOrder = $this->serializer->deserialize($notification->getServicePayload(), $this->providerApi->getProviderOrderClass(), 'json');
+
+        $errors = $this->validator->validate($providerOrder);
+        if (count($errors) > 0) {
+            throw new OrderMappingException($errors->get(0)->getMessage());
         }
 
-        $providerOrder = $this->providerApi->mapShoppingCartToProviderOrder($notification->getTenant(), $cart);
-        $notification->setServicePayload($this->serializer->serialize($providerOrder, 'json'));
-
+        $credentials = $this->tenantService->compileTenantCredentials($notification->getTenant(), $notification->getServiceCredentials());
         $response = $this->providerApi->saveOrder($providerOrder, $credentials);
 
         $notification->setResponsePayload($this->serializer->serialize($response, 'json'));
@@ -147,9 +140,22 @@ class ProtocolActionsService
 
         $this->entityManager->flush();
 
+        return $response;
+    }
+
+    public function sendTenantOrderStatusNotification(OrderNotification $notification): void
+    {
+        if ($notification->getStatus() !== OrderNotification::STATUS_NOTIFIED) {
+            $this->logger->warning('[sendTenantOrderStatusNotification] notification status is not notified. Action aborted for notification: ' . $notification->getId());
+
+            throw new OrderMappingException('Order is not sent to provider.');
+        }
+
         $this->tenantApiService->confirmProviderNotified($notification);
 
-        return $response;
+        $notification->changeStatus(OrderNotification::STATUS_CONFIRMED);
+
+        $this->entityManager->flush();
     }
 
 }
