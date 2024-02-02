@@ -98,12 +98,16 @@ horeca:
 framework:
     messenger:
         transports:
-            # (...)
-            hmc_order_notification: '%env(MESSENGER_TRANSPORT_DSN)%?queue_name=hmc_order_notification'
-            # (...)
+            hmc_map_tenant_order_to_provider: '%env(resolve:MESSENGER_TRANSPORT_DSN)%'
+            hmc_tenant_order_send_to_provider: '%env(resolve:MESSENGER_TRANSPORT_DSN)%'
+            hmc_tenant_order_confirm_provider_notified: '%env(resolve:MESSENGER_TRANSPORT_DSN)%'
+            hmc_external_service_order_notification: '%env(resolve:MESSENGER_TRANSPORT_DSN)%'
+
         routing:
-            'Horeca\MiddlewareClientBundle\Message\OrderNotificationMessage': hmc_order_notification
-            # (...)
+            'Horeca\MiddlewareClientBundle\Message\MapTenantOrderToProviderMessage': hmc_map_tenant_order_to_provider
+            'Horeca\MiddlewareClientBundle\Message\SendTenantOrderToProviderMessage': hmc_tenant_order_send_to_provider
+            'Horeca\MiddlewareClientBundle\Message\SendTenantOrderConfirmationMessage': hmc_tenant_order_confirm_provider_notified
+            'Horeca\MiddlewareClientBundle\Message\SEND_PROVIDER_ORDER_TO_TENANT': hmc_external_service_order_notification
 ```
 
 #### Post-install

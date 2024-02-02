@@ -9,10 +9,10 @@ use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantApiServiceDI
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantServiceDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
+use Horeca\MiddlewareClientBundle\Enum\ValidationGroups;
 use Horeca\MiddlewareClientBundle\Exception\ApiException;
 use Horeca\MiddlewareClientBundle\Exception\OrderMappingException;
 use Horeca\MiddlewareClientBundle\VO\Provider\BaseProviderOrderResponse;
-use Horeca\MiddlewareClientBundle\VO\Provider\ProviderCredentialsInterface;
 use Horeca\MiddlewareClientBundle\VO\Provider\ProviderOrderInterface;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
 use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
@@ -101,7 +101,7 @@ class ProtocolActionsService
         /** @var ShoppingCart $cart */
         $cart = $this->serializer->deserialize($order->getHorecaPayload(), ShoppingCart::class, 'json');
 
-        $errors = $this->validator->validate($cart);
+        $errors = $this->validator->validate($cart, null, [ValidationGroups::Default, ValidationGroups::Middleware]);
         if (count($errors) > 0) {
             throw new OrderMappingException($errors->get(0)->getMessage());
         }
@@ -125,7 +125,7 @@ class ProtocolActionsService
     {
         $providerOrder = $this->serializer->deserialize($notification->getServicePayload(), $this->providerApi->getProviderOrderClass(), 'json');
 
-        $errors = $this->validator->validate($providerOrder);
+        $errors = $this->validator->validate($providerOrder, null, [ValidationGroups::Default, ValidationGroups::Middleware]);
         if (count($errors) > 0) {
             throw new OrderMappingException($errors->get(0)->getMessage());
         }

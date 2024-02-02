@@ -8,9 +8,8 @@ use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProtocolActionsSer
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProviderApiDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantServiceDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
-use Horeca\MiddlewareClientBundle\Entity\Tenant;
+use Horeca\MiddlewareClientBundle\Enum\ValidationGroups;
 use Horeca\MiddlewareClientBundle\Exception\ApiException;
-use Horeca\MiddlewareClientBundle\Message\OrderNotificationMessage;
 use Horeca\MiddlewareClientBundle\Message\MapTenantOrderToProviderMessage;
 use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaInitializeShopBody;
@@ -154,7 +153,7 @@ class HorecaApiController extends AbstractController
     private function validateObject(object $object): array
     {
         $errorMessages = [];
-        $errors = $this->validator->validate($object);
+        $errors = $this->validator->validate($object, null, [ValidationGroups::Default, ValidationGroups::Middleware]);
         if (count($errors) > 0) {
 
             foreach ($errors as $violation) {
