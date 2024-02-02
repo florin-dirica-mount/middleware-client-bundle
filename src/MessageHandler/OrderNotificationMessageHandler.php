@@ -8,10 +8,11 @@ use Horeca\MiddlewareClientBundle\DependencyInjection\Service\OrderLoggerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProtocolActionsServiceDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Exception\OrderMappingException;
+use Horeca\MiddlewareClientBundle\Message\MapTenantOrderToProviderMessage;
+use Horeca\MiddlewareClientBundle\Message\MessageTransports;
 use Horeca\MiddlewareClientBundle\Message\OrderNotificationMessage;
 use Horeca\MiddlewareClientBundle\Message\SendProviderOrderToTenantMessage;
 use Horeca\MiddlewareClientBundle\Message\SendTenantOrderConfirmationMessage;
-use Horeca\MiddlewareClientBundle\Message\MapTenantOrderToProviderMessage;
 use Horeca\MiddlewareClientBundle\Message\SendTenantOrderToProviderMessage;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
@@ -51,27 +52,27 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
     public static function getHandledMessages(): iterable
     {
         yield MapTenantOrderToProviderMessage::class => [
-            'method'         => 'handleTenantOrderProcessMappingMessage',
-            'from_transport' => MapTenantOrderToProviderMessage::TRANSPORT
+            'method'         => 'handleMapTenantOrderToProviderMessage',
+            'from_transport' => MessageTransports::MAP_TENANT_ORDER_TO_PROVIDER
         ];
 
         yield SendTenantOrderToProviderMessage::class => [
-            'method'         => 'handleTenantOrderSendToProviderMessage',
-            'from_transport' => SendTenantOrderToProviderMessage::TRANSPORT
+            'method'         => 'handleSendTenantOrderToProviderMessage',
+            'from_transport' => MessageTransports::SEND_TENANT_ORDER_TO_PROVIDER
         ];
 
         yield SendTenantOrderConfirmationMessage::class => [
-            'method'         => 'handleTenantOrderConfirmProviderNotifiedMessage',
-            'from_transport' => SendTenantOrderConfirmationMessage::TRANSPORT
+            'method'         => 'handleSendTenantOrderConfirmationMessage',
+            'from_transport' => MessageTransports::TENANT_CONFIRM_ORDER_SENT_TO_PROVIDER
         ];
 
         yield SendProviderOrderToTenantMessage::class => [
             'method'         => 'handleSendProviderOrderToTenantMessage',
-            'from_transport' => SendProviderOrderToTenantMessage::TRANSPORT
+            'from_transport' => MessageTransports::SEND_PROVIDER_ORDER_TO_TENANT
         ];
     }
 
-    public function handleTenantOrderProcessMappingMessage(OrderNotificationMessage $message): void
+    public function handleMapTenantOrderToProviderMessage(OrderNotificationMessage $message): void
     {
         $this->orderLogger->logMemoryUsage();
         $notification = $this->getMessageOrderNotification($message);
@@ -82,11 +83,11 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             $this->onOrderNotificationException($notification, $e);
         } finally {
             $this->orderLogger->logMemoryUsage();
-            $this->orderLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleTenantOrderProcessMappingMessage');
+            $this->orderLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleMapTenantOrderToProviderMessage');
         }
     }
 
-    public function handleTenantOrderSendToProviderMessage(OrderNotificationMessage $message): void
+    public function handleSendTenantOrderToProviderMessage(OrderNotificationMessage $message): void
     {
         $this->orderLogger->logMemoryUsage();
         $notification = $this->getMessageOrderNotification($message);
@@ -103,11 +104,11 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             $this->onOrderNotificationException($notification, $e);
         } finally {
             $this->orderLogger->logMemoryUsage();
-            $this->orderLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleTenantOrderSendToProviderMessage');
+            $this->orderLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleSendTenantOrderToProviderMessage');
         }
     }
 
-    public function handleTenantOrderConfirmProviderNotifiedMessage(OrderNotificationMessage $message): void
+    public function handleSendTenantOrderConfirmationMessage(OrderNotificationMessage $message): void
     {
         $this->orderLogger->logMemoryUsage();
         $notification = $this->getMessageOrderNotification($message);
@@ -124,7 +125,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             $this->onOrderNotificationException($notification, $e);
         } finally {
             $this->orderLogger->logMemoryUsage();
-            $this->orderLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleTenantOrderConfirmProviderNotifiedMessage');
+            $this->orderLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleSendTenantOrderConfirmationMessage');
         }
     }
 

@@ -7,5 +7,4 @@ namespace Horeca\MiddlewareClientBundle\Message;
  */
 class SendTenantOrderConfirmationMessage extends OrderNotificationMessage
 {
-    const TRANSPORT = 'hmc_tenant_order_confirm_provider_notified';
 }
