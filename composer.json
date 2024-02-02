@@ -2,11 +2,6 @@
     "name": "horeca/middleware-client-bundle",
     "description": "A symfony bundle containing core functionality for custom horeca services integrations",
     "type": "symfony-bundle",
-    "autoload": {
-        "psr-4": {
-            "Horeca\\MiddlewareClientBundle\\": "src/"
-        }
-    },
     "authors": [
         {
             "name": "Florin Dirica",
@@ -43,6 +38,16 @@
             "url": "https://gitlab.com/horeca-universal/libs/middleware-common-lib.git"
         }
     ],
+    "autoload": {
+        "psr-4": {
+            "Horeca\\MiddlewareClientBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Horeca\\MiddlewareClientBundle\\Tests\\": "tests/"
+        }
+    },
     "scripts": {
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
