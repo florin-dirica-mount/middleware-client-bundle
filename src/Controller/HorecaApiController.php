@@ -3,6 +3,7 @@
 namespace Horeca\MiddlewareClientBundle\Controller;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\OrderNotificationRepositoryDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\TenantRepositoryDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProtocolActionsServiceDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProviderApiDI;
@@ -30,6 +31,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class HorecaApiController extends AbstractController
 {
+    use OrderNotificationRepositoryDI;
     use TenantRepositoryDI;
     use ProviderApiDI;
     use ProtocolActionsServiceDI;
@@ -98,8 +100,7 @@ class HorecaApiController extends AbstractController
                 $order->setServiceCredentials($body->providerCredentials);
             }
 
-            $entityManager->persist($order);
-            $entityManager->flush();
+            $this->orderNotificationRepository->save($order);
 
             if ($dispatchMessage) {
                 $messageBus->dispatch(new MapTenantOrderToProviderMessage($order));

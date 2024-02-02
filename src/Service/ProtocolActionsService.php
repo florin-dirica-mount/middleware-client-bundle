@@ -3,6 +3,7 @@
 namespace Horeca\MiddlewareClientBundle\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\OrderNotificationRepositoryDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\TenantRepositoryDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProviderApiDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantApiServiceDI;
@@ -28,13 +29,13 @@ class ProtocolActionsService
     const AUTHORIZATION_HEADER = 'Authorization';
     const API_KEY_HEADER = 'Api-Key';
 
+    use OrderNotificationRepositoryDI;
     use ProviderApiDI;
     use TenantRepositoryDI;
     use TenantApiServiceDI;
     use TenantServiceDI;
 
     public function __construct(protected string                 $providerCredentialsClass,
-                                protected EntityManagerInterface $entityManager,
                                 protected LoggerInterface        $logger,
                                 protected ValidatorInterface     $validator,
                                 protected SerializerInterface    $serializer)
@@ -72,15 +73,22 @@ class ProtocolActionsService
             $notification->changeStatus(OrderNotificationStatus::Failed);
             $notification->setErrorMessage('Missing ServicePayload. Action aborted');
 
-            $this->entityManager->flush();
+            $this->orderNotificationRepository->save($notification);
+
             return null;
         }
+
+        $notification->changeStatus(OrderNotificationStatus::MappingStarted);
+        $this->orderNotificationRepository->save($notification);
 
         /** @var ProviderOrderInterface $order */
         $order = $this->serializer->deserialize($notification->getServicePayload(), $this->providerApi->getProviderOrderClass(), 'json');
         $shoppingCart = $this->providerApi->mapProviderOrderToShoppingCart($notification->getTenant(), $order);
 
+        $notification->changeStatus(OrderNotificationStatus::Mapped);
         $notification->setHorecaPayload($this->serializer->serialize($shoppingCart, 'json'));
+        $notification->changeStatus(OrderNotificationStatus::SendingNotification);
+        $this->orderNotificationRepository->save($notification);
 
         $response = $this->tenantApiService->sendShoppingCart($notification->getTenant(), $shoppingCart, $notification->getRestaurantId());
 
@@ -89,7 +97,7 @@ class ProtocolActionsService
         $notification->changeStatus(OrderNotificationStatus::Notified);
         $notification->setNotifiedAt(new \DateTime());
 
-        $this->entityManager->flush();
+        $this->orderNotificationRepository->save($notification);
 
         return $response;
     }
@@ -97,24 +105,23 @@ class ProtocolActionsService
     /**
      * @throws ApiException
      */
-    public function mapTenantOrderToProviderOrder(OrderNotification $order): ProviderOrderInterface
+    public function mapTenantOrderToProviderOrder(OrderNotification $notification): ProviderOrderInterface
     {
         /** @var ShoppingCart $cart */
-        $cart = $this->serializer->deserialize($order->getHorecaPayload(), ShoppingCart::class, 'json');
+        $cart = $this->serializer->deserialize($notification->getHorecaPayload(), ShoppingCart::class, 'json');
 
         $errors = $this->validator->validate($cart, null, [ValidationGroups::Default, ValidationGroups::Middleware]);
         if (count($errors) > 0) {
             throw new OrderMappingException($errors->get(0)->getMessage());
         }
 
-        $providerOrder = $this->providerApi->mapShoppingCartToProviderOrder($order->getTenant(), $cart);
-        $order->setServicePayload($this->serializer->serialize($providerOrder, 'json'));
+        $providerOrder = $this->providerApi->mapShoppingCartToProviderOrder($notification->getTenant(), $cart);
+        $notification->setServicePayload($this->serializer->serialize($providerOrder, 'json'));
 
-        $order->changeStatus(OrderNotificationStatus::Mapped);
-        $order->setNotifiedAt(new \DateTime());
+        $notification->changeStatus(OrderNotificationStatus::Mapped);
+        $notification->setNotifiedAt(new \DateTime());
 
-        $this->entityManager->persist($order);
-        $this->entityManager->flush();
+        $this->orderNotificationRepository->save($notification);
 
         return $providerOrder;
     }
@@ -139,7 +146,7 @@ class ProtocolActionsService
         $notification->changeStatus(OrderNotificationStatus::Notified);
         $notification->setNotifiedAt(new \DateTime());
 
-        $this->entityManager->flush();
+        $this->orderNotificationRepository->save($notification);
 
         return $response;
     }
@@ -159,7 +166,7 @@ class ProtocolActionsService
 
         $notification->changeStatus(OrderNotificationStatus::Confirmed);
 
-        $this->entityManager->flush();
+        $this->orderNotificationRepository->save($notification);
     }
 
 }

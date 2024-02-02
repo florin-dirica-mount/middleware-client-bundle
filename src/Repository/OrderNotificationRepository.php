@@ -25,4 +25,10 @@ class OrderNotificationRepository extends ServiceEntityRepository
     {
         return $this->findOneBy(['horecaOrderId' => $id]);
     }
+
+    public function save(OrderNotification $notification): void
+    {
+        $this->_em->persist($notification);
+        $this->_em->flush();
+    }
 }

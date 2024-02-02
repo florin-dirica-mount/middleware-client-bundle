@@ -2,7 +2,6 @@
 
 namespace Horeca\MiddlewareClientBundle\MessageHandler;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\OrderNotificationRepositoryDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\OrderLoggerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProtocolActionsServiceDI;
@@ -15,7 +14,6 @@ use Horeca\MiddlewareClientBundle\Message\OrderNotificationMessage;
 use Horeca\MiddlewareClientBundle\Message\SendProviderOrderToTenantMessage;
 use Horeca\MiddlewareClientBundle\Message\SendTenantOrderConfirmationMessage;
 use Horeca\MiddlewareClientBundle\Message\SendTenantOrderToProviderMessage;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
@@ -27,25 +25,6 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
     use OrderLoggerDI;
     use OrderNotificationRepositoryDI;
     use ProtocolActionsServiceDI;
-
-    protected EntityManagerInterface $entityManager;
-    protected LoggerInterface $logger;
-
-    /**
-     * @required
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
-    }
-
-    /**
-     * @required
-     */
-    public function setEntityManager(EntityManagerInterface $entityManager): void
-    {
-        $this->entityManager = $entityManager;
-    }
 
     /**
      * @inheritDoc
@@ -80,6 +59,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
 
         try {
             $notification->changeStatus(OrderNotificationStatus::MappingStarted);
+            $this->orderNotificationRepository->save($notification);
 
             $this->protocolActionsService->mapTenantOrderToProviderOrder($notification);
         } catch (\Exception $e) {
@@ -102,6 +82,9 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
                 throw new OrderMappingException('Order is not sent to provider.');
             }
 
+            $notification->changeStatus(OrderNotificationStatus::SendingNotification);
+            $this->orderNotificationRepository->save($notification);
+
             $this->protocolActionsService->sendTenantOrderToProvider($notification);
         } catch (\Exception $e) {
             $this->onOrderNotificationException($notification, $e);
@@ -123,6 +106,9 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
                 throw new OrderMappingException('Order is not sent to provider.');
             }
 
+            $notification->changeStatus(OrderNotificationStatus::SendingConfirmation);
+            $this->orderNotificationRepository->save($notification);
+
             $this->protocolActionsService->confirmTenantOrderProcessed($notification);
         } catch (\Exception $e) {
             $this->onOrderNotificationException($notification, $e);
@@ -138,6 +124,9 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
         $notification = $this->getMessageOrderNotification($message);
 
         try {
+            $notification->changeStatus(OrderNotificationStatus::SendingNotification);
+            $this->orderNotificationRepository->save($notification);
+
             $this->protocolActionsService->sendProviderOrderToTenant($notification);
         } catch (\Exception $e) {
             $this->onOrderNotificationException($notification, $e);
@@ -154,7 +143,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
         $notification->changeStatus(OrderNotificationStatus::Failed);
         $notification->setErrorMessage($e->getMessage());
 
-        $this->entityManager->flush();
+        $this->orderNotificationRepository->save($notification);
     }
 
     protected function getMessageOrderNotification(OrderNotificationMessage $message): OrderNotification
