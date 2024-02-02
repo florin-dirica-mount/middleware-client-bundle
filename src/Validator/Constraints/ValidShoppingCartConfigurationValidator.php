@@ -1,8 +1,7 @@
 <?php
 
-namespace Horeca\MiddlewareClientBundle\Validator;
+namespace Horeca\MiddlewareClientBundle\Validator\Constraints;
 
-use Horeca\MiddlewareClientBundle\Validator\Constraints\ValidShoppingCartConfiguration;
 use Horeca\MiddlewareCommonLib\Constants\DeliveryType;
 use Horeca\MiddlewareCommonLib\Constants\InvoiceType;
 use Horeca\MiddlewareCommonLib\Constants\PaymentStatus;
