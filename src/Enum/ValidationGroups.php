@@ -4,6 +4,6 @@ namespace Horeca\MiddlewareClientBundle\Enum;
 
 abstract class ValidationGroups
 {
-    public const Default = 'default';
-    public const Middleware = 'middleware';
+    public const Default = 'Default';
+    public const Middleware = 'Middleware';
 }

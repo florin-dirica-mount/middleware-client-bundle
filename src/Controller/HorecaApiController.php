@@ -150,7 +150,7 @@ class HorecaApiController extends AbstractController
     private function validateObject(object $object): array
     {
         $errorMessages = [];
-        $errors = $this->validator->validate($object);
+        $errors = $this->validator->validate($object, null, [ValidationGroups::Default, ValidationGroups::Middleware]);
         if (count($errors) > 0) {
 
             foreach ($errors as $violation) {
