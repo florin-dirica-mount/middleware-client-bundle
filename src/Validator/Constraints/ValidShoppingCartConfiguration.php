@@ -12,5 +12,5 @@ class ValidShoppingCartConfiguration extends Constraint
     const MISSING_DELIVERY_ADDRESS = 603;
     const PAYMENT_NOT_CONFIRMED = 604;
 
-    public string $message = 'The ShoppingCart "{{ cart }}" has invalid configuration.';
+    public string $message = 'The ShoppingCart *{{ cart }}* has invalid configuration.';
 }
