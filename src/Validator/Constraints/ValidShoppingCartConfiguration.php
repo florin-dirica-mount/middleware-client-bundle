@@ -4,9 +4,6 @@ namespace Horeca\MiddlewareClientBundle\Validator\Constraints;
 
 use Symfony\Component\Validator\Constraint;
 
-/**
- * @Annotation
- */
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 class ValidShoppingCartConfiguration extends Constraint
 {

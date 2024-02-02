@@ -132,9 +132,6 @@ class HorecaApiController extends AbstractController
      */
     private function deserializeRequestBody(Request $request, string $type): object
     {
-        $routeName = $request->attributes->get('_route');
-        $this->logger->info(sprintf('[%s] %s', $routeName, $request->getContent()));
-
         $body = $this->deserializeObject($request->getContent(), $type);
 
         $errors = $this->validateObject($body);
@@ -153,7 +150,7 @@ class HorecaApiController extends AbstractController
     private function validateObject(object $object): array
     {
         $errorMessages = [];
-        $errors = $this->validator->validate($object, null, [ValidationGroups::Default, ValidationGroups::Middleware]);
+        $errors = $this->validator->validate($object);
         if (count($errors) > 0) {
 
             foreach ($errors as $violation) {
