@@ -6,6 +6,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Horeca\MiddlewareClientBundle\Entity\Log\OrderLog;
+use Horeca\MiddlewareClientBundle\Enum\OrderNotificationStatus;
+use Horeca\MiddlewareClientBundle\Enum\OrderNotificationType;
 use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
 use JMS\Serializer\Annotation as Serializer;
 
@@ -18,18 +20,6 @@ use JMS\Serializer\Annotation as Serializer;
 #[ORM\Index(columns: ["horeca_order_id"], name: "hmc_order_notifications_horeca_order_id_idx")]
 class OrderNotification extends AbstractEntity
 {
-    const STATUS_RECEIVED = 'received';     // order is received from the source system and it's products can be mapped
-    const STATUS_PENDING = 'pending';       // order has products mapped as is ready to be sent to the target system
-    const STATUS_MAPPED = 'mapped';         // target system was notified with the order
-    const STATUS_NOTIFIED = 'notified';     // target system was notified with the order
-    const STATUS_CONFIRMED = 'confirmed';   // target system has confirmed the order
-    const STATUS_FAILED = 'failed';         // an error occurred during processing of this order, at any step
-
-    const TYPE_NEW_ORDER = 'new-order';
-    const TYPE_ORDER_UPDATE = 'order-update';
-
-    const SOURCE_HORECA = 'horeca';
-    const SOURCE_EXTERNAL_SERVICE = 'external-service';
 
     #[ORM\ManyToOne(targetEntity: Tenant::class, cascade: ["persist"])]
     #[ORM\JoinColumn(name: "tenant_id", referencedColumnName: "id", nullable: true, onDelete: "CASCADE")]
@@ -97,8 +87,8 @@ class OrderNotification extends AbstractEntity
 
         $this->statusEntries = new ArrayCollection();
         $this->logs = new ArrayCollection();
-        $this->type = self::TYPE_NEW_ORDER;
-        $this->changeStatus(self::STATUS_RECEIVED);
+        $this->type = OrderNotificationType::NewOrder;
+        $this->changeStatus(OrderNotificationStatus::Received);
     }
 
     public function __toString()

@@ -5,6 +5,7 @@ namespace Horeca\MiddlewareClientBundle\Repository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
+use Horeca\MiddlewareClientBundle\Enum\OrderNotificationStatus;
 
 /**
  * @method OrderNotification|null find($id, $lockMode = null, $lockVersion = null)
@@ -23,16 +24,5 @@ class OrderNotificationRepository extends ServiceEntityRepository
     public function findOneByHorecaOrderId(string $id): ?OrderNotification
     {
         return $this->findOneBy(['horecaOrderId' => $id]);
-    }
-
-    /**
-     * @return array|OrderNotification[]
-     */
-    public function findPending(): array
-    {
-        return $this->findBy(
-            ['status' => OrderNotification::STATUS_PENDING],
-            ['createdAt' => 'ASC']
-        );
     }
 }

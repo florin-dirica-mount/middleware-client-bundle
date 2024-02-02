@@ -8,6 +8,8 @@ use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProtocolActionsSer
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProviderApiDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantServiceDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
+use Horeca\MiddlewareClientBundle\Enum\OrderNotificationSource;
+use Horeca\MiddlewareClientBundle\Enum\OrderNotificationType;
 use Horeca\MiddlewareClientBundle\Enum\ValidationGroups;
 use Horeca\MiddlewareClientBundle\Exception\ApiException;
 use Horeca\MiddlewareClientBundle\Message\MapTenantOrderToProviderMessage;
@@ -79,12 +81,12 @@ class HorecaApiController extends AbstractController
                 $this->logger->info(sprintf('[%s.%d] New order received: %s', __METHOD__, __LINE__, $body->cart->getId()));
 
                 $order = new OrderNotification();
-                $order->setType(OrderNotification::TYPE_NEW_ORDER);
-                $order->setSource(OrderNotification::SOURCE_HORECA);
+                $order->setType(OrderNotificationType::NewOrder);
+                $order->setSource(OrderNotificationSource::Tenant);
 
                 $dispatchMessage = true;
             } else {
-                $order->setType(OrderNotification::TYPE_ORDER_UPDATE);
+                $order->setType(OrderNotificationType::OrderUpdate);
             }
 
             $order->setTenant($tenant);

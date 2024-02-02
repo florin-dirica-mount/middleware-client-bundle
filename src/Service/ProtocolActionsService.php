@@ -9,6 +9,7 @@ use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantApiServiceDI
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantServiceDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
+use Horeca\MiddlewareClientBundle\Enum\OrderNotificationStatus;
 use Horeca\MiddlewareClientBundle\Enum\ValidationGroups;
 use Horeca\MiddlewareClientBundle\Exception\ApiException;
 use Horeca\MiddlewareClientBundle\Exception\OrderMappingException;
@@ -68,7 +69,7 @@ class ProtocolActionsService
         if (!$notification->getServicePayload() || !$notification->getRestaurantId()) {
             $this->logger->warning('[handleExternalServiceOrderNotification] missing ServicePayload or RestaurantId. Action aborted for notification: ' . $notification->getId());
 
-            $notification->changeStatus(OrderNotification::STATUS_FAILED);
+            $notification->changeStatus(OrderNotificationStatus::Failed);
             $notification->setErrorMessage('Missing ServicePayload. Action aborted');
 
             $this->entityManager->flush();
@@ -85,7 +86,7 @@ class ProtocolActionsService
 
         $notification->setResponsePayload($this->serializer->serialize($response, 'json'));
         $notification->setHorecaOrderId($response->horecaOrderId);
-        $notification->changeStatus(OrderNotification::STATUS_NOTIFIED);
+        $notification->changeStatus(OrderNotificationStatus::Notified);
         $notification->setNotifiedAt(new \DateTime());
 
         $this->entityManager->flush();
@@ -109,7 +110,7 @@ class ProtocolActionsService
         $providerOrder = $this->providerApi->mapShoppingCartToProviderOrder($order->getTenant(), $cart);
         $order->setServicePayload($this->serializer->serialize($providerOrder, 'json'));
 
-        $order->changeStatus(OrderNotification::STATUS_MAPPED);
+        $order->changeStatus(OrderNotificationStatus::Mapped);
         $order->setNotifiedAt(new \DateTime());
 
         $this->entityManager->persist($order);
@@ -135,7 +136,7 @@ class ProtocolActionsService
 
         $notification->setResponsePayload($this->serializer->serialize($response, 'json'));
         $notification->setServiceOrderId((string) $response->orderId);
-        $notification->changeStatus(OrderNotification::STATUS_NOTIFIED);
+        $notification->changeStatus(OrderNotificationStatus::Notified);
         $notification->setNotifiedAt(new \DateTime());
 
         $this->entityManager->flush();
@@ -148,7 +149,7 @@ class ProtocolActionsService
      */
     public function confirmTenantOrderProcessed(OrderNotification $notification): void
     {
-        if ($notification->getStatus() !== OrderNotification::STATUS_NOTIFIED) {
+        if ($notification->getStatus() !== OrderNotificationStatus::Notified) {
             $this->logger->warning('[sendTenantOrderStatusNotification] notification status is not notified. Action aborted for notification: ' . $notification->getId());
 
             throw new OrderMappingException('Order is not sent to provider.');
@@ -156,7 +157,7 @@ class ProtocolActionsService
 
         $this->tenantApiService->confirmProviderNotified($notification);
 
-        $notification->changeStatus(OrderNotification::STATUS_CONFIRMED);
+        $notification->changeStatus(OrderNotificationStatus::Confirmed);
 
         $this->entityManager->flush();
     }

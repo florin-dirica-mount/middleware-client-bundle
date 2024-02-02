@@ -7,6 +7,7 @@ use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\OrderNotificati
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\OrderLoggerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProtocolActionsServiceDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
+use Horeca\MiddlewareClientBundle\Enum\OrderNotificationStatus;
 use Horeca\MiddlewareClientBundle\Exception\OrderMappingException;
 use Horeca\MiddlewareClientBundle\Message\MapTenantOrderToProviderMessage;
 use Horeca\MiddlewareClientBundle\Message\MessageTransports;
@@ -78,6 +79,8 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
         $notification = $this->getMessageOrderNotification($message);
 
         try {
+            $notification->changeStatus(OrderNotificationStatus::MappingStarted);
+
             $this->protocolActionsService->mapTenantOrderToProviderOrder($notification);
         } catch (\Exception $e) {
             $this->onOrderNotificationException($notification, $e);
@@ -93,7 +96,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
         $notification = $this->getMessageOrderNotification($message);
 
         try {
-            if ($notification->getStatus() !== OrderNotification::STATUS_MAPPED) {
+            if ($notification->getStatus() !== OrderNotificationStatus::Mapped) {
                 $this->orderLogger->info(__METHOD__, __LINE__, sprintf('Notification %s status is not *mapped*. Action aborted.', $notification->getId()));
 
                 throw new OrderMappingException('Order is not sent to provider.');
@@ -114,7 +117,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
         $notification = $this->getMessageOrderNotification($message);
 
         try {
-            if ($notification->getStatus() !== OrderNotification::STATUS_NOTIFIED) {
+            if ($notification->getStatus() !== OrderNotificationStatus::Notified) {
                 $this->orderLogger->info(__METHOD__, __LINE__, sprintf('Notification %s status is not *mapped*. Action aborted.', $notification->getId()));
 
                 throw new OrderMappingException('Order is not sent to provider.');
@@ -148,7 +151,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
     {
         $this->orderLogger->error(__METHOD__, __LINE__, $e->getMessage());
 
-        $notification->changeStatus(OrderNotification::STATUS_FAILED);
+        $notification->changeStatus(OrderNotificationStatus::Failed);
         $notification->setErrorMessage($e->getMessage());
 
         $this->entityManager->flush();
