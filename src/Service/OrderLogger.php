@@ -2,6 +2,7 @@
 
 namespace Horeca\MiddlewareClientBundle\Service;
 
+use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use Horeca\MiddlewareClientBundle\Entity\Log\OrderLog;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
@@ -59,23 +60,35 @@ class OrderLogger
     {
         $memory = round(memory_get_usage() / 1024 / 1024, 2);
 
-        $this->info(__METHOD__, __LINE__, "Memory usage: $memory MB");
+        $this->info(__METHOD__, __LINE__, "Memory: $memory MB");
     }
 
-    public function saveTo(OrderNotification $order, string $action): void
+    public function saveTo(OrderNotification $order, string $action): bool
     {
         if (empty($this->buffer)) {
-            return;
+            return false;
         }
 
-        $log = new OrderLog(OrderLog::LEVEL_INFO, implode("\n", $this->buffer));
-        $log->setAction($action);
-        $order->addLog($log);
+        $sql = "INSERT INTO order_log (action, order_id, micro_time, level, log, created_at) VALUES (:action, :order_id, :micro_time, :level, :log, :created_at)";
+        $params = [
+            'action'     => $action,
+            'order_id'   => $order->getId(),
+            'micro_time' => microtime(true),
+            'level'      => OrderLog::LEVEL_INFO,
+            'log'        => implode("\n", $this->buffer),
+            'created_at' => date('Y-m-d H:i:s')
+        ];
 
-        $this->entityManager->persist($log);
-        $this->entityManager->flush();
+        try {
+            $this->entityManager->getConnection()->executeQuery($sql, $params);
+            $this->buffer = [];
 
-        $this->buffer = [];
+            return true;
+        } catch (Exception $e) {
+            $this->logger->info(sprintf('[%s.%d] Error: %s', __METHOD__, __LINE__, $e->getMessage()));
+
+            return false;
+        }
     }
 
     private function format(string $level, string $method, int $line, string|array|null $log = null): string

@@ -11,6 +11,7 @@ use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
 use Horeca\MiddlewareClientBundle\Exception\ApiException;
 use Horeca\MiddlewareClientBundle\Message\OrderNotificationMessage;
+use Horeca\MiddlewareClientBundle\Message\MapTenantOrderToProviderMessage;
 use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaInitializeShopBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaRequestDeliveryBody;
@@ -100,7 +101,7 @@ class HorecaApiController extends AbstractController
             $entityManager->flush();
 
             if ($dispatchMessage) {
-                $messageBus->dispatch(new OrderNotificationMessage($order));
+                $messageBus->dispatch(new MapTenantOrderToProviderMessage($order));
             }
 
             return new JsonResponse(['success' => true]);

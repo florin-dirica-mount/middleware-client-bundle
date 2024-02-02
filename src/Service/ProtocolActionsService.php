@@ -143,7 +143,10 @@ class ProtocolActionsService
         return $response;
     }
 
-    public function sendTenantOrderStatusNotification(OrderNotification $notification): void
+    /**
+     * @throws OrderMappingException
+     */
+    public function confirmTenantOrderProcessed(OrderNotification $notification): void
     {
         if ($notification->getStatus() !== OrderNotification::STATUS_NOTIFIED) {
             $this->logger->warning('[sendTenantOrderStatusNotification] notification status is not notified. Action aborted for notification: ' . $notification->getId());
