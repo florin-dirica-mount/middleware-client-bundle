@@ -48,13 +48,13 @@ class OrderNotification extends AbstractEntity
     private ?array $serviceCredentials = [];
 
     #[ORM\Column(name: "horeca_payload", type: "json", nullable: true)]
-    private ?string $horecaPayload = null;
+    private ?array $horecaPayload = null;
 
     #[ORM\Column(name: "service_payload", type: "json", nullable: true)]
-    private ?string $servicePayload = null;
+    private ?array $servicePayload = [];
 
     #[ORM\Column(name: "response_payload", type: "json", nullable: true)]
-    private ?string $responsePayload = null;
+    private ?array $responsePayload = [];
 
     #[ORM\Column(name: "error_message", type: "text", nullable: true)]
     private ?string $errorMessage = null;
@@ -96,9 +96,6 @@ class OrderNotification extends AbstractEntity
         return sprintf('%s - %s', $this->status, $this->horecaOrderId);
     }
 
-    /**
-     * @param string $status
-     */
     public function changeStatus(string $status): void
     {
         $this->status = $status;
@@ -109,65 +106,41 @@ class OrderNotification extends AbstractEntity
         $this->getStatusEntries()->add($entry);
     }
 
-    /**
-     * @return string|null
-     */
     public function getHorecaOrderId(): ?string
     {
         return $this->horecaOrderId;
     }
 
-    /**
-     * @param string|null $horecaOrderId
-     */
     public function setHorecaOrderId(?string $horecaOrderId): void
     {
         $this->horecaOrderId = $horecaOrderId;
     }
 
-    /**
-     * @return string|null
-     */
     public function getServiceOrderId(): ?string
     {
         return $this->serviceOrderId;
     }
 
-    /**
-     * @param string|null $serviceOrderId
-     */
     public function setServiceOrderId(?string $serviceOrderId): void
     {
         $this->serviceOrderId = $serviceOrderId;
     }
 
-    /**
-     * @return string
-     */
     public function getStatus(): string
     {
         return $this->status;
     }
 
-    /**
-     * @param string $status
-     */
     public function setStatus(string $status): void
     {
         $this->status = $status;
     }
 
-    /**
-     * @return string|null
-     */
     public function getRestaurantId(): ?string
     {
         return $this->restaurantId;
     }
 
-    /**
-     * @param string|null $restaurantId
-     */
     public function setRestaurantId(?string $restaurantId): void
     {
         $this->restaurantId = $restaurantId;
@@ -183,81 +156,76 @@ class OrderNotification extends AbstractEntity
         $this->serviceCredentials = $serviceCredentials;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getHorecaPayload(): ?string
+    public function getHorecaPayload(): ?array
     {
         return $this->horecaPayload;
     }
 
-    /**
-     * @param string|null $horecaPayload
-     */
-    public function setHorecaPayload(?string $horecaPayload): void
+    public function setHorecaPayload(array $horecaPayload): void
     {
         $this->horecaPayload = $horecaPayload;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getServicePayload(): ?string
+    public function getHorecaPayloadString(): ?string
+    {
+        return json_encode($this->horecaPayload);
+    }
+
+    public function setHorecaPayloadString(string $horecaPayload): void
+    {
+        $this->horecaPayload = json_decode($horecaPayload, true);
+    }
+
+    public function getServicePayload(): ?array
     {
         return $this->servicePayload;
     }
 
-    /**
-     * @param string|null $servicePayload
-     */
-    public function setServicePayload(?string $servicePayload): void
+    public function setServicePayload(array $servicePayload): void
     {
         $this->servicePayload = $servicePayload;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getResponsePayload(): ?string
+    public function getServicePayloadString(): ?string
+    {
+        return json_encode($this->servicePayload);
+    }
+
+    public function setServicePayloadString(string $servicePayload): void
+    {
+        $this->servicePayload = json_decode($servicePayload, true);
+    }
+
+    public function getResponsePayload(): ?array
     {
         return $this->responsePayload;
     }
 
-    /**
-     * @param string|null $responsePayload
-     */
-    public function setResponsePayload(?string $responsePayload): void
+    public function setResponsePayload(array $responsePayload): void
     {
         $this->responsePayload = $responsePayload;
     }
 
-    /**
-     * @return string|null
-     */
+    public function setResponsePayloadString(string $responsePayload): void
+    {
+        $this->responsePayload = json_decode($responsePayload, true);
+    }
+
     public function getErrorMessage(): ?string
     {
         return $this->errorMessage;
     }
 
-    /**
-     * @param string|null $errorMessage
-     */
     public function setErrorMessage(?string $errorMessage): void
     {
         $this->errorMessage = $errorMessage;
     }
 
-    /**
-     * @return \DateTime|null
-     */
     public function getNotifiedAt(): ?\DateTime
     {
         return $this->notifiedAt;
     }
 
-    /**
-     * @param \DateTime|null $notifiedAt
-     */
     public function setNotifiedAt(?\DateTime $notifiedAt): void
     {
         $this->notifiedAt = $notifiedAt;

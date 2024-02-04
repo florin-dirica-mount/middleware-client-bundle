@@ -67,7 +67,7 @@ class ProtocolActionsService
 
     public function sendProviderOrderToTenant(OrderNotification $notification): ?SendShoppingCartResponse
     {
-        if (!$notification->getServicePayload() || !$notification->getRestaurantId()) {
+        if (empty($notification->getServicePayload()) || !$notification->getRestaurantId()) {
             $this->logger->warning('[handleExternalServiceOrderNotification] missing ServicePayload or RestaurantId. Action aborted for notification: ' . $notification->getId());
 
             $notification->changeStatus(OrderNotificationStatus::Failed);
@@ -82,17 +82,17 @@ class ProtocolActionsService
         $this->orderNotificationRepository->save($notification);
 
         /** @var ProviderOrderInterface $order */
-        $order = $this->serializer->deserialize($notification->getServicePayload(), $this->providerApi->getProviderOrderClass(), 'json');
+        $order = $this->serializer->deserialize($notification->getServicePayloadString(), $this->providerApi->getProviderOrderClass(), 'json');
         $shoppingCart = $this->providerApi->mapProviderOrderToShoppingCart($notification->getTenant(), $order);
 
         $notification->changeStatus(OrderNotificationStatus::Mapped);
-        $notification->setHorecaPayload($this->serializer->serialize($shoppingCart, 'json'));
+        $notification->setHorecaPayloadString($this->serializer->serialize($shoppingCart, 'json'));
         $notification->changeStatus(OrderNotificationStatus::SendingNotification);
         $this->orderNotificationRepository->save($notification);
 
         $response = $this->tenantApiService->sendShoppingCart($notification->getTenant(), $shoppingCart, $notification->getRestaurantId());
 
-        $notification->setResponsePayload($this->serializer->serialize($response, 'json'));
+        $notification->setResponsePayloadString($this->serializer->serialize($response, 'json'));
         $notification->setHorecaOrderId($response->horecaOrderId);
         $notification->changeStatus(OrderNotificationStatus::Notified);
         $notification->setNotifiedAt(new \DateTime());
@@ -108,7 +108,7 @@ class ProtocolActionsService
     public function mapTenantOrderToProviderOrder(OrderNotification $notification): ProviderOrderInterface
     {
         /** @var ShoppingCart $cart */
-        $cart = $this->serializer->deserialize($notification->getHorecaPayload(), ShoppingCart::class, 'json');
+        $cart = $this->serializer->deserialize($notification->getHorecaPayloadString(), ShoppingCart::class, 'json');
 
         $errors = $this->validator->validate($cart, null, [ValidationGroups::Default, ValidationGroups::Middleware]);
         if (count($errors) > 0) {
@@ -116,7 +116,7 @@ class ProtocolActionsService
         }
 
         $providerOrder = $this->providerApi->mapShoppingCartToProviderOrder($notification->getTenant(), $cart);
-        $notification->setServicePayload($this->serializer->serialize($providerOrder, 'json'));
+        $notification->setServicePayloadString($this->serializer->serialize($providerOrder, 'json'));
 
         $notification->changeStatus(OrderNotificationStatus::Mapped);
         $notification->setNotifiedAt(new \DateTime());
@@ -131,7 +131,7 @@ class ProtocolActionsService
      */
     public function sendTenantOrderToProvider(OrderNotification $notification): ?BaseProviderOrderResponse
     {
-        $providerOrder = $this->serializer->deserialize($notification->getServicePayload(), $this->providerApi->getProviderOrderClass(), 'json');
+        $providerOrder = $this->serializer->deserialize($notification->getServicePayloadString(), $this->providerApi->getProviderOrderClass(), 'json');
 
         $errors = $this->validator->validate($providerOrder, null, [ValidationGroups::Default, ValidationGroups::Middleware]);
         if (count($errors) > 0) {
@@ -141,7 +141,7 @@ class ProtocolActionsService
         $credentials = $this->tenantService->compileTenantCredentials($notification->getTenant(), $notification->getServiceCredentials());
         $response = $this->providerApi->saveOrder($providerOrder, $credentials);
 
-        $notification->setResponsePayload($this->serializer->serialize($response, 'json'));
+        $notification->setResponsePayloadString($this->serializer->serialize($response, 'json'));
         $notification->setServiceOrderId((string) $response->orderId);
         $notification->changeStatus(OrderNotificationStatus::Notified);
         $notification->setNotifiedAt(new \DateTime());

@@ -32,7 +32,7 @@ class TenantApiService implements TenantApiServiceInterface
     public function confirmProviderNotified(OrderNotification $notification): bool
     {
         try {
-            $cart = $this->serializer->deserialize($notification->getHorecaPayload(), ShoppingCart::class, 'json');
+            $cart = $this->serializer->deserialize($notification->getHorecaPayloadString(), ShoppingCart::class, 'json');
 
             if (!$cart->getId()) {
                 throw new HorecaException('Missing API parameter: cart.id');
