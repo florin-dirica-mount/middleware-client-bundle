@@ -12,7 +12,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: "hmc_users")]
 #[UniqueEntity(fields: ["email"], message: "There is already an account with this email")]
-class User extends AbstractEntity implements UserInterface, PasswordAuthenticatedUserInterface
+class User extends DefaultEntity implements UserInterface, PasswordAuthenticatedUserInterface
 {
     const ROLE_ADMIN = 'ROLE_ADMIN';
     const ROLE_USER = 'ROLE_USER';

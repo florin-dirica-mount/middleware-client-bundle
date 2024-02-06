@@ -4,18 +4,11 @@ namespace Horeca\MiddlewareClientBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Horeca\MiddlewareClientBundle\Repository\TenantRepository;
-use Ramsey\Uuid\Doctrine\UuidGenerator;
 
 #[ORM\Entity(repositoryClass: TenantRepository::class)]
 #[ORM\Table(name: 'tenants')]
-class Tenant
+class Tenant extends DefaultEntity
 {
-
-    #[ORM\Id]
-    #[ORM\Column(name: 'id', type: 'uuid')]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
-    protected $id = null;
 
     #[ORM\Column(name: 'name', type: 'string', nullable: false)]
     protected ?string $name = null;
@@ -35,29 +28,9 @@ class Tenant
     #[ORM\Column(name: "created_at", type: "datetime", nullable: false, options: ["default" => "CURRENT_TIMESTAMP"])]
     protected \DateTime $createdAt;
 
-    public function __construct()
-    {
-        $this->createdAt = new \DateTime();
-    }
-
     public function __toString()
     {
         return (string) $this->name;
-    }
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function getCreatedAt(): \DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTime $createdAt): void
-    {
-        $this->createdAt = $createdAt;
     }
 
     public function getName(): ?string

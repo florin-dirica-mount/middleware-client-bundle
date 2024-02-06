@@ -8,7 +8,7 @@ use JMS\Serializer\Annotation as Serializer;
 /**
  * Any entity that contains data owned by a Tenant should extend this class.
  */
-abstract class TenantAwareEntity extends AbstractEntity
+abstract class TenantAwareEntity extends DefaultEntity
 {
     #[ORM\ManyToOne(targetEntity: Tenant::class, cascade: ["persist"])]
     #[ORM\JoinColumn(name: "tenant_id", referencedColumnName: "id", nullable: false, onDelete: "CASCADE")]

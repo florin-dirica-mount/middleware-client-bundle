@@ -19,7 +19,7 @@ use JMS\Serializer\Annotation as Serializer;
 #[ORM\Index(columns: ["service_order_id", "type"], name: "hmc_order_notifications_service_order_id_type_idx")]
 #[ORM\Index(columns: ["restaurant_id", "type"], name: "hmc_order_notifications_restaurant_id_type_idx")]
 #[ORM\Index(columns: ["horeca_order_id"], name: "hmc_order_notifications_horeca_order_id_idx")]
-class OrderNotification extends AbstractEntity
+class OrderNotification extends DefaultEntity
 {
 
     #[ORM\ManyToOne(targetEntity: Tenant::class, cascade: ["persist"])]

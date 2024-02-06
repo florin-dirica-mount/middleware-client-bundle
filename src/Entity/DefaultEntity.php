@@ -5,15 +5,17 @@ namespace Horeca\MiddlewareClientBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Horeca\MiddlewareClientBundle\Enum\SerializationGroups;
 use JMS\Serializer\Annotation as Serializer;
-use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\Doctrine\UuidGenerator;
 
-abstract class AbstractEntity
+abstract class DefaultEntity
 {
 
     #[ORM\Id]
-    #[ORM\Column(name: "id", type: "string", length: 36)]
+    #[ORM\Column(name: "id", type: "uuid")]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
     #[Serializer\Expose]
-    #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView])]
+    #[Serializer\Groups([SerializationGroups::Default, SerializationGroups::TenantOrderNotificationView])]
     protected string $id;
 
     #[ORM\Column(name: "created_at", type: "datetime", nullable: false, options: ["default" => "CURRENT_TIMESTAMP"])]
@@ -21,12 +23,15 @@ abstract class AbstractEntity
 
     public function __construct()
     {
-        $this->id = Uuid::uuid4()->toString();
         $this->createdAt = new \DateTime();
     }
 
     public function __toString()
     {
+        if (property_exists($this, 'name')) {
+            return (string) $this->name;
+        }
+
         return (string) $this->id;
     }
 

@@ -3,10 +3,10 @@
 namespace Horeca\MiddlewareClientBundle\Entity\Log;
 
 use Doctrine\ORM\Mapping as ORM;
-use Horeca\MiddlewareClientBundle\Entity\AbstractEntity;
+use Horeca\MiddlewareClientBundle\Entity\DefaultEntity;
 
 #[ORM\MappedSuperclass]
-abstract class RequestLog extends AbstractEntity
+abstract class RequestLog extends DefaultEntity
 {
 
     #[ORM\Column(name: "method", type: "string", length: 10, nullable: false)]
