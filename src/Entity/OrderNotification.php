@@ -6,6 +6,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Horeca\MiddlewareClientBundle\Entity\Log\OrderLog;
+use Horeca\MiddlewareClientBundle\Entity\Traits\ProviderObjectId;
+use Horeca\MiddlewareClientBundle\Entity\Traits\TenantObjectId;
 use Horeca\MiddlewareClientBundle\Enum\OrderNotificationStatus;
 use Horeca\MiddlewareClientBundle\Enum\OrderNotificationType;
 use Horeca\MiddlewareClientBundle\Enum\SerializationGroups;
@@ -19,19 +21,22 @@ use JMS\Serializer\Annotation as Serializer;
 #[ORM\Index(columns: ["service_order_id", "type"], name: "hmc_order_notifications_service_order_id_type_idx")]
 #[ORM\Index(columns: ["restaurant_id", "type"], name: "hmc_order_notifications_restaurant_id_type_idx")]
 #[ORM\Index(columns: ["horeca_order_id"], name: "hmc_order_notifications_horeca_order_id_idx")]
-class OrderNotification extends DefaultEntity
+class OrderNotification extends TenantAwareEntity
 {
+    use TenantObjectId;
+    use ProviderObjectId;
 
-    #[ORM\ManyToOne(targetEntity: Tenant::class, cascade: ["persist"])]
-    #[ORM\JoinColumn(name: "tenant_id", referencedColumnName: "id", nullable: true, onDelete: "CASCADE")]
-    #[Serializer\Exclude]
-    private ?Tenant $tenant = null;
-
+    /**
+     * @deprecated use getTenantObjectId
+     */
     #[ORM\Column(name: "horeca_order_id", type: "string", length: 36, nullable: true)]
     #[Serializer\SerializedName("tenantObjectId")]
     #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView])]
     private ?string $horecaOrderId = null;
 
+    /**
+     * @deprecated use getProviderObjectId
+     */
     #[ORM\Column(name: "service_order_id", type: "string", length: 36, nullable: true)]
     #[Serializer\SerializedName("providerObjectId")]
     #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView])]
@@ -114,22 +119,24 @@ class OrderNotification extends DefaultEntity
 
     public function getHorecaOrderId(): ?string
     {
-        return $this->horecaOrderId;
+        return $this->tenantObjectId ?: $this->horecaOrderId;
     }
 
     public function setHorecaOrderId(?string $horecaOrderId): void
     {
         $this->horecaOrderId = $horecaOrderId;
+        $this->tenantObjectId = $horecaOrderId;
     }
 
     public function getServiceOrderId(): ?string
     {
-        return $this->serviceOrderId;
+        return $this->providerObjectId ?: $this->serviceOrderId;
     }
 
     public function setServiceOrderId(?string $serviceOrderId): void
     {
         $this->serviceOrderId = $serviceOrderId;
+        $this->providerObjectId = $serviceOrderId;
     }
 
     public function getStatus(): string
@@ -271,16 +278,6 @@ class OrderNotification extends DefaultEntity
     public function setSource(?string $source): void
     {
         $this->source = $source;
-    }
-
-    public function getTenant(): ?Tenant
-    {
-        return $this->tenant;
-    }
-
-    public function setTenant(?Tenant $tenant): void
-    {
-        $this->tenant = $tenant;
     }
 
     /**

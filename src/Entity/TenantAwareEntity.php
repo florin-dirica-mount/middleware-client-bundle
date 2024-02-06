@@ -11,7 +11,7 @@ use JMS\Serializer\Annotation as Serializer;
 abstract class TenantAwareEntity extends DefaultEntity
 {
     #[ORM\ManyToOne(targetEntity: Tenant::class, cascade: ["persist"])]
-    #[ORM\JoinColumn(name: "tenant_id", referencedColumnName: "id", nullable: false, onDelete: "CASCADE")]
+    #[ORM\JoinColumn(name: "tenant_id", referencedColumnName: "id", nullable: true, onDelete: "CASCADE")]
     #[Serializer\Exclude]
     protected ?Tenant $tenant = null;
 
