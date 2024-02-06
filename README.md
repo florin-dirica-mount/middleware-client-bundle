@@ -54,8 +54,8 @@ HORECA_MIDDLEWARE_CLIENT_ID="The middleware client id configured in horeca backe
 
 ```yaml
 horeca_middleware_client:
-    provider_api_class: App\Service\ProviderApi
-    provider_credentials_class: App\Entity\ProviderCredentials # this entity must extend Horeca\MiddlewareClientBundle\Entity\BaseProviderCredentials
+    provider_api_class:                     App\Service\ProviderApi
+    provider_credentials_class:             App\Entity\ProviderCredentials # this entity must extend Horeca\MiddlewareClientBundle\Entity\BaseProviderCredentials
     order_notification_messenger_transport: hmc_order_notification
 ```
 
@@ -88,8 +88,8 @@ class TenantCredentials extends BaseProviderCredentials
 ```yaml
 horeca:
     resource: '../vendor/horeca/middleware-client-bundle/src/Controller/'
-    prefix: /
-    type: annotation
+    prefix:   /
+    type:     annotation
 ```
 
 ### Update symfony/messenger with transport used by horeca bundle `config/packages/messenger.yaml`
@@ -100,14 +100,14 @@ framework:
         transports:
             hmc_map_tenant_order_to_provider:        '%env(resolve:MESSENGER_TRANSPORT_DSN)%'
             hmc_tenant_order_send_to_provider:       '%env(resolve:MESSENGER_TRANSPORT_DSN)%'
-            hmc_tenant_order_notification_event:     '%env(resolve:MESSENGER_TRANSPORT_DSN)%'
+            hmc_order_notification_event:            '%env(resolve:MESSENGER_TRANSPORT_DSN)%'
             hmc_external_service_order_notification: '%env(resolve:MESSENGER_TRANSPORT_DSN)%'
 
         routing:
-            'Horeca\MiddlewareClientBundle\Message\MapTenantOrderToProviderMessage':    hmc_map_tenant_order_to_provider
-            'Horeca\MiddlewareClientBundle\Message\SendTenantOrderToProviderMessage':   hmc_tenant_order_send_to_provider
-            'Horeca\MiddlewareClientBundle\Message\SendTenantOrderConfirmationMessage': hmc_tenant_order_notification_event
-            'Horeca\MiddlewareClientBundle\Message\SEND_PROVIDER_ORDER_TO_TENANT':      hmc_external_service_order_notification
+            'Horeca\MiddlewareClientBundle\Message\MapTenantOrderToProviderMessage':  hmc_map_tenant_order_to_provider
+            'Horeca\MiddlewareClientBundle\Message\SendTenantOrderToProviderMessage': hmc_tenant_order_send_to_provider
+            'Horeca\MiddlewareClientBundle\Message\OrderNotificationEventMessage':    hmc_tenant_order_notification_event
+            'Horeca\MiddlewareClientBundle\Message\SendProviderOrderToTenantMessage': hmc_external_service_order_notification
 ```
 
 #### Post-install

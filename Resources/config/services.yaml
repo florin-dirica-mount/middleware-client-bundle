@@ -36,6 +36,8 @@ services:
 
     Horeca\MiddlewareClientBundle\Service\OrderLogger:
 
+    Horeca\MiddlewareClientBundle\Service\TenantClientFactory:
+
     Horeca\MiddlewareClientBundle\MessageHandler\OrderNotificationMessageHandler:
         tags:
             - { name: messenger.message_handler }

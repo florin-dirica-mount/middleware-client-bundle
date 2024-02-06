@@ -2,8 +2,8 @@
 
 namespace Horeca\MiddlewareClientBundle\Service;
 
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantClientFactoryDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
 use Horeca\MiddlewareClientBundle\VO\Api\OrderNotificationEventDto;
@@ -18,10 +18,7 @@ class TenantApi implements TenantApiInterface
     protected const NOTIFICATION_EVENT_PATH = '/middleware/notification/event';
     protected const SEND_SHOPPING_CART_PATH = '/middleware/order/%s';
 
-    /**
-     * @var Client[]
-     */
-    private array $client = [];
+    use TenantClientFactoryDI;
 
     public function __construct(protected SerializerInterface $serializer) { }
 
@@ -34,7 +31,7 @@ class TenantApi implements TenantApiInterface
             $data = new OrderNotificationEventDto($event, $notification);
             $options['body'] = $this->serializer->serialize($data, 'json');
 
-            $response = $this->getClient($notification->getTenant())->post(self::NOTIFICATION_EVENT_PATH, $options);
+            $response = $this->tenantClientFactory->client($notification->getTenant())->post(self::NOTIFICATION_EVENT_PATH, $options);
 
             if ($response->getStatusCode() !== Response::HTTP_OK) {
                 throw new HorecaException('Tenant API error. Status code: ' . $response->getStatusCode());
@@ -57,7 +54,7 @@ class TenantApi implements TenantApiInterface
             }
 
             $uri = sprintf('/middleware/cart/%s/confirm-provider-notified', $cart->getId());
-            $response = $this->getClient($notification->getTenant())->post($uri);
+            $response = $this->tenantClientFactory->client($notification->getTenant())->post($uri);
 
             return $response->getStatusCode() === Response::HTTP_OK;
         } catch (GuzzleException|\Exception $e) {
@@ -72,31 +69,13 @@ class TenantApi implements TenantApiInterface
     {
         try {
             $uri = sprintf(self::SEND_SHOPPING_CART_PATH, $restaurantId);
+            $options['json'] = json_decode($this->serializer->serialize($cart, 'json'), true);
 
-            $response = $this->getClient($tenant)->post($uri, [
-                'json' => json_decode($this->serializer->serialize($cart, 'json'), true)
-            ]);
+            $response = $this->tenantClientFactory->client($tenant)->post($uri, $options);
 
             return $this->serializer->deserialize($response->getBody()->getContents(), SendShoppingCartResponse::class, 'json');
         } catch (GuzzleException|\Exception $e) {
             throw new HorecaException($e->getMessage());
         }
     }
-
-    private function getClient(Tenant $tenant): Client
-    {
-        if (!isset($this->client[$tenant->getId()])) {
-
-            $this->client[$tenant->getId()] = new Client([
-                'base_uri' => $tenant->getWebhookUrl(),
-                'headers'  => [
-                    'Api-Key' => $tenant->getWebhookKey(),
-                ],
-                'timeout'  => 15
-            ]);
-        }
-
-        return $this->client[$tenant->getId()];
-    }
-
 }
