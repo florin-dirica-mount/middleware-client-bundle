@@ -4,21 +4,14 @@ namespace Horeca\MiddlewareClientBundle\Service;
 
 use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\TenantRepositoryDI;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
-use Horeca\MiddlewareClientBundle\Exception\ApiException;
+use Horeca\MiddlewareClientBundle\Exception\MiddlewareClientException;
 use Horeca\MiddlewareClientBundle\VO\Provider\ProviderCredentialsInterface;
 use JMS\Serializer\SerializerInterface;
 
-/**
- * @template T of ProviderCredentialsInterface
- * @template-extends ProviderCredentialsInterface<T>
- */
 class TenantService
 {
     use TenantRepositoryDI;
 
-    /**
-     * @param class-string<T> $providerCredentialsClass
-     */
     public function __construct(protected string               $providerCredentialsClass,
                                 protected SerializerInterface  $serializer,
                                 protected ProviderApiInterface $providerApi)
@@ -26,20 +19,20 @@ class TenantService
     }
 
     /**
-     * @return ProviderCredentialsInterface<T>
-     * @throws ApiException
+     * @return ProviderCredentialsInterface
+     * @throws MiddlewareClientException
      */
-    public function compileTenantCredentials(Tenant $tenant, ?array $inputCredentials = null): ProviderCredentialsInterface
+    public function compileTenantCredentials(Tenant $tenant, ?array $inputCredentials = null)
     {
         if (empty($inputCredentials)) {
             $credentials = $this->tenantRepository->findTenantCredentials($tenant, $this->providerCredentialsClass);
         } else {
             $credentialsJson = $this->serializer->serialize($inputCredentials, 'json');
-            $credentials = $this->serializer->deserialize($credentialsJson, $this->providerApi->getProviderCredentialsClass(), 'json');
+            $credentials = $this->serializer->deserialize($credentialsJson, $this->providerCredentialsClass, 'json');
         }
 
         if (empty($credentials)) {
-            throw new ApiException('Tenant credentials not found or invalid.');
+            throw new MiddlewareClientException('Tenant credentials not found or invalid.');
         }
 
         return $credentials;

@@ -18,11 +18,6 @@ interface ProviderApiInterface
     public function getProviderOrderClass(): string;
 
     /**
-     * Return the classname of the provider credentials model
-     */
-    public function getProviderCredentialsClass(): string;
-
-    /**
      * Saves the order data into the provider system and returns the external order ID, if it is applicable
      *
      * @param ProviderOrderInterface $order

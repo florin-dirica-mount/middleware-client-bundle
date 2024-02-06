@@ -6,6 +6,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Horeca\MiddlewareClientBundle\Entity\BaseProviderCredentials;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
+use Horeca\MiddlewareClientBundle\Exception\MiddlewareClientException;
 
 /**
  * @method Tenant|null find($id, $lockMode = null, $lockVersion = null)
@@ -39,15 +40,15 @@ class TenantRepository extends ServiceEntityRepository
     }
 
     /**
-     * @throws \Exception
+     * @throws MiddlewareClientException
      */
     public function findTenantCredentials(Tenant $tenant, string $credentialsClass): ?BaseProviderCredentials
     {
         if (!class_exists($credentialsClass)) {
-            throw new \Exception(sprintf('Class %s does not exist', $credentialsClass));
+            throw new MiddlewareClientException(sprintf('Class %s does not exist', $credentialsClass));
         }
         if (!is_subclass_of($credentialsClass, BaseProviderCredentials::class)) {
-            throw new \Exception(sprintf('Class %s is not a subclass of %s', $credentialsClass, BaseProviderCredentials::class));
+            throw new MiddlewareClientException(sprintf('Class %s is not a subclass of %s', $credentialsClass, BaseProviderCredentials::class));
         }
 
         $repo = $this->_em->getRepository($credentialsClass);
