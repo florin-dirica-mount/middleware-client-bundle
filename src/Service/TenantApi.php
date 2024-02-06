@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
+use Horeca\MiddlewareClientBundle\VO\Api\OrderNotificationEventDto;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
 use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
 use Horeca\MiddlewareCommonLib\Model\Protocol\SendShoppingCartResponse;
@@ -14,24 +15,33 @@ use Symfony\Component\HttpFoundation\Response;
 
 class TenantApi implements TenantApiInterface
 {
+    protected const NOTIFICATION_EVENT_PATH = '/middleware/notification/event';
+    protected const SEND_SHOPPING_CART_PATH = '/middleware/order/%s';
+
     /**
      * @var Client[]
      */
     private array $client = [];
 
-    protected SerializerInterface $serializer;
+    public function __construct(protected SerializerInterface $serializer) { }
 
     /**
-     * @required
+     * @throws HorecaException
      */
-    public function setSerializer(SerializerInterface $serializer): void
+    public function sendOrderNotificationEvent(string $event, OrderNotification $notification): void
     {
-        $this->serializer = $serializer;
-    }
+        try {
+            $data = new OrderNotificationEventDto($event, $notification);
+            $options['body'] = $this->serializer->serialize($data, 'json');
 
-    public function getShoppingCartProductMappings(ShoppingCart $cart): array
-    {
-        // TODO: Implement getShoppingCartProductMappings() method.
+            $response = $this->getClient($notification->getTenant())->post(self::NOTIFICATION_EVENT_PATH, $options);
+
+            if ($response->getStatusCode() !== Response::HTTP_OK) {
+                throw new HorecaException('Tenant API error. Status code: ' . $response->getStatusCode());
+            }
+        } catch (GuzzleException|\Exception $e) {
+            throw new HorecaException($e->getMessage());
+        }
     }
 
     /**
@@ -61,7 +71,7 @@ class TenantApi implements TenantApiInterface
     public function sendShoppingCart(Tenant $tenant, ShoppingCart $cart, $restaurantId): SendShoppingCartResponse
     {
         try {
-            $uri = sprintf('/middleware/order/%s', $restaurantId);
+            $uri = sprintf(self::SEND_SHOPPING_CART_PATH, $restaurantId);
 
             $response = $this->getClient($tenant)->post($uri, [
                 'json' => json_decode($this->serializer->serialize($cart, 'json'), true)

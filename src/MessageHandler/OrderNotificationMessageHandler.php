@@ -5,17 +5,21 @@ namespace Horeca\MiddlewareClientBundle\MessageHandler;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\OrderNotificationRepositoryDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\OrderLoggerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProtocolActionsServiceDI;
+use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantApiServiceDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
+use Horeca\MiddlewareClientBundle\Enum\OrderNotificationEventName;
+use Horeca\MiddlewareClientBundle\Enum\OrderNotificationSource;
 use Horeca\MiddlewareClientBundle\Enum\OrderNotificationStatus;
 use Horeca\MiddlewareClientBundle\Exception\OrderMappingException;
 use Horeca\MiddlewareClientBundle\Message\MapTenantOrderToProviderMessage;
 use Horeca\MiddlewareClientBundle\Message\MessageTransports;
+use Horeca\MiddlewareClientBundle\Message\OrderNotificationEventMessage;
 use Horeca\MiddlewareClientBundle\Message\OrderNotificationMessage;
 use Horeca\MiddlewareClientBundle\Message\SendProviderOrderToTenantMessage;
-use Horeca\MiddlewareClientBundle\Message\SendTenantOrderConfirmationMessage;
 use Horeca\MiddlewareClientBundle\Message\SendTenantOrderToProviderMessage;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * Handles order notifications processing
@@ -25,6 +29,9 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
     use OrderLoggerDI;
     use OrderNotificationRepositoryDI;
     use ProtocolActionsServiceDI;
+    use TenantApiServiceDI;
+
+    public function __construct(protected MessageBusInterface $messageBus) { }
 
     /**
      * @inheritDoc
@@ -41,9 +48,9 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             'from_transport' => MessageTransports::SEND_TENANT_ORDER_TO_PROVIDER
         ];
 
-        yield SendTenantOrderConfirmationMessage::class => [
-            'method'         => 'handleSendTenantOrderConfirmationMessage',
-            'from_transport' => MessageTransports::TENANT_CONFIRM_ORDER_SENT_TO_PROVIDER
+        yield OrderNotificationEventMessage::class => [
+            'method'         => 'handleOrderNotificationEventMessage',
+            'from_transport' => MessageTransports::ORDER_NOTIFICATION_EVENT
         ];
 
         yield SendProviderOrderToTenantMessage::class => [
@@ -64,6 +71,8 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             $this->protocolActionsService->mapTenantOrderToProviderOrder($notification);
         } catch (\Exception $e) {
             $this->onOrderNotificationException($notification, $e);
+
+            $this->messageBus->dispatch(new OrderNotificationEventMessage(OrderNotificationEventName::MAPPING_FAILED, $notification));
         } finally {
             $this->orderLogger->logMemoryUsage();
             $this->orderLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleMapTenantOrderToProviderMessage');
@@ -88,33 +97,30 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             $this->protocolActionsService->sendTenantOrderToProvider($notification);
         } catch (\Exception $e) {
             $this->onOrderNotificationException($notification, $e);
+
+            $this->messageBus->dispatch(new OrderNotificationEventMessage(OrderNotificationEventName::MAPPING_FAILED, $notification));
         } finally {
             $this->orderLogger->logMemoryUsage();
             $this->orderLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleSendTenantOrderToProviderMessage');
         }
     }
 
-    public function handleSendTenantOrderConfirmationMessage(OrderNotificationMessage $message): void
+    public function handleOrderNotificationEventMessage(OrderNotificationEventMessage $message): void
     {
         $this->orderLogger->logMemoryUsage();
         $notification = $this->getMessageOrderNotification($message);
 
         try {
-            if ($notification->getStatus() !== OrderNotificationStatus::Notified) {
-                $this->orderLogger->info(__METHOD__, __LINE__, sprintf('Notification %s status is not *mapped*. Action aborted.', $notification->getId()));
-
-                throw new OrderMappingException('Order is not sent to provider.');
+            if ($notification->getSource() === OrderNotificationSource::Tenant) {
+                $this->tenantApiService->sendOrderNotificationEvent($message->getEvent(), $notification);
             }
 
-            $notification->changeStatus(OrderNotificationStatus::SendingConfirmation);
-            $this->orderNotificationRepository->save($notification);
-
-            $this->protocolActionsService->confirmTenantOrderProcessed($notification);
+            // todo: send event to provider if needed, for the other order source
         } catch (\Exception $e) {
             $this->onOrderNotificationException($notification, $e);
         } finally {
             $this->orderLogger->logMemoryUsage();
-            $this->orderLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleSendTenantOrderConfirmationMessage');
+            $this->orderLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleOrderNotificationEventMessage');
         }
     }
 
