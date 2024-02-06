@@ -1,6 +1,3 @@
-parameters:
-    horeca.order_notification_messenger_transport:
-
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -34,8 +31,8 @@ services:
     Horeca\MiddlewareClientBundle\Service\ProviderApiInterface:
         class: '%horeca.provider_api_class%'    # It is defined in the bundle's config file
 
-    Horeca\MiddlewareClientBundle\Service\TenantApiServiceInterface:
-        class: Horeca\MiddlewareClientBundle\Service\TenantApiService
+    Horeca\MiddlewareClientBundle\Service\TenantApiInterface:
+        class: Horeca\MiddlewareClientBundle\Service\TenantApi
 
     Horeca\MiddlewareClientBundle\Service\OrderLogger:
 

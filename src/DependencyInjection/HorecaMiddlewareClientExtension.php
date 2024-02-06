@@ -8,8 +8,8 @@ use Horeca\MiddlewareClientBundle\Repository\UserRepository;
 use Horeca\MiddlewareClientBundle\Service\OrderLogger;
 use Horeca\MiddlewareClientBundle\Service\ProtocolActionsService;
 use Horeca\MiddlewareClientBundle\Service\ProviderApiInterface;
-use Horeca\MiddlewareClientBundle\Service\TenantApiService;
-use Horeca\MiddlewareClientBundle\Service\TenantApiServiceInterface;
+use Horeca\MiddlewareClientBundle\Service\TenantApi;
+use Horeca\MiddlewareClientBundle\Service\TenantApiInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -42,7 +42,6 @@ class HorecaMiddlewareClientExtension extends Extension
         $configuration = $this->getConfiguration($configs, $container);
         $config = $this->processConfiguration($configuration, $configs);
 
-        $container->setParameter('horeca.order_notification_messenger_transport', $config['order_notification_messenger_transport']);
         $container->setParameter('horeca.provider_api_class', $config['provider_api_class']);
         $container->setParameter('horeca.provider_credentials_class', $config['provider_credentials_class']);
 

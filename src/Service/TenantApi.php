@@ -12,9 +12,12 @@ use Horeca\MiddlewareCommonLib\Model\Protocol\SendShoppingCartResponse;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-class TenantApiService implements TenantApiServiceInterface
+class TenantApi implements TenantApiInterface
 {
-    private ?Client $client = null;
+    /**
+     * @var Client[]
+     */
+    private array $client = [];
 
     protected SerializerInterface $serializer;
 
@@ -24,6 +27,11 @@ class TenantApiService implements TenantApiServiceInterface
     public function setSerializer(SerializerInterface $serializer): void
     {
         $this->serializer = $serializer;
+    }
+
+    public function getShoppingCartProductMappings(ShoppingCart $cart): array
+    {
+        // TODO: Implement getShoppingCartProductMappings() method.
     }
 
     /**
@@ -67,8 +75,9 @@ class TenantApiService implements TenantApiServiceInterface
 
     private function getClient(Tenant $tenant): Client
     {
-        if (!$this->client) {
-            $this->client = new Client([
+        if (!isset($this->client[$tenant->getId()])) {
+
+            $this->client[$tenant->getId()] = new Client([
                 'base_uri' => $tenant->getWebhookUrl(),
                 'headers'  => [
                     'Api-Key' => $tenant->getWebhookKey(),
@@ -77,7 +86,7 @@ class TenantApiService implements TenantApiServiceInterface
             ]);
         }
 
-        return $this->client;
+        return $this->client[$tenant->getId()];
     }
 
 }

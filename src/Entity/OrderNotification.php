@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Horeca\MiddlewareClientBundle\Entity\Log\OrderLog;
 use Horeca\MiddlewareClientBundle\Enum\OrderNotificationStatus;
 use Horeca\MiddlewareClientBundle\Enum\OrderNotificationType;
+use Horeca\MiddlewareClientBundle\Enum\SerializationGroups;
 use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
 use JMS\Serializer\Annotation as Serializer;
 
@@ -27,12 +28,17 @@ class OrderNotification extends AbstractEntity
     private ?Tenant $tenant = null;
 
     #[ORM\Column(name: "horeca_order_id", type: "string", length: 36, nullable: true)]
+    #[Serializer\SerializedName("tenantObjectId")]
+    #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView])]
     private ?string $horecaOrderId = null;
 
     #[ORM\Column(name: "service_order_id", type: "string", length: 36, nullable: true)]
+    #[Serializer\SerializedName("providerObjectId")]
+    #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView])]
     private ?string $serviceOrderId = null;
 
     #[ORM\Column(name: "status", type: "string", length: 50, nullable: false, options: ["default" => "received"])]
+    #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView])]
     private string $status;
 
     #[ORM\Column(name: "type", type: "string", length: 50, nullable: false, options: ["default" => "new-order"])]

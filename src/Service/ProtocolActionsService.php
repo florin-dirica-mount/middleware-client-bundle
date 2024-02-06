@@ -139,7 +139,7 @@ class ProtocolActionsService
         }
 
         $credentials = $this->tenantService->compileTenantCredentials($notification->getTenant(), $notification->getServiceCredentials());
-        $response = $this->providerApi->saveOrder($providerOrder, $credentials);
+        $response = $this->providerApi->sendOrderToProvider($providerOrder, $credentials);
 
         $notification->setResponsePayloadString($this->serializer->serialize($response, 'json'));
         $notification->setServiceOrderId((string) $response->orderId);

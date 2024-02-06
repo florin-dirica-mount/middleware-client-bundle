@@ -3,6 +3,8 @@
 namespace Horeca\MiddlewareClientBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Horeca\MiddlewareClientBundle\Enum\SerializationGroups;
+use JMS\Serializer\Annotation as Serializer;
 use Ramsey\Uuid\Uuid;
 
 abstract class AbstractEntity
@@ -10,6 +12,8 @@ abstract class AbstractEntity
 
     #[ORM\Id]
     #[ORM\Column(name: "id", type: "string", length: 36)]
+    #[Serializer\Expose]
+    #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView])]
     protected string $id;
 
     #[ORM\Column(name: "created_at", type: "datetime", nullable: false, options: ["default" => "CURRENT_TIMESTAMP"])]

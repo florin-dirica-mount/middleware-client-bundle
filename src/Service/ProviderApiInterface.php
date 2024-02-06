@@ -9,65 +9,53 @@ use Horeca\MiddlewareClientBundle\VO\Provider\ProviderCredentialsInterface;
 use Horeca\MiddlewareClientBundle\VO\Provider\ProviderOrderInterface;
 use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
 
-/**
- * @template T of ProviderCredentialsInterface
- * @template-extends ProviderCredentialsInterface<T>
- *
- * @template PO of ProviderOrderInterface
- * @template-extends ProviderOrderInterface<PO>
- */
 interface ProviderApiInterface
 {
 
     /**
      * Return the classname of the provider order model
-     *
-     * @return class-string<PO>
      */
     public function getProviderOrderClass(): string;
 
     /**
      * Return the classname of the provider credentials model
-     *
-     * @return class-string<T>
      */
     public function getProviderCredentialsClass(): string;
 
     /**
      * Saves the order data into the provider system and returns the external order ID, if it is applicable
      *
-     * @param ProviderOrderInterface<PO> $order
-     * @param ProviderCredentialsInterface<T> $credentials
+     * @var ProviderOrderInterface $order
      */
-    public function saveOrder(ProviderOrderInterface $order, ProviderCredentialsInterface $credentials): ?BaseProviderOrderResponse;
+    public function sendOrderToProvider($order, ProviderCredentialsInterface $credentials): ?BaseProviderOrderResponse;
 
     /**
      * Handles the mapping between ShoppingCart and ProviderOrder models
      *
-     * @return ProviderOrderInterface<PO>
+     * @return ProviderOrderInterface
      */
-    public function mapShoppingCartToProviderOrder(Tenant $tenant, ShoppingCart $cart): ProviderOrderInterface;
+    public function mapShoppingCartToProviderOrder(Tenant $tenant, ShoppingCart $cart);
 
     /**
      * @param Tenant $tenant
-     * @param $providerOrder
+     * @param ProviderOrderInterface $order
      * @return ShoppingCart
      * Handles the mapping between ProviderOrder and ShoppingCart models
      */
-    public function mapProviderOrderToShoppingCart(Tenant $tenant, $providerOrder): ShoppingCart;
+    public function mapProviderOrderToShoppingCart(Tenant $tenant, $order): ShoppingCart;
 
     /**
      * @param string $horecaExternalServiceId
-     * @param ProviderCredentialsInterface<T> $credentials
+     * @param ProviderCredentialsInterface $credentials
      * @return bool
      */
-    public function initializeShop(string $horecaExternalServiceId, ProviderCredentialsInterface $credentials): bool;
+    public function initializeShop(string $horecaExternalServiceId, $credentials): bool;
 
     /**
      * @param HorecaRequestDeliveryBody $body
-     * @param ProviderCredentialsInterface<T> $credentials
+     * @param ProviderCredentialsInterface $credentials
      * @return bool
      */
-    public function requestDelivery(HorecaRequestDeliveryBody $body, ProviderCredentialsInterface $credentials): bool;
+    public function requestDelivery(HorecaRequestDeliveryBody $body, $credentials): bool;
 
 }

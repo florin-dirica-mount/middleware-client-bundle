@@ -10,23 +10,10 @@ use Psr\Log\LoggerInterface;
 
 class OrderLogger
 {
-    protected EntityManagerInterface $entityManager;
-    protected LoggerInterface $logger;
 
-    /**
-     * @required
-     */
-    public function setLogger(LoggerInterface $logger): void
+    public function __construct(protected EntityManagerInterface $entityManager,
+                                protected LoggerInterface        $logger)
     {
-        $this->logger = $logger;
-    }
-
-    /**
-     * @required
-     */
-    public function setEntityManager(EntityManagerInterface $entityManager): void
-    {
-        $this->entityManager = $entityManager;
     }
 
     private array $buffer = [];

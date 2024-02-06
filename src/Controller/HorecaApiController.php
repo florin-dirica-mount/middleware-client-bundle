@@ -11,14 +11,17 @@ use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantServiceDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Enum\OrderNotificationSource;
 use Horeca\MiddlewareClientBundle\Enum\OrderNotificationType;
+use Horeca\MiddlewareClientBundle\Enum\SerializationGroups;
 use Horeca\MiddlewareClientBundle\Enum\ValidationGroups;
 use Horeca\MiddlewareClientBundle\Exception\ApiException;
 use Horeca\MiddlewareClientBundle\Message\MapTenantOrderToProviderMessage;
 use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
+use Horeca\MiddlewareClientBundle\VO\Api\OrderNotificationResponseDataDto;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaInitializeShopBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaRequestDeliveryBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaSendOrderBody;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
+use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -106,7 +109,10 @@ class HorecaApiController extends AbstractController
                 $messageBus->dispatch(new MapTenantOrderToProviderMessage($order));
             }
 
-            return new JsonResponse(['success' => true]);
+            $context = SerializationContext::create()->setGroups([SerializationGroups::TenantOrderNotificationView]);
+            $data = $this->serializer->serialize(new OrderNotificationResponseDataDto($order), 'json', $context);
+
+            return new JsonResponse($data, 200, [], true);
         } catch (\Exception $e) {
             return $this->handleException($e);
         }
