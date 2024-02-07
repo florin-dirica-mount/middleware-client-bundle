@@ -98,10 +98,10 @@ horeca:
 framework:
     messenger:
         transports:
-            hmc_map_tenant_order_to_provider:        '%env(resolve:MESSENGER_TRANSPORT_DSN)%'
-            hmc_tenant_order_send_to_provider:       '%env(resolve:MESSENGER_TRANSPORT_DSN)%'
-            hmc_order_notification_event:            '%env(resolve:MESSENGER_TRANSPORT_DSN)%'
-            hmc_external_service_order_notification: '%env(resolve:MESSENGER_TRANSPORT_DSN)%'
+            hmc_map_tenant_order_to_provider:        '%env(resolve:MESSENGER_TRANSPORT_DSN)%?queue_name=hmc_map_tenant_order_to_provider'
+            hmc_tenant_order_send_to_provider:       '%env(resolve:MESSENGER_TRANSPORT_DSN)%?queue_name=hmc_tenant_order_send_to_provider'
+            hmc_order_notification_event:            '%env(resolve:MESSENGER_TRANSPORT_DSN)%?queue_name=hmc_order_notification_event'
+            hmc_external_service_order_notification: '%env(resolve:MESSENGER_TRANSPORT_DSN)%?queue_name=hmc_external_service_order_notification'
 
         routing:
             'Horeca\MiddlewareClientBundle\Message\MapTenantOrderToProviderMessage':  hmc_map_tenant_order_to_provider

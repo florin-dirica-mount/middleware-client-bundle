@@ -73,6 +73,8 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             if ($notification->getTenant()->isSubscribedToEvent(OrderNotificationEventName::MAPPING_COMPLETED)) {
                 $this->messageBus->dispatch(new OrderNotificationEventMessage(OrderNotificationEventName::MAPPING_COMPLETED, $notification));
             }
+
+            $this->messageBus->dispatch(new SendTenantOrderToProviderMessage($notification));
         } catch (\Exception $e) {
             $this->onOrderNotificationException($notification, $e);
 
