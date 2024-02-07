@@ -22,6 +22,9 @@ class Tenant extends DefaultEntity
     #[ORM\Column(name: 'webhook_url', type: 'string')]
     private string $webhookUrl;
 
+    #[ORM\Column(name: 'subscribed_events', type: 'json', nullable: true)]
+    private ?array $subscribedEvents = [];
+
     #[ORM\Column(name: 'active', type: 'boolean', options: ['default' => 1])]
     protected bool $active = true;
 
@@ -81,5 +84,20 @@ class Tenant extends DefaultEntity
     public function setActive(bool $active): void
     {
         $this->active = $active;
+    }
+
+    public function getSubscribedEvents(): array
+    {
+        return (array) $this->subscribedEvents;
+    }
+
+    public function setSubscribedEvents(array $subscribedEvents): void
+    {
+        $this->subscribedEvents = $subscribedEvents;
+    }
+
+    public function isSubscribedToEvent(string $event): bool
+    {
+        return in_array($event, (array) $this->subscribedEvents);
     }
 }

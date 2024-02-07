@@ -70,11 +70,15 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
 
             $this->protocolActionsService->mapTenantOrderToProviderOrder($notification);
 
-            $this->messageBus->dispatch(new OrderNotificationEventMessage(OrderNotificationEventName::MAPPING_COMPLETED, $notification));
+            if ($notification->getTenant()->isSubscribedToEvent(OrderNotificationEventName::MAPPING_COMPLETED)) {
+                $this->messageBus->dispatch(new OrderNotificationEventMessage(OrderNotificationEventName::MAPPING_COMPLETED, $notification));
+            }
         } catch (\Exception $e) {
             $this->onOrderNotificationException($notification, $e);
 
-            $this->messageBus->dispatch(new OrderNotificationEventMessage(OrderNotificationEventName::MAPPING_FAILED, $notification));
+            if ($notification->getTenant()->isSubscribedToEvent(OrderNotificationEventName::MAPPING_FAILED)) {
+                $this->messageBus->dispatch(new OrderNotificationEventMessage(OrderNotificationEventName::MAPPING_FAILED, $notification));
+            }
         } finally {
             $this->orderLogger->logMemoryUsage();
             $this->orderLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleMapTenantOrderToProviderMessage');
@@ -97,10 +101,16 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             $this->orderNotificationRepository->save($notification);
 
             $this->protocolActionsService->sendTenantOrderToProvider($notification);
+
+            if ($notification->getTenant()->isSubscribedToEvent(OrderNotificationEventName::PROVIDER_NOTIFIED)) {
+                $this->messageBus->dispatch(new OrderNotificationEventMessage(OrderNotificationEventName::PROVIDER_NOTIFIED, $notification));
+            }
         } catch (\Exception $e) {
             $this->onOrderNotificationException($notification, $e);
 
-            $this->messageBus->dispatch(new OrderNotificationEventMessage(OrderNotificationEventName::MAPPING_FAILED, $notification));
+            if ($notification->getTenant()->isSubscribedToEvent(OrderNotificationEventName::PROVIDER_NOTIFICATION_FAILED)) {
+                $this->messageBus->dispatch(new OrderNotificationEventMessage(OrderNotificationEventName::PROVIDER_NOTIFICATION_FAILED, $notification));
+            }
         } finally {
             $this->orderLogger->logMemoryUsage();
             $this->orderLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleSendTenantOrderToProviderMessage');
@@ -113,7 +123,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
         $notification = $this->getMessageOrderNotification($message);
 
         try {
-            if ($notification->getSource() === OrderNotificationSource::Tenant) {
+            if ($notification->getSource() === OrderNotificationSource::Tenant && $notification->getTenant()->isSubscribedToEvent($message->getEvent())) {
                 $this->tenantApiService->sendOrderNotificationEvent($message->getEvent(), $notification);
             }
 
