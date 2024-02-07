@@ -24,7 +24,7 @@ class OrderLog
     #[ORM\GeneratedValue(strategy: 'AUTO')]
     private int $id;
 
-    #[ORM\Column(name: 'action', type: 'string', length: 64, nullable: false)]
+    #[ORM\Column(name: 'action', type: 'string', length: 128, nullable: false)]
     private string $action;
 
     #[ORM\ManyToOne(targetEntity: OrderNotification::class, cascade: ['persist'], inversedBy: 'logs')]
@@ -35,7 +35,7 @@ class OrderLog
     #[ORM\Column(name: 'micro_time', type: 'float', nullable: false)]
     private float $microTime;
 
-    #[ORM\Column(name: 'level', type: 'string', length: 10, nullable: false)]
+    #[ORM\Column(name: 'level', type: 'string', length: 20, nullable: false)]
     private string $level;
 
     #[ORM\Column(name: 'log', type: 'text', nullable: false)]
