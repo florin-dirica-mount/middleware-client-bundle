@@ -165,3 +165,38 @@ symfony/
     ]
 }
 ```
+
+# Tenant Webhooks
+
+- The order was sent to the provider system (deprecated)
+
+```
+POST /middleware/cart/{id}/confirm-provider-notified
+
+Response: status 200
+```
+
+- Send an order received from the provider system
+
+```
+POST /middleware/order/{restaurant_id}
+Body: ShoppingCart
+
+Reponse: status 200
+    horeca_order_id: string
+```
+
+- Receive order notification events
+
+```
+POST /middleware/notification/event
+Body:
+    event: hmc.order_notification.mapping_failed | hmc.order_notification.mapping_completed | hmc.order_notification.provider_notified | hmc.order_notification.provider_notification_failed
+    notification:
+        id: string 
+        tenantObjectId: string
+        providerObjectId: ?string
+        status: mapped | notified | failed
+
+Response: status 200
+```
