@@ -56,7 +56,7 @@ class OrderLogger
             return false;
         }
 
-        $sql = "INSERT INTO order_log (action, order_id, micro_time, level, log, created_at) VALUES (:action, :order_id, :micro_time, :level, :log, :created_at)";
+        $sql = "INSERT INTO hmc_order_logs (action, order_id, micro_time, level, log, created_at) VALUES (:action, :order_id, :micro_time, :level, :log, :created_at)";
         $params = [
             'action'     => $action,
             'order_id'   => $order->getId(),
