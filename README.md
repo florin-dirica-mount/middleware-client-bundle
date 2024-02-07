@@ -197,6 +197,7 @@ Body:
         tenantObjectId: string
         providerObjectId: ?string
         status: mapped | notified | failed
+        responsePayload: ?array (provider response payload)
 
 Response: status 200
 ```

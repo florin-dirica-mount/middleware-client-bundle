@@ -65,6 +65,7 @@ class OrderNotification extends TenantAwareEntity
     private ?array $servicePayload = [];
 
     #[ORM\Column(name: "response_payload", type: "json", nullable: true)]
+    #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView])]
     private ?array $responsePayload = [];
 
     #[ORM\Column(name: "error_message", type: "text", nullable: true)]
