@@ -9,6 +9,10 @@ use Horeca\MiddlewareCommonLib\Model\Protocol\SendShoppingCartResponse;
 
 interface TenantApiInterface
 {
+    const PATH_NOTIFICATION_EVENT = '/middleware/notification/event';
+    const PATH_SEND_SHOPPING_CART = '/middleware/order/%s';
+    const PATH_CONFIRM_PROVIDER_NOTIFIED = '/middleware/cart/%s/confirm-provider-notified';
+
     /**
      * @deprecated use sendOrderNotificationEvent
      */

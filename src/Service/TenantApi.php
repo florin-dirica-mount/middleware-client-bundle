@@ -15,9 +15,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class TenantApi implements TenantApiInterface
 {
-    protected const NOTIFICATION_EVENT_PATH = '/middleware/notification/event';
-    protected const SEND_SHOPPING_CART_PATH = '/middleware/order/%s';
-
     use TenantClientFactoryDI;
 
     public function __construct(protected SerializerInterface $serializer) { }
@@ -31,7 +28,7 @@ class TenantApi implements TenantApiInterface
             $data = new OrderNotificationEventDto($event, $notification);
             $options['body'] = $this->serializer->serialize($data, 'json');
 
-            $response = $this->tenantClientFactory->client($notification->getTenant())->post(self::NOTIFICATION_EVENT_PATH, $options);
+            $response = $this->tenantClientFactory->client($notification->getTenant())->post($this::PATH_NOTIFICATION_EVENT, $options);
 
             if ($response->getStatusCode() !== Response::HTTP_OK) {
                 throw new HorecaException('Tenant API error. Status code: ' . $response->getStatusCode());
@@ -53,7 +50,7 @@ class TenantApi implements TenantApiInterface
                 throw new HorecaException('Missing API parameter: cart.id');
             }
 
-            $uri = sprintf('/middleware/cart/%s/confirm-provider-notified', $cart->getId());
+            $uri = sprintf($this::PATH_CONFIRM_PROVIDER_NOTIFIED, $cart->getId());
             $response = $this->tenantClientFactory->client($notification->getTenant())->post($uri);
 
             return $response->getStatusCode() === Response::HTTP_OK;
@@ -68,7 +65,7 @@ class TenantApi implements TenantApiInterface
     public function sendShoppingCart(Tenant $tenant, ShoppingCart $cart, $restaurantId): SendShoppingCartResponse
     {
         try {
-            $uri = sprintf(self::SEND_SHOPPING_CART_PATH, $restaurantId);
+            $uri = sprintf($this::PATH_SEND_SHOPPING_CART, $restaurantId);
             $options['json'] = json_decode($this->serializer->serialize($cart, 'json'), true);
 
             $response = $this->tenantClientFactory->client($tenant)->post($uri, $options);
