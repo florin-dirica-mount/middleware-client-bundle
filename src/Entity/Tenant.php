@@ -2,6 +2,8 @@
 
 namespace Horeca\MiddlewareClientBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Horeca\MiddlewareClientBundle\Repository\TenantRepository;
 
@@ -28,8 +30,21 @@ class Tenant extends DefaultEntity
     #[ORM\Column(name: 'active', type: 'boolean', options: ['default' => 1])]
     protected bool $active = true;
 
+    /**
+     * @var Collection<int, TenantWebhook>|TenantWebhook[]
+     */
+    #[ORM\OneToMany(mappedBy: 'tenant', targetEntity: TenantWebhook::class, cascade: ["persist", "remove"], orphanRemoval: true)]
+    protected Collection|array $webhooks;
+
     #[ORM\Column(name: "created_at", type: "datetime", nullable: false, options: ["default" => "CURRENT_TIMESTAMP"])]
     protected \DateTime $createdAt;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->webhooks = new ArrayCollection();
+    }
 
     public function __toString()
     {
@@ -94,6 +109,34 @@ class Tenant extends DefaultEntity
     public function setSubscribedEvents(array $subscribedEvents): void
     {
         $this->subscribedEvents = $subscribedEvents;
+    }
+
+    public function getWebhooks(): Collection|array
+    {
+        return $this->webhooks;
+    }
+
+    public function setWebhooks(Collection|array $webhooks): void
+    {
+        $this->webhooks = $webhooks;
+    }
+
+    public function addWebhook(TenantWebhook $webhook): void
+    {
+        $webhook->setTenant($this);
+        if (!$this->webhooks->contains($webhook)) {
+            $this->webhooks->add($webhook);
+        }
+    }
+
+    public function supportsWebhook(string $name): bool
+    {
+        return $this->webhooks->exists(fn(int $key, TenantWebhook $webhook) => $webhook->getName() === $name);
+    }
+
+    public function getWebhookByName(string $name): ?TenantWebhook
+    {
+        return $this->webhooks->filter(fn(TenantWebhook $webhook) => $webhook->getName() === $name)->first() ?: null;
     }
 
     public function isSubscribedToEvent(string $event): bool

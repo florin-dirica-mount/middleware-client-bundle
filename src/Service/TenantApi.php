@@ -24,11 +24,16 @@ class TenantApi implements TenantApiInterface
      */
     public function sendOrderNotificationEvent(string $event, OrderNotification $notification): void
     {
+        $webhook = $notification->getTenant()->getWebhookByName(self::WEBHOOK_ORDER_NOTIFICATION_EVENT);
+        if (!$webhook || !$webhook->isEnabled()) {
+            throw new HorecaException(sprintf('Tenant %s does not support webhook %s', $notification->getTenant()->getId(), self::WEBHOOK_ORDER_NOTIFICATION_EVENT));
+        }
+
         try {
             $data = new OrderNotificationEventDto($event, $notification);
             $options['body'] = $this->serializer->serialize($data, 'json');
 
-            $response = $this->tenantClientFactory->client($notification->getTenant())->post($this::PATH_NOTIFICATION_EVENT, $options);
+            $response = $this->tenantClientFactory->client($notification->getTenant())->post($webhook->getPath(), $options);
 
             if ($response->getStatusCode() !== Response::HTTP_OK) {
                 throw new HorecaException('Tenant API error. Status code: ' . $response->getStatusCode());
@@ -50,7 +55,7 @@ class TenantApi implements TenantApiInterface
                 throw new HorecaException('Missing API parameter: cart.id');
             }
 
-            $uri = sprintf($this::PATH_CONFIRM_PROVIDER_NOTIFIED, $cart->getId());
+            $uri = sprintf('/middleware/cart/%s/confirm-provider-notified', $cart->getId());
             $response = $this->tenantClientFactory->client($notification->getTenant())->post($uri);
 
             return $response->getStatusCode() === Response::HTTP_OK;
@@ -64,8 +69,13 @@ class TenantApi implements TenantApiInterface
      */
     public function sendShoppingCart(Tenant $tenant, ShoppingCart $cart, $restaurantId): SendShoppingCartResponse
     {
+        $webhook = $tenant->getWebhookByName(self::WEBHOOK_SHOPPING_CART_SEND);
+        if (!$webhook || !$webhook->isEnabled()) {
+            throw new HorecaException(sprintf('Tenant %s does not support webhook %s', $tenant->getId(), self::WEBHOOK_SHOPPING_CART_SEND));
+        }
+
         try {
-            $uri = sprintf($this::PATH_SEND_SHOPPING_CART, $restaurantId);
+            $uri = sprintf($webhook->getPath(), $restaurantId);
             $options['json'] = json_decode($this->serializer->serialize($cart, 'json'), true);
 
             $response = $this->tenantClientFactory->client($tenant)->post($uri, $options);
