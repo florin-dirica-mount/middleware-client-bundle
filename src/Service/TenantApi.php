@@ -6,11 +6,13 @@ use GuzzleHttp\Exception\GuzzleException;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantClientFactoryDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
+use Horeca\MiddlewareClientBundle\Entity\TenantWebhook;
 use Horeca\MiddlewareClientBundle\VO\Api\OrderNotificationEventDto;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
 use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
 use Horeca\MiddlewareCommonLib\Model\Protocol\SendShoppingCartResponse;
 use JMS\Serializer\SerializerInterface;
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class TenantApi implements TenantApiInterface
@@ -31,9 +33,14 @@ class TenantApi implements TenantApiInterface
 
         try {
             $data = new OrderNotificationEventDto($event, $notification);
-            $options['body'] = $this->serializer->serialize($data, 'json');
 
-            $response = $this->tenantClientFactory->client($notification->getTenant())->post($webhook->getPath(), $options);
+            if ($webhook->getMethod() === 'GET') {
+                $options['query']['payload'] = base64_encode($this->serializer->serialize($data, 'json'));
+            } else {
+                $options['body'] = $this->serializer->serialize($data, 'json');
+            }
+
+            $response = $this->sendWebhook($webhook, $options);
 
             if ($response->getStatusCode() !== Response::HTTP_OK) {
                 throw new HorecaException('Tenant API error. Status code: ' . $response->getStatusCode());
@@ -75,14 +82,26 @@ class TenantApi implements TenantApiInterface
         }
 
         try {
-            $uri = sprintf($webhook->getPath(), $restaurantId);
-            $options['json'] = json_decode($this->serializer->serialize($cart, 'json'), true);
+            if ($webhook->getMethod() === 'GET') {
+                $options['query']['payload'] = base64_encode($this->serializer->serialize($cart, 'json'));
+            } else {
+                $options['json'] = json_decode($this->serializer->serialize($cart, 'json'), true);
+            }
 
-            $response = $this->tenantClientFactory->client($tenant)->post($uri, $options);
+            $response = $this->sendWebhook($webhook, $options);
 
             return $this->serializer->deserialize($response->getBody()->getContents(), SendShoppingCartResponse::class, 'json');
         } catch (GuzzleException|\Exception $e) {
             throw new HorecaException($e->getMessage());
         }
+    }
+
+    /**
+     * @throws GuzzleException
+     */
+    protected function sendWebhook(TenantWebhook $webhook, array $options = []): ResponseInterface
+    {
+        return $this->tenantClientFactory->client($webhook->getTenant())
+            ->request($webhook->getMethod(), $webhook->getPath(), $options);
     }
 }
