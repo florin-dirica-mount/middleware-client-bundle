@@ -17,7 +17,7 @@
         "doctrine/doctrine-bundle": "^2.1",
         "doctrine/orm": "^2.10",
         "guzzlehttp/guzzle": "^6.2 || ^7.0",
-        "horeca/middleware-common-lib": "dev-develop",
+        "horeca/middleware-common-lib": "^3.0",
         "jms/serializer": "^3.10",
         "ramsey/uuid": "^4.2",
         "ramsey/uuid-doctrine": "^1.8",
