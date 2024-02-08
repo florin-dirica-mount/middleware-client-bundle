@@ -2,17 +2,16 @@
 
 namespace Horeca\MiddlewareClientBundle\Service;
 
-use GuzzleHttp\Client;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
 
 final class TenantClientFactory
 {
     /**
-     * @var Client[]
+     * @var TenantClient[]
      */
     protected array $clients = [];
 
-    public function client(Tenant $tenant): Client
+    public function client(Tenant $tenant): TenantClient
     {
         if (!isset($this->clients[$tenant->getId()])) {
             $this->clients[$tenant->getId()] = $this->build($tenant);
@@ -21,15 +20,8 @@ final class TenantClientFactory
         return $this->clients[$tenant->getId()];
     }
 
-    private function build(Tenant $tenant): Client
+    private function build(Tenant $tenant): TenantClient
     {
-        return new Client([
-            'base_uri' => $tenant->getWebhookUrl(),
-            'headers'  => [
-                'Accept'  => 'application/json',
-                'Api-Key' => $tenant->getWebhookKey()
-            ],
-            'timeout'  => 10,
-        ]);
+        return new TenantClient($tenant);
     }
 }
