@@ -6,10 +6,12 @@ use GuzzleHttp\Exception\GuzzleException;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantClientFactoryDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
+use Horeca\MiddlewareClientBundle\Enum\SerializationGroups;
 use Horeca\MiddlewareClientBundle\VO\Api\OrderNotificationEventDto;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
 use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
 use Horeca\MiddlewareCommonLib\Model\Protocol\SendShoppingCartResponse;
+use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -29,7 +31,8 @@ class TenantApi implements TenantApiInterface
     {
         try {
             $data = new OrderNotificationEventDto($event, $notification);
-            $options['body'] = $this->serializer->serialize($data, 'json');
+            $context = SerializationContext::create()->setGroups(SerializationGroups::TenantOrderNotificationView);
+            $options['body'] = $this->serializer->serialize($data, 'json', $context);
 
             $response = $this->tenantClientFactory->client($notification->getTenant())->post(self::NOTIFICATION_EVENT_PATH, $options);
 
