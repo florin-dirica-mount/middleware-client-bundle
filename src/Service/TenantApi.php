@@ -17,9 +17,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class TenantApi implements TenantApiInterface
 {
-    protected const NOTIFICATION_EVENT_PATH = '/middleware/notification/event';
-    protected const SEND_SHOPPING_CART_PATH = '/middleware/order/%s';
-
     use TenantClientFactoryDI;
 
     public function __construct(protected SerializerInterface $serializer) { }
@@ -30,11 +27,18 @@ class TenantApi implements TenantApiInterface
     public function sendOrderNotificationEvent(string $event, OrderNotification $notification): void
     {
         try {
+            $client = $this->tenantClientFactory->client($notification->getTenant());
+            $webhook = $client->getWebhook(self::WEBHOOK_ORDER_NOTIFICATION_EVENT);
             $data = new OrderNotificationEventDto($event, $notification);
-            $context = SerializationContext::create()->setGroups(SerializationGroups::TenantOrderNotificationView);
-            $options['body'] = $this->serializer->serialize($data, 'json', $context);
 
-            $response = $this->tenantClientFactory->client($notification->getTenant())->post(self::NOTIFICATION_EVENT_PATH, $options);
+            if ($webhook->getMethod() === 'GET') {
+                $options['query']['payload'] = base64_encode($this->serializer->serialize($data, 'json'));
+            } else {
+                $context = SerializationContext::create()->setGroups(SerializationGroups::TenantOrderNotificationView);
+            $options['body'] = $this->serializer->serialize($data, 'json', $context);
+            }
+
+            $response = $client->sendWebhook($webhook, $options);
 
             if ($response->getStatusCode() !== Response::HTTP_OK) {
                 throw new HorecaException('Tenant API error. Status code: ' . $response->getStatusCode());
@@ -57,7 +61,7 @@ class TenantApi implements TenantApiInterface
             }
 
             $uri = sprintf('/middleware/cart/%s/confirm-provider-notified', $cart->getId());
-            $response = $this->tenantClientFactory->client($notification->getTenant())->post($uri);
+            $response = $this->tenantClientFactory->client($notification->getTenant())->request('POST', $uri);
 
             return $response->getStatusCode() === Response::HTTP_OK;
         } catch (GuzzleException|\Exception $e) {
@@ -71,10 +75,15 @@ class TenantApi implements TenantApiInterface
     public function sendShoppingCart(Tenant $tenant, ShoppingCart $cart, $restaurantId): SendShoppingCartResponse
     {
         try {
-            $uri = sprintf(self::SEND_SHOPPING_CART_PATH, $restaurantId);
-            $options['json'] = json_decode($this->serializer->serialize($cart, 'json'), true);
+            $client = $this->tenantClientFactory->client($tenant);
+            $webhook = $client->getWebhook(self::WEBHOOK_SHOPPING_CART_SEND);
+            if ($webhook->getMethod() === 'GET') {
+                $options['query']['payload'] = base64_encode($this->serializer->serialize($cart, 'json'));
+            } else {
+                $options['json'] = json_decode($this->serializer->serialize($cart, 'json'), true);
+            }
 
-            $response = $this->tenantClientFactory->client($tenant)->post($uri, $options);
+            $response = $client->sendWebhook($webhook, $options);
 
             return $this->serializer->deserialize($response->getBody()->getContents(), SendShoppingCartResponse::class, 'json');
         } catch (GuzzleException|\Exception $e) {

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e1266d65939b0bcc03a855dba6ea3f0b",
+    "content-hash": "4a8f21097fb18f98c87b0f1f7c99c6b1",
     "packages": [
         {
             "name": "brick/math",
@@ -1594,7 +1594,7 @@
         },
         {
             "name": "horeca/middleware-common-lib",
-            "version": "dev-develop",
+            "version": "3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://gitlab.com/horeca-universal/libs/middleware-common-lib.git",
@@ -1630,7 +1630,7 @@
                 }
             ],
             "support": {
-                "source": "https://gitlab.com/horeca-universal/libs/middleware-common-lib/-/tree/develop"
+                "source": "https://gitlab.com/horeca-universal/libs/middleware-common-lib/-/tree/3.0.0"
             },
             "time": "2024-02-06T17:43:52+02:00"
         },
@@ -7469,9 +7469,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "horeca/middleware-common-lib": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

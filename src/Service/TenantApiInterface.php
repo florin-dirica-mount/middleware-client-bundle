@@ -9,6 +9,9 @@ use Horeca\MiddlewareCommonLib\Model\Protocol\SendShoppingCartResponse;
 
 interface TenantApiInterface
 {
+    const WEBHOOK_SHOPPING_CART_SEND = 'tenant.webhook.shopping_cart.send';
+    const WEBHOOK_ORDER_NOTIFICATION_EVENT = 'tenant.webhook.order_notification_event';
+
     /**
      * @deprecated use sendOrderNotificationEvent
      */
