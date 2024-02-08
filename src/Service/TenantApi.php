@@ -29,13 +29,15 @@ class TenantApi implements TenantApiInterface
         try {
             $client = $this->tenantClientFactory->client($notification->getTenant());
             $webhook = $client->getWebhook(self::WEBHOOK_ORDER_NOTIFICATION_EVENT);
+
             $data = new OrderNotificationEventDto($event, $notification);
+            $context = SerializationContext::create()->setGroups(SerializationGroups::TenantOrderNotificationView);
+            $json = $this->serializer->serialize($data, 'json', $context);
 
             if ($webhook->getMethod() === 'GET') {
-                $options['query']['payload'] = base64_encode($this->serializer->serialize($data, 'json'));
+                $options['query']['payload'] = base64_encode($json);
             } else {
-                $context = SerializationContext::create()->setGroups(SerializationGroups::TenantOrderNotificationView);
-            $options['body'] = $this->serializer->serialize($data, 'json', $context);
+                $options['body'] = $json;
             }
 
             $response = $client->sendWebhook($webhook, $options);
