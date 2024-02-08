@@ -19,6 +19,9 @@ class TenantWebhook extends DefaultEntity
     #[ORM\Column(name: 'name', type: 'string', nullable: false)]
     protected string $name;
 
+    #[ORM\Column(name: 'method', type: 'string', length: 20, nullable: false, options: ['default' => 'POST'])]
+    protected string $method = 'POST';
+
     #[ORM\Column(name: 'path', type: 'string', nullable: false)]
     protected string $path;
 
@@ -63,6 +66,16 @@ class TenantWebhook extends DefaultEntity
     public function setEnabled(bool $enabled): void
     {
         $this->enabled = $enabled;
+    }
+
+    public function getMethod(): string
+    {
+        return $this->method;
+    }
+
+    public function setMethod(string $method): void
+    {
+        $this->method = $method;
     }
 
 }
