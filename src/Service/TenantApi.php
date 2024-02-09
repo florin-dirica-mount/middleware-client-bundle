@@ -26,14 +26,14 @@ class TenantApi implements TenantApiInterface
      */
     public function sendOrderNotificationEvent(string $event, OrderNotification $notification): void
     {
+        $client = $this->tenantClientFactory->client($notification->getTenant());
+        $webhook = $client->getWebhook(self::WEBHOOK_ORDER_NOTIFICATION_EVENT);
+
+        $data = new OrderNotificationEventDto($event, $notification);
+        $context = SerializationContext::create()->setGroups(SerializationGroups::TenantOrderNotificationView);
+        $json = $this->serializer->serialize($data, 'json', $context);
+
         try {
-            $client = $this->tenantClientFactory->client($notification->getTenant());
-            $webhook = $client->getWebhook(self::WEBHOOK_ORDER_NOTIFICATION_EVENT);
-
-            $data = new OrderNotificationEventDto($event, $notification);
-            $context = SerializationContext::create()->setGroups(SerializationGroups::TenantOrderNotificationView);
-            $json = $this->serializer->serialize($data, 'json', $context);
-
             if ($webhook->getMethod() === 'GET') {
                 $options['query']['payload'] = base64_encode($json);
             } else {
@@ -43,10 +43,10 @@ class TenantApi implements TenantApiInterface
             $response = $client->sendWebhook($webhook, $options);
 
             if ($response->getStatusCode() !== Response::HTTP_OK) {
-                throw new HorecaException('Tenant API error. Status code: ' . $response->getStatusCode());
+                throw new HorecaException(sprintf('[TenantApi.sendOrderNotificationEvent] Error %d: %s. Request payload: %s', $response->getStatusCode(), $response->getBody()->getContents(), $json));
             }
         } catch (GuzzleException|\Exception $e) {
-            throw new HorecaException($e->getMessage());
+            throw new HorecaException(sprintf('[TenantApi.sendOrderNotificationEvent] Error: %s. Request payload: %s', $e->getMessage(), $json));
         }
     }
 
