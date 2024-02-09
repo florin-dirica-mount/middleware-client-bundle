@@ -18,8 +18,9 @@ final class TenantClient
         $this->client = new Client([
             'base_uri' => $tenant->getWebhookUrl(),
             'headers'  => [
-                'Accept'  => 'application/json',
-                'Api-Key' => $tenant->getWebhookKey()
+                'Accept'       => 'application/json',
+                'Content-Type' => 'application/json',
+                'Api-Key'      => $tenant->getWebhookKey()
             ],
             'timeout'  => 10,
         ]);
@@ -55,6 +56,10 @@ final class TenantClient
             }
 
             $webhook = $this->tenant->getWebhookByName($webhook);
+        }
+
+        if (!$webhook instanceof TenantWebhook) {
+            throw new HorecaException(sprintf('Invalid webhook %s', $webhook));
         }
 
         if (!$webhook->isEnabled()) {

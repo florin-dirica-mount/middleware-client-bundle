@@ -2,6 +2,7 @@
 
 namespace Horeca\MiddlewareClientBundle\MessageHandler;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\OrderNotificationRepositoryDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\OrderLoggerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProtocolActionsServiceDI;
@@ -31,7 +32,10 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
     use ProtocolActionsServiceDI;
     use TenantApiServiceDI;
 
-    public function __construct(protected MessageBusInterface $messageBus) { }
+    public function __construct(protected MessageBusInterface    $messageBus,
+                                protected EntityManagerInterface $entityManager)
+    {
+    }
 
     /**
      * @inheritDoc
@@ -127,6 +131,12 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
         try {
             if ($notification->getSource() === OrderNotificationSource::Tenant && $notification->getTenant()->isSubscribedToEvent($message->getEvent())) {
                 $this->tenantApiService->sendOrderNotificationEvent($message->getEvent(), $notification);
+            }
+
+            if ($notification->getStatus() !== OrderNotificationStatus::Confirmed
+                && in_array($message->getEvent(), [OrderNotificationEventName::PROVIDER_NOTIFIED, OrderNotificationEventName::TENANT_NOTIFIED])) {
+                $notification->changeStatus(OrderNotificationStatus::Confirmed);
+                $this->entityManager->flush();
             }
 
             // todo: send event to provider if needed, for the other order source

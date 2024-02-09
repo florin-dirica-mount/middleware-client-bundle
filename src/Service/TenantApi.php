@@ -37,7 +37,7 @@ class TenantApi implements TenantApiInterface
             if ($webhook->getMethod() === 'GET') {
                 $options['query']['payload'] = base64_encode($json);
             } else {
-                $options['body'] = $json;
+                $options['content'] = $json;
             }
 
             $response = $client->sendWebhook($webhook, $options);
