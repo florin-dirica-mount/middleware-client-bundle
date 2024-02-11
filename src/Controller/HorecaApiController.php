@@ -12,7 +12,6 @@ use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Enum\OrderNotificationSource;
 use Horeca\MiddlewareClientBundle\Enum\OrderNotificationType;
 use Horeca\MiddlewareClientBundle\Enum\SerializationGroups;
-use Horeca\MiddlewareClientBundle\Enum\ValidationGroups;
 use Horeca\MiddlewareClientBundle\Exception\ApiException;
 use Horeca\MiddlewareClientBundle\Message\MapTenantOrderToProviderMessage;
 use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
@@ -159,7 +158,7 @@ class HorecaApiController extends AbstractController
     private function validateObject(object $object): array
     {
         $errorMessages = [];
-        $errors = $this->validator->validate($object, null, [ValidationGroups::Default, ValidationGroups::Middleware]);
+        $errors = $this->validator->validate($object);
         if (count($errors) > 0) {
 
             foreach ($errors as $violation) {
