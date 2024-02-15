@@ -113,6 +113,7 @@ class ProtocolActionsService
             throw new OrderMappingException($errors->get(0)->getMessage());
         }
 
+        $notification->setErrorMessage(null);
         $providerOrder = $this->providerApi->mapShoppingCartToProviderOrder($notification->getTenant(), $cart);
         $notification->setServicePayloadString($this->serializer->serialize($providerOrder, 'json'));
 
