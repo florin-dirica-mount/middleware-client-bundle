@@ -118,6 +118,15 @@ class OrderNotification extends TenantAwareEntity
         $this->getStatusEntries()->add($entry);
     }
 
+    public function getTruncatedError(int $length = 80): ?string
+    {
+        if ($this->errorMessage !== null) {
+            return substr($this->errorMessage, 0, $length);
+        }
+
+        return null;
+    }
+
     public function getHorecaOrderId(): ?string
     {
         return $this->tenantObjectId ?: $this->horecaOrderId;
