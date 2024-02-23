@@ -70,7 +70,6 @@ class HorecaApiController extends AbstractController
     }
 
     public function sendOrder(Request                     $request,
-                              EntityManagerInterface      $entityManager,
                               MessageBusInterface         $messageBus,
                               OrderNotificationRepository $orderNotificationRepository): Response
     {

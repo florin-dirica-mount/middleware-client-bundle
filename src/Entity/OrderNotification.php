@@ -90,7 +90,7 @@ class OrderNotification extends TenantAwareEntity
      */
     #[ORM\OneToMany(mappedBy: "order", targetEntity: OrderLog::class, cascade: ["persist", "remove"], fetch: "EXTRA_LAZY", orphanRemoval: true)]
     #[Serializer\Exclude]
-    #[ORM\OrderBy(["createdAt" => "DESC"])]
+    #[ORM\OrderBy(["createdAt" => "ASC"])]
     private Collection|array $logs;
 
     public function __construct()
