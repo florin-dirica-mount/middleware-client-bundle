@@ -313,4 +313,9 @@ class OrderNotification extends TenantAwareEntity
             $this->getLogs()->add($log);
         }
     }
+
+    public function hasStatus(string $status): bool
+    {
+        return $this->statusEntries->filter(fn(OrderStatusEntry $entry) => $entry->getStatus() === $status)->count() > 0;
+    }
 }
