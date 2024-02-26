@@ -108,7 +108,9 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
                 $this->orderNotificationRepository->save($notification);
             }
 
+            $this->orderLogger->info(__METHOD__, __LINE__, 'Sending order to provider...');
             $this->protocolActionsService->sendTenantOrderToProvider($notification);
+            $this->orderLogger->info(__METHOD__, __LINE__, sprintf('Order %s sent to provider with id %s', $notification->getId(), $notification->getProviderObjectId()));
 
             if ($notification->getTenant()->isSubscribedToEvent(OrderNotificationEventName::PROVIDER_NOTIFIED)) {
                 $this->messageBus->dispatch(new OrderNotificationEventMessage(OrderNotificationEventName::PROVIDER_NOTIFIED, $notification));

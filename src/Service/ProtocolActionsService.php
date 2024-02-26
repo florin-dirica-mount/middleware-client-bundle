@@ -128,7 +128,7 @@ class ProtocolActionsService
     /**
      * @throws \Exception
      */
-    public function sendTenantOrderToProvider(OrderNotification $notification): ?BaseProviderOrderResponse
+    public function sendTenantOrderToProvider(OrderNotification $notification): BaseProviderOrderResponse
     {
         $providerOrder = $this->serializer->deserialize($notification->getServicePayloadString(), $this->providerApi->getProviderOrderClass(), 'json');
 
@@ -141,7 +141,7 @@ class ProtocolActionsService
         $response = $this->providerApi->sendOrderToProvider($providerOrder, $credentials);
 
         $notification->setResponsePayloadString($this->serializer->serialize($response, 'json'));
-        $notification->setServiceOrderId((string) $response->orderId);
+        $notification->setProviderObjectId((string) $response->orderId);
         $notification->changeStatus(OrderNotificationStatus::Notified);
         $notification->setNotifiedAt(new \DateTime());
 
