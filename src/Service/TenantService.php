@@ -3,6 +3,7 @@
 namespace Horeca\MiddlewareClientBundle\Service;
 
 use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\TenantRepositoryDI;
+use Horeca\MiddlewareClientBundle\Entity\BaseProviderCredentials;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
 use Horeca\MiddlewareClientBundle\Exception\MiddlewareClientException;
 use Horeca\MiddlewareClientBundle\VO\Provider\ProviderCredentialsInterface;
@@ -29,6 +30,11 @@ class TenantService
         } else {
             $credentialsJson = $this->serializer->serialize($inputCredentials, 'json');
             $credentials = $this->serializer->deserialize($credentialsJson, $this->providerCredentialsClass, 'json');
+
+            if (!is_subclass_of($credentials, BaseProviderCredentials::class)) {
+                throw new MiddlewareClientException('Invalid credentials class');
+            }
+            $credentials->setTenant($tenant);
         }
 
         if (empty($credentials)) {
