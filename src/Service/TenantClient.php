@@ -9,7 +9,7 @@ use Horeca\MiddlewareClientBundle\Entity\TenantWebhook;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
 use Psr\Http\Message\ResponseInterface;
 
-final class TenantClient
+final class TenantClient implements TenantClientInterface
 {
     private Client $client;
 

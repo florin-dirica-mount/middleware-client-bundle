@@ -36,7 +36,8 @@ services:
 
     Horeca\MiddlewareClientBundle\Service\OrderLogger:
 
-    Horeca\MiddlewareClientBundle\Service\TenantClientFactory:
+    Horeca\MiddlewareClientBundle\Service\TenantClientFactoryInterface:
+        class: Horeca\MiddlewareClientBundle\Service\TenantClientFactory
 
     Horeca\MiddlewareClientBundle\MessageHandler\OrderNotificationMessageHandler:
         tags:

@@ -131,7 +131,7 @@ class Tenant extends DefaultEntity
 
     public function supportsWebhook(string $name): bool
     {
-        return $this->webhooks->exists(fn(int $key, TenantWebhook $webhook) => $webhook->getName() === $name);
+        return $this->webhooks->exists(fn(TenantWebhook $webhook) => $webhook->getName() === $name);
     }
 
     public function getWebhookByName(string $name): ?TenantWebhook

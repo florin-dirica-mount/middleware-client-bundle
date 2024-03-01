@@ -11,7 +11,7 @@ final class TenantClientFactory
      */
     protected array $clients = [];
 
-    public function client(Tenant $tenant): TenantClient
+    public function client(Tenant $tenant): TenantClientInterface
     {
         if (!isset($this->clients[$tenant->getId()])) {
             $this->clients[$tenant->getId()] = $this->build($tenant);

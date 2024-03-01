@@ -2,15 +2,15 @@
 
 namespace Horeca\MiddlewareClientBundle\DependencyInjection\Service;
 
-use Horeca\MiddlewareClientBundle\Service\TenantClientFactory;
+use Horeca\MiddlewareClientBundle\Service\TenantClientFactoryInterface;
 use Symfony\Contracts\Service\Attribute\Required;
 
 trait TenantClientFactoryDI
 {
-    protected TenantClientFactory $tenantClientFactory;
+    protected TenantClientFactoryInterface $tenantClientFactory;
 
     #[Required]
-    public function setTenantClientFactory(TenantClientFactory $tenantClientFactory): void
+    public function setTenantClientFactory(TenantClientFactoryInterface $tenantClientFactory): void
     {
         $this->tenantClientFactory = $tenantClientFactory;
     }
