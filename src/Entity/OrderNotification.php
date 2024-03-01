@@ -69,6 +69,7 @@ class OrderNotification extends TenantAwareEntity
     private ?array $responsePayload = [];
 
     #[ORM\Column(name: "error_message", type: "text", nullable: true)]
+    #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView])]
     private ?string $errorMessage = null;
 
     #[ORM\Column(name: "notified_at", type: "datetime", nullable: true)]
