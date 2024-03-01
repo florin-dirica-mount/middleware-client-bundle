@@ -4,7 +4,7 @@ namespace Horeca\MiddlewareClientBundle\Service;
 
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
 
-final class TenantClientFactory
+final class TenantClientFactory implements TenantClientFactoryInterface
 {
     /**
      * @var TenantClient[]
