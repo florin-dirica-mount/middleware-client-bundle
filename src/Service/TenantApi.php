@@ -7,6 +7,7 @@ use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantClientFactor
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
 use Horeca\MiddlewareClientBundle\Enum\SerializationGroups;
+use Horeca\MiddlewareClientBundle\Enum\TenantWebhookName;
 use Horeca\MiddlewareClientBundle\VO\Api\OrderNotificationEventDto;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
 use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
@@ -27,7 +28,7 @@ class TenantApi implements TenantApiInterface
     public function sendOrderNotificationEvent(string $event, OrderNotification $notification): void
     {
         $client = $this->tenantClientFactory->client($notification->getTenant());
-        $webhook = $client->getWebhook(self::WEBHOOK_ORDER_NOTIFICATION_EVENT);
+        $webhook = $client->getWebhook(TenantWebhookName::WEBHOOK_ORDER_NOTIFICATION_EVENT);
 
         $data = new OrderNotificationEventDto($event, $notification);
         $context = SerializationContext::create()->setGroups(SerializationGroups::TenantOrderNotificationView);
@@ -78,7 +79,7 @@ class TenantApi implements TenantApiInterface
     {
         try {
             $client = $this->tenantClientFactory->client($tenant);
-            $webhook = $client->getWebhook(self::WEBHOOK_SHOPPING_CART_SEND);
+            $webhook = $client->getWebhook(TenantWebhookName::WEBHOOK_SHOPPING_CART_SEND);
             if ($webhook->getMethod() === 'GET') {
                 $options['query']['payload'] = base64_encode($this->serializer->serialize($cart, 'json'));
             } else {
