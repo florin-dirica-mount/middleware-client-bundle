@@ -3,6 +3,7 @@
 namespace Horeca\MiddlewareClientBundle\Service;
 
 use GuzzleHttp\Exception\GuzzleException;
+use Horeca\MiddlewareClientBundle\DependencyInjection\Service\OrderLoggerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantClientFactoryDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 class TenantApi implements TenantApiInterface
 {
     use TenantClientFactoryDI;
+    use OrderLoggerDI;
 
     public function __construct(protected SerializerInterface $serializer) { }
 
@@ -41,10 +43,16 @@ class TenantApi implements TenantApiInterface
                 $options['body'] = $json;
             }
 
-            $response = $client->sendWebhook($webhook, $options);
+            $this->orderLogger->info(__METHOD__, __LINE__, sprintf('%s %s %s', $webhook->getMethod(), $webhook->getPath(), $json));
 
-            if ($response->getStatusCode() !== Response::HTTP_OK) {
-                throw new HorecaException(sprintf('[TenantApi.sendOrderNotificationEvent] Error %d: %s. Request payload: %s', $response->getStatusCode(), $response->getBody()->getContents(), $json));
+            $response = $client->sendWebhook($webhook, $options);
+            $contents = $response->getBody()->getContents();
+            $statusCode = $response->getStatusCode();
+
+            $this->orderLogger->info(__METHOD__, __LINE__, sprintf('Response: %d %s', $statusCode, $contents));
+
+            if ($statusCode !== Response::HTTP_OK) {
+                throw new HorecaException(sprintf('[TenantApi.sendOrderNotificationEvent] Error %d: %s. Request payload: %s', $statusCode, $contents, $json));
             }
         } catch (GuzzleException|\Exception $e) {
             throw new HorecaException(sprintf('[TenantApi.sendOrderNotificationEvent] Error: %s. Request payload: %s', $e->getMessage(), $json));
@@ -64,7 +72,14 @@ class TenantApi implements TenantApiInterface
             }
 
             $uri = sprintf('/middleware/cart/%s/confirm-provider-notified', $cart->getId());
+
+            $this->orderLogger->info(__METHOD__, __LINE__, "POST $uri");
+
             $response = $this->tenantClientFactory->client($notification->getTenant())->request('POST', $uri);
+            $contents = $response->getBody()->getContents();
+            $statusCode = $response->getStatusCode();
+
+            $this->orderLogger->info(__METHOD__, __LINE__, sprintf('Response: %d %s', $statusCode, $contents));
 
             return $response->getStatusCode() === Response::HTTP_OK;
         } catch (GuzzleException|\Exception $e) {
@@ -80,15 +95,23 @@ class TenantApi implements TenantApiInterface
         try {
             $client = $this->tenantClientFactory->client($tenant);
             $webhook = $client->getWebhook(TenantWebhookName::WEBHOOK_SHOPPING_CART_SEND);
+            $json = $this->serializer->serialize($cart, 'json');
+
             if ($webhook->getMethod() === 'GET') {
-                $options['query']['payload'] = base64_encode($this->serializer->serialize($cart, 'json'));
+                $options['query']['payload'] = base64_encode($json);
             } else {
-                $options['json'] = json_decode($this->serializer->serialize($cart, 'json'), true);
+                $options['json'] = json_decode($json, true);
             }
 
-            $response = $client->sendWebhook($webhook, $options);
+            $this->orderLogger->info(__METHOD__, __LINE__, sprintf('%s %s %s', $webhook->getMethod(), $webhook->getPath(), $json));
 
-            return $this->serializer->deserialize($response->getBody()->getContents(), SendShoppingCartResponse::class, 'json');
+            $response = $client->sendWebhook($webhook, $options);
+            $contents = $response->getBody()->getContents();
+            $statusCode = $response->getStatusCode();
+
+            $this->orderLogger->info(__METHOD__, __LINE__, sprintf('Response: %d %s', $statusCode, $contents));
+
+            return $this->serializer->deserialize($contents, SendShoppingCartResponse::class, 'json');
         } catch (GuzzleException|\Exception $e) {
             throw new HorecaException($e->getMessage());
         }
