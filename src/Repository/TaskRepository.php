@@ -6,7 +6,7 @@ namespace Horeca\MiddlewareClientBundle\Repository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Horeca\MiddlewareClientBundle\Entity\Task;
-use Horeca\MiddlewareClientBundle\Enum\TaskType;
+use Horeca\MiddlewareClientBundle\Enum\TaskStatus;
 
 
 /**
@@ -30,7 +30,7 @@ class TaskRepository extends ServiceEntityRepository
             ->where('t.identifier = :identifier')
             ->andWhere('t.status  in ( :statuses )')
             ->setParameter('identifier', $identifier)
-            ->setParameter('statuses', [TaskType::STATUS_QUEUED, TaskType::STATUS_RUNNING])
+            ->setParameter('statuses', [TaskStatus::STATUS_QUEUED, TaskStatus::STATUS_RUNNING])
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();

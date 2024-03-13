@@ -2,7 +2,7 @@
 
 namespace Horeca\MiddlewareClientBundle\Enum;
 
-final class TaskType
+final class TaskStatus
 {
 
     const STATUS_QUEUED = 'STATUS_QUEUED';
