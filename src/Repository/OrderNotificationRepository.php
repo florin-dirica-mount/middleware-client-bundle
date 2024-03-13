@@ -6,7 +6,6 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
-use Horeca\MiddlewareClientBundle\Enum\OrderNotificationStatus;
 
 /**
  * @method OrderNotification|null find($id, $lockMode = null, $lockVersion = null)
