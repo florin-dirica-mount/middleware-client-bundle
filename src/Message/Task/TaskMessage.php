@@ -4,7 +4,7 @@ namespace Horeca\MiddlewareClientBundle\Message\Task;
 
 use Horeca\MiddlewareClientBundle\Entity\Task;
 
-abstract class TaskMessage
+class TaskMessage
 {
 
     public string $taskId;
