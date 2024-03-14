@@ -1,5 +1,7 @@
 <?php
 
+namespace Horeca\MiddlewareClientBundle\Enum;
+
 final class MiddlewareActions
 {
 
