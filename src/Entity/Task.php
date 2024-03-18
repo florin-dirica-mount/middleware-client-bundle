@@ -8,15 +8,8 @@ use Horeca\MiddlewareClientBundle\Repository\TaskRepository;
 
 #[ORM\Entity(repositoryClass: TaskRepository::class)]
 #[ORM\Table(name: "tasks")]
-#[ORM\HasLifecycleCallbacks]
-class Task
+class Task extends TenantAwareEntity
 {
-
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: "integer")]
-    private string $id;
-
     #[ORM\Column(type: "string", length: 255)]
     private string $name;
     #[ORM\Column(type: "string", length: 255, nullable: false)]
@@ -37,8 +30,6 @@ class Task
     protected ?\DateTime $startedAt = null;
     #[ORM\Column(type: "datetime", nullable: true)]
     protected ?\DateTime $finishedAt = null;
-    #[ORM\Column(type: "datetime", nullable: true)]
-    protected ?\DateTime $createdAt = null;
 
 
     public function __toString()
@@ -46,11 +37,6 @@ class Task
         return $this->getName() ?? 'Unnamed Task - ' . $this->getId();
     }
 
-    #[ORM\PrePersist]
-    public function prePersist()
-    {
-        $this->createdAt = new \DateTime();
-    }
 
     public function getId(): string
     {
@@ -160,16 +146,6 @@ class Task
     public function setFinishedAt(?\DateTime $finishedAt): void
     {
         $this->finishedAt = $finishedAt;
-    }
-
-    public function getCreatedAt(): ?\DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(?\DateTime $createdAt): void
-    {
-        $this->createdAt = $createdAt;
     }
 
 
