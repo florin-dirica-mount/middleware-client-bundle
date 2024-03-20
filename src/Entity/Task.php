@@ -23,8 +23,8 @@ class Task extends TenantAwareEntity
     #[ORM\Column(type: "integer", nullable: true)]
     private ?int $progress;
     #[ORM\Column(type: "json", nullable: true)]
-    private ?string $payload = null;
-    #[ORM\Column(type: "json", nullable: true)]
+    private ?array $payload = [];
+    #[ORM\Column(type: "text", nullable: true)]
     private ?string $output = null;
     #[ORM\Column(type: "text", nullable: true)]
     private ?string $error;
@@ -92,12 +92,12 @@ class Task extends TenantAwareEntity
         $this->status = $status;
     }
 
-    public function getPayload(): ?string
+    public function getPayload(): array
     {
-        return $this->payload;
+        return (array) $this->payload;
     }
 
-    public function setPayload(?string $payload): void
+    public function setPayload(?array $payload): void
     {
         $this->payload = $payload;
     }
