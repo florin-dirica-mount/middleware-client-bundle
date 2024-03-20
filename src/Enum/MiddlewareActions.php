@@ -2,11 +2,10 @@
 
 namespace Horeca\MiddlewareClientBundle\Enum;
 
-final class MiddlewareActions
+class MiddlewareActions
 {
-
     public const SyncTenantProducts = 'middleware.sync.tenant.products';
     public const SyncProviderProducts = 'middleware.sync.provider.products';
 
-
+    protected function __construct() { }
 }
