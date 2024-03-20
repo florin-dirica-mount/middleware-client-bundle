@@ -15,9 +15,13 @@ class Task extends TenantAwareEntity
     #[ORM\Column(type: "string", length: 255, nullable: false)]
     private string $type;
     #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private string $identifier;
+    private ?string $identifier;
+    #[ORM\Column(type: "string", length: 100, nullable: true)]
+    private ?string $processId;
     #[ORM\Column(type: "string", length: 100, nullable: false)]
     private string $status;
+    #[ORM\Column(type: "integer", nullable: true)]
+    private ?int $progress;
     #[ORM\Column(type: "json", nullable: true)]
     private ?string $payload = null;
     #[ORM\Column(type: "json", nullable: true)]
@@ -68,12 +72,12 @@ class Task extends TenantAwareEntity
         $this->type = $type;
     }
 
-    public function getIdentifier(): string
+    public function getIdentifier(): ?string
     {
         return $this->identifier;
     }
 
-    public function setIdentifier(string $identifier): void
+    public function setIdentifier(?string $identifier): void
     {
         $this->identifier = $identifier;
     }
@@ -164,5 +168,24 @@ class Task extends TenantAwareEntity
         return '-';
     }
 
+    public function getProcessId(): ?string
+    {
+        return $this->processId;
+    }
+
+    public function setProcessId(?string $processId): void
+    {
+        $this->processId = $processId;
+    }
+
+    public function getProgress(): ?int
+    {
+        return $this->progress;
+    }
+
+    public function setProgress(?int $progress): void
+    {
+        $this->progress = $progress;
+    }
 
 }
