@@ -8,25 +8,25 @@ use Doctrine\ORM\Mapping as ORM;
 abstract class AbstractTask extends TenantAwareEntity
 {
     #[ORM\Column(type: "string", length: 255)]
-    private string $name;
+    protected string $name;
     #[ORM\Column(type: "string", length: 255, nullable: false)]
-    private string $type;
+    protected string $type;
     #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private ?string $identifier;
+    protected ?string $identifier;
     #[ORM\Column(type: "string", length: 100, nullable: true)]
-    private ?string $processId;
+    protected ?string $processId;
     #[ORM\Column(type: "string", length: 100, nullable: false)]
-    private string $status;
+    protected string $status;
     #[ORM\Column(type: "integer", nullable: true)]
-    private ?int $progress;
+    protected ?int $progress;
     #[ORM\Column(type: "json", nullable: true)]
-    private ?array $payload = [];
+    protected ?array $payload = [];
     #[ORM\Column(type: "text", nullable: true)]
-    private ?string $output = null;
+    protected ?string $output = null;
     #[ORM\Column(type: "text", nullable: true)]
-    private ?string $error;
+    protected ?string $error;
     #[ORM\Column(type: "boolean", nullable: true)]
-    private ?bool $warnings = false;
+    protected ?bool $warnings = false;
     #[ORM\Column(type: "datetime", nullable: true)]
     protected ?\DateTime $startedAt = null;
     #[ORM\Column(type: "datetime", nullable: true)]
