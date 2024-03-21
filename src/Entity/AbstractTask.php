@@ -5,7 +5,7 @@ namespace Horeca\MiddlewareClientBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\MappedSuperclass]
-abstract class Task extends TenantAwareEntity
+abstract class AbstractTask extends TenantAwareEntity
 {
     #[ORM\Column(type: "string", length: 255)]
     private string $name;
