@@ -12,6 +12,7 @@ use Horeca\MiddlewareClientBundle\Enum\OrderNotificationEventName;
 use Horeca\MiddlewareClientBundle\Enum\OrderNotificationSource;
 use Horeca\MiddlewareClientBundle\Enum\OrderNotificationStatus;
 use Horeca\MiddlewareClientBundle\Exception\OrderMappingException;
+use Horeca\MiddlewareClientBundle\Message\MapProviderOrderToTenantMessage;
 use Horeca\MiddlewareClientBundle\Message\MapTenantOrderToProviderMessage;
 use Horeca\MiddlewareClientBundle\Message\MessageTransports;
 use Horeca\MiddlewareClientBundle\Message\OrderNotificationEventMessage;
@@ -45,6 +46,10 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
         yield MapTenantOrderToProviderMessage::class => [
             'method'         => 'handleMapTenantOrderToProviderMessage',
             'from_transport' => MessageTransports::MAP_TENANT_ORDER_TO_PROVIDER
+        ];
+        yield MapProviderOrderToTenantMessage::class => [
+            'method'         => 'handleMapProviderOrderToTenantMessage',
+            'from_transport' => MessageTransports::MAP_PROVIDER_ORDER_TO_TENANT
         ];
 
         yield SendTenantOrderToProviderMessage::class => [
@@ -88,6 +93,35 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
         } finally {
             $this->orderLogger->logMemoryUsage();
             $this->orderLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleMapTenantOrderToProviderMessage');
+        }
+    }
+    public function handleMapProviderOrderToTenantMessage(OrderNotificationMessage $message): void
+    {
+        $this->orderLogger->logMemoryUsage();
+        $notification = $this->getMessageOrderNotification($message);
+
+        try {
+            $notification->changeStatus(OrderNotificationStatus::MappingStarted);
+            $this->orderNotificationRepository->save($notification);
+
+            $this->protocolActionsService->mapProviderOrderToTenantOrder($notification);
+            //todo send event to provider if subscribed
+
+//            if ($notification->getTenant()->isSubscribedToEvent(OrderNotificationEventName::MAPPING_COMPLETED)) {
+//                $this->messageBus->dispatch(new OrderNotificationEventMessage(OrderNotificationEventName::MAPPING_COMPLETED, $notification));
+//            }
+
+            $this->messageBus->dispatch(new SendProviderOrderToTenantMessage($notification));
+        } catch (\Exception $e) {
+            $this->onOrderNotificationException($notification, $e);
+            //todo send event to provider if subscribed
+
+//            if ($notification->getTenant()->isSubscribedToEvent(OrderNotificationEventName::MAPPING_FAILED)) {
+//                $this->messageBus->dispatch(new OrderNotificationEventMessage(OrderNotificationEventName::MAPPING_FAILED, $notification));
+//            }
+        } finally {
+            $this->orderLogger->logMemoryUsage();
+            $this->orderLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleMapProviderOrderToTenantMessage');
         }
     }
 

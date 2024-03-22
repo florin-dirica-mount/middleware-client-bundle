@@ -14,8 +14,12 @@ interface ProviderApiInterface
 
     /**
      * Return the classname of the provider order model
+     * @deprecated use getMiddlewareToProviderOrderClass and getProviderToMiddlewareOrderClass instead
      */
     public function getProviderOrderClass(): string;
+
+    public function getMiddlewareToProviderOrderClass():string;
+    public function getProviderToMiddlewareOrderClass():string;
 
     /**
      * Saves the order data into the provider system and returns the external order ID, if it is applicable
