@@ -17,10 +17,6 @@ services:
         tags:
             - { name: doctrine.repository_service }
 
-    Horeca\MiddlewareClientBundle\Repository\TaskRepository:
-        tags:
-            - { name: doctrine.repository_service }
-
     Horeca\MiddlewareClientBundle\Controller\HorecaApiController:
         tags: [ 'controller.service_arguments' ]
 
