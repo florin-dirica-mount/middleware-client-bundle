@@ -205,3 +205,6 @@ Response: status 200
 ## Middleware events
 
 - `hmc.tenant.order.received` - when the middleware receives an order from the tenant
+- `hmc.tenant.order.mapped` - when the middleware maps the tenant order to the provider order
+- `hmc.provider.order.received` - when the middleware receives an order from the provider
+- `hmc.provider.order.mapped` - when the middleware maps the provider order to the tenant order
