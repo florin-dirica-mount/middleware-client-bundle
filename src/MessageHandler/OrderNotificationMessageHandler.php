@@ -84,7 +84,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             }
 
             $this->messageBus->dispatch(new SendTenantOrderToProviderMessage($notification));
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->onOrderNotificationException($notification, $e);
 
             if ($notification->getTenant()->isSubscribedToEvent(OrderNotificationEventName::MAPPING_FAILED)) {
@@ -112,7 +112,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
 //            }
 
             $this->messageBus->dispatch(new SendProviderOrderToTenantMessage($notification));
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->onOrderNotificationException($notification, $e);
             //todo send event to provider if subscribed
 
@@ -149,7 +149,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             if ($notification->getTenant()->isSubscribedToEvent(OrderNotificationEventName::PROVIDER_NOTIFIED)) {
                 $this->messageBus->dispatch(new OrderNotificationEventMessage(OrderNotificationEventName::PROVIDER_NOTIFIED, $notification));
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->onOrderNotificationException($notification, $e);
 
             if ($notification->getTenant()->isSubscribedToEvent(OrderNotificationEventName::PROVIDER_NOTIFICATION_FAILED)) {
@@ -178,7 +178,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             }
 
             // todo: send event to provider if needed, for the other order source
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->onOrderNotificationException($notification, $e);
         } finally {
             $this->orderLogger->logMemoryUsage();
@@ -196,7 +196,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             $this->orderNotificationRepository->save($notification);
 
             $this->protocolActionsService->sendProviderOrderToTenant($notification);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->onOrderNotificationException($notification, $e);
         } finally {
             $this->orderLogger->logMemoryUsage();
