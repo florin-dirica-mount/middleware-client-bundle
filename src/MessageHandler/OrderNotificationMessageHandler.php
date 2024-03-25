@@ -204,7 +204,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
         }
     }
 
-    protected function onOrderNotificationException(OrderNotification $notification, \Exception $e): void
+    protected function onOrderNotificationException(OrderNotification $notification, \Throwable $e): void
     {
         $this->orderLogger->error(__METHOD__, __LINE__, $e->getMessage());
 
