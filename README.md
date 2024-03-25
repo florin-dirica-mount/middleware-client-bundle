@@ -201,3 +201,7 @@ Body:
 
 Response: status 200
 ```
+
+## Middleware events
+
+- `hmc.tenant.order.received` - when the middleware receives an order from the tenant

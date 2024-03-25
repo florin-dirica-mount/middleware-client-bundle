@@ -11,6 +11,7 @@ use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Enum\OrderNotificationSource;
 use Horeca\MiddlewareClientBundle\Enum\OrderNotificationType;
 use Horeca\MiddlewareClientBundle\Enum\SerializationGroups;
+use Horeca\MiddlewareClientBundle\Event\OrderNotificationEvent;
 use Horeca\MiddlewareClientBundle\Exception\ApiException;
 use Horeca\MiddlewareClientBundle\Message\MapTenantOrderToProviderMessage;
 use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
@@ -23,6 +24,7 @@ use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,10 +40,11 @@ class HorecaApiController extends AbstractController
     use ProtocolActionsServiceDI;
     use TenantServiceDI;
 
-    public function __construct(protected SerializerInterface $serializer,
-                                protected LoggerInterface     $logger,
-                                protected ValidatorInterface  $validator,
-                                protected TranslatorInterface $translator)
+    public function __construct(protected SerializerInterface      $serializer,
+                                protected LoggerInterface          $logger,
+                                protected ValidatorInterface       $validator,
+                                protected TranslatorInterface      $translator,
+                                protected EventDispatcherInterface $eventDispatcher)
     {
     }
 
@@ -77,7 +80,7 @@ class HorecaApiController extends AbstractController
             $body = $this->deserializeRequestBody($request, HorecaSendOrderBody::class);
             $tenant = $this->protocolActionsService->authorizeTenant($request);
 
-            $order = $orderNotificationRepository->findOneByHorecaOrderId($body->cart->getId());
+            $order = $orderNotificationRepository->findOneByTenantOrderId($tenant, $body->cart->getId());
             $dispatchMessage = false;
             if (!$order) {
                 $this->logger->info(sprintf('[%s.%d] New order received: %s', __METHOD__, __LINE__, $body->cart->getId()));
@@ -101,6 +104,8 @@ class HorecaApiController extends AbstractController
             }
 
             $this->orderNotificationRepository->save($order);
+
+            $this->eventDispatcher->dispatch(new OrderNotificationEvent($order), OrderNotificationEvent::TENANT_ORDER_RECEIVED);
 
             if ($dispatchMessage) {
                 $messageBus->dispatch(new MapTenantOrderToProviderMessage($order));
