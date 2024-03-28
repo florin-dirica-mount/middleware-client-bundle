@@ -3,6 +3,8 @@
 namespace Horeca\MiddlewareClientBundle\Entity\Traits;
 
 use Doctrine\ORM\Mapping as ORM;
+use Horeca\MiddlewareClientBundle\Enum\SerializationGroups;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * This field is meant to represent the object's id in the Tenant platform.
@@ -10,6 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 trait TenantObjectId
 {
     #[ORM\Column(name: 'tenant_object_id', type: 'string', length: 36, nullable: true)]
+    #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView])]
     protected string $tenantObjectId;
 
     public function getTenantObjectId(): string

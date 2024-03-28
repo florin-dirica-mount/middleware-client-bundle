@@ -61,6 +61,7 @@ class TenantApi implements TenantApiInterface
 
     /**
      * @throws HorecaException
+     * @deprecated
      */
     public function confirmProviderNotified(OrderNotification $notification): bool
     {

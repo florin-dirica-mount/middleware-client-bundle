@@ -168,6 +168,7 @@ class ProtocolActionsService
 
     /**
      * @throws OrderMappingException
+     * @deprecated
      */
     public function confirmTenantOrderProcessed(OrderNotification $notification): void
     {
