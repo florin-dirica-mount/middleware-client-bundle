@@ -29,6 +29,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -71,6 +72,29 @@ class HorecaApiController extends AbstractController
         }
     }
 
+    public function viewNotification(Request $request): Response
+    {
+        try {
+            if (!$notificationId = $request->query->get('id')) {
+                throw new HorecaException('Missing notification ID');
+            }
+
+            if (!$notification = $this->orderNotificationRepository->find($notificationId)) {
+                throw new HorecaException('Notification not found');
+            }
+
+            if ($url = $this->providerApi->generateNotificationViewUrl($notification)) {
+                return $this->redirect($url);
+            }
+
+            return new JsonResponse([
+                'status' => $notification->getStatus()
+            ]);
+        } catch (\Exception $e) {
+            return $this->handleException($e);
+        }
+    }
+
     public function sendOrder(Request                     $request,
                               MessageBusInterface         $messageBus,
                               OrderNotificationRepository $orderNotificationRepository): Response
@@ -95,7 +119,7 @@ class HorecaApiController extends AbstractController
             }
 
             $order->setTenant($tenant);
-            $order->setHorecaOrderId($body->cart->getId());
+            $order->setTenantObjectId($body->cart->getId());
             $order->setHorecaPayloadString($this->serializer->serialize($body->cart, 'json'));
             $order->setRestaurantId($body->cart->getRestaurant()->getId());
 
@@ -103,6 +127,11 @@ class HorecaApiController extends AbstractController
                 $order->setServiceCredentials($body->providerCredentials);
             }
 
+            $this->orderNotificationRepository->save($order);
+
+            $order->setViewUrl(
+                $this->generateUrl('horeca_api_notification_view', ['id' => $order->getId()], UrlGeneratorInterface::ABSOLUTE_URL)
+            );
             $this->orderNotificationRepository->save($order);
 
             $this->eventDispatcher->dispatch(new TenantOrderEvent($order), TenantOrderEvent::ORDER_RECEIVED);

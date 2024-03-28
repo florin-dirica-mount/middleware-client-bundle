@@ -68,6 +68,10 @@ class OrderNotification extends TenantAwareEntity
     #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView])]
     private ?array $responsePayload = [];
 
+    #[ORM\Column(name: "view_url", type: "string", nullable: true)]
+    #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView])]
+    private ?string $viewUrl = null;
+
     #[ORM\Column(name: "error_message", type: "text", nullable: true)]
     #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView])]
     private ?string $errorMessage = null;
@@ -128,26 +132,50 @@ class OrderNotification extends TenantAwareEntity
         return null;
     }
 
+    /**
+     * @deprecated use getTenantObjectId
+     */
     public function getHorecaOrderId(): ?string
     {
         return $this->tenantObjectId ?: $this->horecaOrderId;
     }
 
+    /**
+     * @deprecated use setTenantObjectId
+     */
     public function setHorecaOrderId(?string $horecaOrderId): void
     {
         $this->horecaOrderId = $horecaOrderId;
         $this->tenantObjectId = $horecaOrderId;
     }
 
+    public function setTenantObjectId(string $tenantObjectId): void
+    {
+        $this->horecaOrderId = $tenantObjectId;
+        $this->tenantObjectId = $tenantObjectId;
+    }
+
+    /**
+     * @deprecated use getProviderObjectId
+     */
     public function getServiceOrderId(): ?string
     {
         return $this->providerObjectId ?: $this->serviceOrderId;
     }
 
+    /**
+     * @deprecated use setProviderObjectId
+     */
     public function setServiceOrderId(?string $serviceOrderId): void
     {
         $this->serviceOrderId = $serviceOrderId;
         $this->providerObjectId = $serviceOrderId;
+    }
+
+    public function setProviderObjectId(?string $providerObjectId): void
+    {
+        $this->serviceOrderId = $providerObjectId;
+        $this->providerObjectId = $providerObjectId;
     }
 
     public function getStatus(): string
@@ -318,5 +346,15 @@ class OrderNotification extends TenantAwareEntity
     public function hasStatus(string $status): bool
     {
         return $this->statusEntries->filter(fn(OrderStatusEntry $entry) => $entry->getStatus() === $status)->count() > 0;
+    }
+
+    public function getViewUrl(): ?string
+    {
+        return $this->viewUrl;
+    }
+
+    public function setViewUrl(?string $viewUrl): void
+    {
+        $this->viewUrl = $viewUrl;
     }
 }

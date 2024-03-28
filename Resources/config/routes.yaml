@@ -8,6 +8,11 @@ horeca_api_order_send:
     controller: Horeca\MiddlewareClientBundle\Controller\HorecaApiController::sendOrder
     methods: [POST]
 
+horeca_api_notification_view:
+    path: /api/notification/view
+    controller: Horeca\MiddlewareClientBundle\Controller\HorecaApiController::viewNotification
+    methods: [GET]
+
 horeca_api_shop_initialize:
     path: /api/shop/initialize
     controller: Horeca\MiddlewareClientBundle\Controller\HorecaApiController::initializeShop
