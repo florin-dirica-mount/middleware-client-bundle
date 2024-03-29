@@ -15,6 +15,11 @@ class Tenant extends DefaultEntity
     #[ORM\Column(name: 'name', type: 'string', nullable: false)]
     protected ?string $name = null;
 
+    #[ORM\Column(name: 'tenant_shop_id', type: 'string', nullable: true)]
+    protected ?string $tenantShopId = null;
+    #[ORM\Column(name: 'provider_shop_id', type: 'string', nullable: true)]
+    protected ?string $providerShopId = null;
+
     #[ORM\Column(name: 'api_key', type: 'string', length: 128, unique: true)]
     private string $apiKey;
 
@@ -143,4 +148,26 @@ class Tenant extends DefaultEntity
     {
         return in_array($event, (array) $this->subscribedEvents);
     }
+
+    public function getTenantShopId(): ?string
+    {
+        return $this->tenantShopId;
+    }
+
+    public function setTenantShopId(?string $tenantShopId): void
+    {
+        $this->tenantShopId = $tenantShopId;
+    }
+
+    public function getProviderShopId(): ?string
+    {
+        return $this->providerShopId;
+    }
+
+    public function setProviderShopId(?string $providerShopId): void
+    {
+        $this->providerShopId = $providerShopId;
+    }
+
+
 }
