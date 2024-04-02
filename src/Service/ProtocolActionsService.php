@@ -86,7 +86,7 @@ class ProtocolActionsService
 
     public function sendProviderOrderToTenant(OrderNotification $notification): ?SendShoppingCartResponse
     {
-        if (empty($notification->getServicePayload()) || !$notification->getRestaurantId()) {
+        if (empty($notification->getServicePayload()) || !$notification->getTenantShopId()) {
             $this->logger->warning('[handleExternalServiceOrderNotification] missing ServicePayload or RestaurantId. Action aborted for notification: ' . $notification->getId());
 
             $notification->changeStatus(OrderNotificationStatus::Failed);
@@ -104,7 +104,7 @@ class ProtocolActionsService
             throw new OrderMappingException($errors->get(0)->getMessage());
         }
 
-        $response = $this->tenantApiService->sendShoppingCart($notification->getTenant(), $cart, $notification->getRestaurantId());
+        $response = $this->tenantApiService->sendShoppingCart($notification->getTenant(), $cart, $notification->getTenantShopId());
 
         $notification->setResponsePayloadString($this->serializer->serialize($response, 'json'));
         $notification->setTenantObjectId((string) $response->horecaOrderId);

@@ -53,7 +53,7 @@ class OrderNotification extends TenantAwareEntity
     private ?string $source = null;
 
     #[ORM\Column(name: "restaurant_id", type: "string", length: 36, nullable: true)]
-    private ?string $restaurantId = null;
+    private ?string $tenantShopId = null;
 
     #[ORM\Column(name: "service_credentials", type: "json", nullable: true)]
     private ?array $serviceCredentials = [];
@@ -188,15 +188,35 @@ class OrderNotification extends TenantAwareEntity
         $this->status = $status;
     }
 
+    /**
+     * @return string|null
+     * @deprecated
+     */
     public function getRestaurantId(): ?string
     {
-        return $this->restaurantId;
+        return $this->tenantShopId;
     }
 
+    /**
+     * @param string|null $restaurantId
+     * @return void
+     * @deprecated
+     */
     public function setRestaurantId(?string $restaurantId): void
     {
-        $this->restaurantId = $restaurantId;
+        $this->tenantShopId = $restaurantId;
     }
+
+    public function getTenantShopId(): ?string
+    {
+        return $this->tenantShopId;
+    }
+
+    public function setTenantShopId(?string $tenantShopId): void
+    {
+        $this->tenantShopId = $tenantShopId;
+    }
+
 
     public function getServiceCredentials(): ?array
     {
