@@ -62,7 +62,12 @@ class OrderNotification extends TenantAwareEntity
     private ?array $horecaPayload = null;
 
     #[ORM\Column(name: "service_payload", type: "json", nullable: true)]
+    /**
+     * @deprecated use providerPayload
+     */
     private ?array $servicePayload = [];
+    #[ORM\Column(name: "provider_payload", type: "json", nullable: true)]
+    private ?array $providerPayload = [];
 
     #[ORM\Column(name: "response_payload", type: "json", nullable: true)]
     #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView])]
@@ -253,9 +258,14 @@ class OrderNotification extends TenantAwareEntity
         return $this->servicePayload;
     }
 
+    /**
+     * @deprecated use setProviderPayload
+     */
     public function setServicePayload(array $servicePayload): void
     {
         $this->servicePayload = $servicePayload;
+        $this->providerPayload = $servicePayload;
+
     }
 
     public function getServicePayloadString(): ?string
@@ -376,5 +386,16 @@ class OrderNotification extends TenantAwareEntity
     public function setViewUrl(?string $viewUrl): void
     {
         $this->viewUrl = $viewUrl;
+    }
+
+    public function getProviderPayload(): ?array
+    {
+        return $this->providerPayload;
+    }
+
+    public function setProviderPayload(?array $providerPayload): void
+    {
+        $this->providerPayload = $providerPayload;
+        $this->servicePayload = $providerPayload;
     }
 }
