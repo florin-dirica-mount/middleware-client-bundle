@@ -65,7 +65,7 @@ class ProtocolActionsService
 
     public function mapProviderOrderToTenantOrder(OrderNotification $notification)
     {
-        $providerOrder = $this->serializer->deserialize($notification->getServicePayloadString(), $this->providerApi->getProviderToMiddlewareOrderClass(), 'json');
+        $providerOrder = $this->serializer->deserialize($notification->getProviderPayloadString(), $this->providerApi->getProviderToMiddlewareOrderClass(), 'json');
 
         $errors = $this->validator->validate($providerOrder);
         if (count($errors) > 0) {
@@ -131,7 +131,8 @@ class ProtocolActionsService
 
         $notification->setErrorMessage(null);
         $providerOrder = $this->providerApi->mapShoppingCartToProviderOrder($notification->getTenant(), $cart);
-        $notification->setServicePayloadString($this->serializer->serialize($providerOrder, 'json'));
+//        $notification->setServicePayloadString($this->serializer->serialize($providerOrder, 'json'));
+        $notification->setProviderPayloadString($this->serializer->serialize($providerOrder, 'json'));
 
         $notification->changeStatus(OrderNotificationStatus::Mapped);
         $notification->setNotifiedAt(new \DateTime());

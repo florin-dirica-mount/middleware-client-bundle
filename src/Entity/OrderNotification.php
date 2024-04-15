@@ -268,11 +268,18 @@ class OrderNotification extends TenantAwareEntity
 
     }
 
+    /**
+     * @deprecated
+     */
     public function getServicePayloadString(): ?string
     {
         return json_encode($this->servicePayload);
     }
 
+
+    /**
+     * @deprecated
+     */
     public function setServicePayloadString(string $servicePayload): void
     {
         $this->servicePayload = json_decode($servicePayload, true);
@@ -397,5 +404,15 @@ class OrderNotification extends TenantAwareEntity
     {
         $this->providerPayload = $providerPayload;
         $this->servicePayload = $providerPayload;
+    }
+
+    public function getProviderPayloadString(): ?string
+    {
+        return json_encode($this->providerPayload);
+    }
+
+    public function setProviderPayloadString(string $providerPayload): void
+    {
+        $this->providerPayload = json_decode($providerPayload, true);
     }
 }
