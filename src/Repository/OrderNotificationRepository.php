@@ -34,6 +34,16 @@ class OrderNotificationRepository extends ServiceEntityRepository
         return $this->findOneBy(['tenant' => $tenant, 'tenantObjectId' => $id]);
     }
 
+    public function findOneByTenantAndProviderOrderId(Tenant $tenant, string $id): ?OrderNotification
+    {
+        return $this->findOneBy(['tenant' => $tenant, 'providerObjectId' => $id]);
+    }
+
+    public function findOneByProviderOrderId(string $id): ?OrderNotification
+    {
+        return $this->findOneBy(['providerObjectId' => $id]);
+    }
+
     public function save(OrderNotification $notification): void
     {
         $this->_em->persist($notification);
