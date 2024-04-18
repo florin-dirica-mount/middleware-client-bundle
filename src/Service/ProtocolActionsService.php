@@ -73,7 +73,7 @@ class ProtocolActionsService
         }
 
         $notification->setErrorMessage(null);
-        $cart = $this->providerApi->mapProviderOrderToShoppingCart($notification->getTenant(), $providerOrder);
+        $cart = $this->providerApi->mapProviderOrderToShoppingCart($notification, $providerOrder);
         $notification->setHorecaPayloadString($this->serializer->serialize($cart, 'json'));
 
         $notification->changeStatus(OrderNotificationStatus::Mapped);
@@ -130,7 +130,7 @@ class ProtocolActionsService
         }
 
         $notification->setErrorMessage(null);
-        $providerOrder = $this->providerApi->mapShoppingCartToProviderOrder($notification->getTenant(), $cart);
+        $providerOrder = $this->providerApi->mapShoppingCartToProviderOrder($notification, $cart);
 //        $notification->setServicePayloadString($this->serializer->serialize($providerOrder, 'json'));
         $notification->setProviderPayloadString($this->serializer->serialize($providerOrder, 'json'));
 

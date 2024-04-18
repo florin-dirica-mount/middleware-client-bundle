@@ -35,14 +35,14 @@ interface ProviderApiInterface
      *
      * @return ProviderOrderInterface
      */
-    public function mapShoppingCartToProviderOrder(Tenant $tenant, ShoppingCart $cart);
+    public function mapShoppingCartToProviderOrder(OrderNotification $notification, ShoppingCart $cart);
 
     /**
      * Handles the mapping between ProviderOrder and ShoppingCart models
      *
      * @param ProviderOrderInterface $order
      */
-    public function mapProviderOrderToShoppingCart(Tenant $tenant, $order): ShoppingCart;
+    public function mapProviderOrderToShoppingCart(OrderNotification $notification, $order): ShoppingCart;
 
     /**
      * @param ProviderCredentialsInterface $credentials
