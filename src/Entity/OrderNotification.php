@@ -397,6 +397,10 @@ class OrderNotification extends TenantAwareEntity
 
     public function getProviderPayload(): ?array
     {
+        if (!$this->providerPayload) {
+            return $this->servicePayload;
+        }
+
         return $this->providerPayload;
     }
 
@@ -408,7 +412,7 @@ class OrderNotification extends TenantAwareEntity
 
     public function getProviderPayloadString(): ?string
     {
-        return json_encode($this->providerPayload);
+        return json_encode($this->getProviderPayload());
     }
 
     public function setProviderPayloadString(string $providerPayload): void
