@@ -13,14 +13,14 @@ trait TenantObjectId
 {
     #[ORM\Column(name: 'tenant_object_id', type: 'string', length: 36, nullable: true)]
     #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView])]
-    protected string $tenantObjectId;
+    protected ?string $tenantObjectId;
 
-    public function getTenantObjectId(): string
+    public function getTenantObjectId(): ?string
     {
         return $this->tenantObjectId;
     }
 
-    public function setTenantObjectId(string $tenantObjectId): void
+    public function setTenantObjectId(?string $tenantObjectId): void
     {
         $this->tenantObjectId = $tenantObjectId;
     }
