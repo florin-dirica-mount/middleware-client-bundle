@@ -131,7 +131,6 @@ class ProtocolActionsService
 
         $notification->setErrorMessage(null);
         $providerOrder = $this->providerApi->mapShoppingCartToProviderOrder($notification->getTenant(), $cart);
-//        $notification->setServicePayloadString($this->serializer->serialize($providerOrder, 'json'));
         $notification->setProviderPayloadString($this->serializer->serialize($providerOrder, 'json'));
 
         $notification->changeStatus(OrderNotificationStatus::Mapped);
@@ -147,7 +146,7 @@ class ProtocolActionsService
      */
     public function sendTenantOrderToProvider(OrderNotification $notification): BaseProviderOrderResponse
     {
-        $providerOrder = $this->serializer->deserialize($notification->getServicePayloadString(), $this->providerApi->getMiddlewareToProviderOrderClass(), 'json');
+        $providerOrder = $this->serializer->deserialize($notification->getProviderPayloadString(), $this->providerApi->getMiddlewareToProviderOrderClass(), 'json');
 
         $errors = $this->validator->validate($providerOrder);
         if (count($errors) > 0) {

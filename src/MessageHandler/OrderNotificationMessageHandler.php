@@ -131,7 +131,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
         $notification = $this->getMessageOrderNotification($message);
 
         try {
-            if (!$notification->hasStatus(OrderNotificationStatus::Mapped) || empty($notification->getServicePayload())) {
+            if (!$notification->hasStatus(OrderNotificationStatus::Mapped) || empty($notification->getProviderPayload())) {
                 $this->orderLogger->info(__METHOD__, __LINE__, sprintf('Notification %s status is not *mapped*. Action aborted.', $notification->getId()));
 
                 throw new OrderMappingException('Order is not sent to provider.');
