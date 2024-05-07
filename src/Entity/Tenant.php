@@ -15,11 +15,6 @@ class Tenant extends DefaultEntity
     #[ORM\Column(name: 'name', type: 'string', nullable: false)]
     protected ?string $name = null;
 
-    #[ORM\Column(name: 'tenant_shop_id', type: 'string', nullable: true)]
-    protected ?string $tenantShopId = null;
-    #[ORM\Column(name: 'provider_shop_id', type: 'string', nullable: true)]
-    protected ?string $providerShopId = null;
-
     #[ORM\Column(name: 'api_key', type: 'string', length: 128, unique: true)]
     private string $apiKey;
 
@@ -38,7 +33,10 @@ class Tenant extends DefaultEntity
     /**
      * @var Collection<int, TenantWebhook>|TenantWebhook[]
      */
-    #[ORM\OneToMany(mappedBy: 'tenant', targetEntity: TenantWebhook::class, cascade: ["persist", "remove"], orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'tenant', targetEntity: TenantWebhook::class, cascade: [
+        "persist",
+        "remove"
+    ], orphanRemoval: true)]
     protected Collection|array $webhooks;
 
     #[ORM\Column(name: "created_at", type: "datetime", nullable: false, options: ["default" => "CURRENT_TIMESTAMP"])]
@@ -53,7 +51,7 @@ class Tenant extends DefaultEntity
 
     public function __toString()
     {
-        return (string) $this->name;
+        return (string)$this->name;
     }
 
     public function getName(): ?string
@@ -108,7 +106,7 @@ class Tenant extends DefaultEntity
 
     public function getSubscribedEvents(): array
     {
-        return (array) $this->subscribedEvents;
+        return (array)$this->subscribedEvents;
     }
 
     public function setSubscribedEvents(array $subscribedEvents): void
@@ -146,27 +144,7 @@ class Tenant extends DefaultEntity
 
     public function isSubscribedToEvent(string $event): bool
     {
-        return in_array($event, (array) $this->subscribedEvents);
-    }
-
-    public function getTenantShopId(): ?string
-    {
-        return $this->tenantShopId;
-    }
-
-    public function setTenantShopId(?string $tenantShopId): void
-    {
-        $this->tenantShopId = $tenantShopId;
-    }
-
-    public function getProviderShopId(): ?string
-    {
-        return $this->providerShopId;
-    }
-
-    public function setProviderShopId(?string $providerShopId): void
-    {
-        $this->providerShopId = $providerShopId;
+        return in_array($event, (array)$this->subscribedEvents);
     }
 
 
