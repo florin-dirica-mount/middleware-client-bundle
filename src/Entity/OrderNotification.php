@@ -423,12 +423,12 @@ class OrderNotification extends TenantAwareEntity
         $this->providerPayload = json_decode($providerPayload, true);
     }
 
-    public function processTime(): ?\DateTime
+    public function processTime(): ?\DateInterval
     {
         if ($this->notifiedAt === null) {
             return null;
         }
 
-        return $this->notifiedAt->diff($this->getCreatedAt())->invert === 1 ? $this->notifiedAt : null;
+        return $this->notifiedAt->diff($this->getCreatedAt());
     }
 }
