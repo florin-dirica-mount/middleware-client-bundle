@@ -111,7 +111,7 @@ class TenantApi implements TenantApiInterface
             }
 
 
-            $this->orderLogger->info(__METHOD__, __LINE__, sprintf('%s %s %s', $webhook->getMethod(), $webhook->getPath(), $json));
+            $this->orderLogger->info(__METHOD__, __LINE__, sprintf('%s %s', $webhook->getMethod(), $webhook->getPath()));
 
             $response = $client->sendWebhook($webhook, $options);
             $contents = $response->getBody()->getContents();
