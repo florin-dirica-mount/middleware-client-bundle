@@ -22,7 +22,9 @@ class TenantApi implements TenantApiInterface
     use TenantClientFactoryDI;
     use OrderLoggerDI;
 
-    public function __construct(protected SerializerInterface $serializer) { }
+    public function __construct(protected SerializerInterface $serializer)
+    {
+    }
 
     /**
      * @throws HorecaException
@@ -98,11 +100,16 @@ class TenantApi implements TenantApiInterface
             $webhook = $client->getWebhook(TenantWebhookName::WEBHOOK_SHOPPING_CART_SEND);
             $json = $this->serializer->serialize($cart, 'json');
 
+            $options = [
+                'query' => ['restaurantId' => $restaurantId]
+            ];
+
             if ($webhook->getMethod() === 'GET') {
                 $options['query']['payload'] = base64_encode($json);
             } else {
                 $options['json'] = json_decode($json, true);
             }
+
 
             $this->orderLogger->info(__METHOD__, __LINE__, sprintf('%s %s %s', $webhook->getMethod(), $webhook->getPath(), $json));
 
