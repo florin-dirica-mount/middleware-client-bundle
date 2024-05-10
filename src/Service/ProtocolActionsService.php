@@ -99,11 +99,11 @@ class ProtocolActionsService
         }
 
         $cart = $this->serializer->deserialize($notification->getHorecaPayloadString(), ShoppingCart::class, 'json');
-
-        $errors = $this->validator->validate($cart);
-        if (count($errors) > 0) {
-            throw new OrderMappingException($errors->get(0)->getMessage());
-        }
+// provider to tenant validation differs from tenant to provider validation
+//        $errors = $this->validator->validate($cart);
+//        if (count($errors) > 0) {
+//            throw new OrderMappingException($errors->get(0)->getMessage());
+//        }
 
         $response = $this->tenantApiService->sendShoppingCart($notification->getTenant(), $cart, $notification->getTenantShopId());
 
