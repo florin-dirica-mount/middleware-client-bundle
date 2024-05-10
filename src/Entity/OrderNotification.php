@@ -98,7 +98,10 @@ class OrderNotification extends TenantAwareEntity
     /**
      * @var Collection<int, OrderLog>|OrderLog[]
      */
-    #[ORM\OneToMany(mappedBy: "order", targetEntity: OrderLog::class, cascade: ["persist", "remove"], fetch: "EXTRA_LAZY", orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: "order", targetEntity: OrderLog::class, cascade: [
+        "persist",
+        "remove"
+    ], fetch: "EXTRA_LAZY", orphanRemoval: true)]
     #[Serializer\Exclude]
     #[ORM\OrderBy(["createdAt" => "ASC"])]
     private Collection|array $logs;
@@ -418,5 +421,14 @@ class OrderNotification extends TenantAwareEntity
     public function setProviderPayloadString(string $providerPayload): void
     {
         $this->providerPayload = json_decode($providerPayload, true);
+    }
+
+    public function processTime(): ?\DateTime
+    {
+        if ($this->notifiedAt === null) {
+            return null;
+        }
+
+        return $this->notifiedAt->diff($this->getCreatedAt())->invert === 1 ? $this->notifiedAt : null;
     }
 }
