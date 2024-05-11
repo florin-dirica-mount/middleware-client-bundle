@@ -77,7 +77,8 @@ class ProtocolActionsService
         $notification->setHorecaPayloadString($this->serializer->serialize($cart, 'json'));
 
         $notification->changeStatus(OrderNotificationStatus::Mapped);
-        $notification->setNotifiedAt(new \DateTime());
+        //notified at represent time when order was mapped and send to tenant
+//        $notification->setNotifiedAt(new \DateTime());
 
         $this->orderNotificationRepository->save($notification);
 
@@ -135,7 +136,7 @@ class ProtocolActionsService
         $notification->setProviderPayloadString($this->serializer->serialize($providerOrder, 'json'));
 
         $notification->changeStatus(OrderNotificationStatus::Mapped);
-        $notification->setNotifiedAt(new \DateTime());
+//        $notification->setNotifiedAt(new \DateTime());
 
         $this->orderNotificationRepository->save($notification);
 

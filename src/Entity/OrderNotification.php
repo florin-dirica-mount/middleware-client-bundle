@@ -106,6 +106,9 @@ class OrderNotification extends TenantAwareEntity
     #[ORM\OrderBy(["createdAt" => "ASC"])]
     private Collection|array $logs;
 
+    #[ORM\Column(name: "process_time", type: "dateinterval", nullable: true)]
+    private \DateInterval $processTime;
+
     public function __construct()
     {
         parent::__construct();
@@ -321,6 +324,11 @@ class OrderNotification extends TenantAwareEntity
     public function setNotifiedAt(?\DateTime $notifiedAt): void
     {
         $this->notifiedAt = $notifiedAt;
+
+        if ($this->getCreatedAt() && $this->notifiedAt) {
+            $this->setProcessTime($this->notifiedAt->diff($this->getCreatedAt()));
+        }
+
     }
 
     /**
@@ -423,12 +431,13 @@ class OrderNotification extends TenantAwareEntity
         $this->providerPayload = json_decode($providerPayload, true);
     }
 
-    public function processTime(): ?\DateInterval
+    public function getProcessTime(): ?\DateInterval
     {
-        if ($this->notifiedAt === null) {
-            return null;
-        }
+        return $this->processTime;
+    }
 
-        return $this->notifiedAt->diff($this->getCreatedAt());
+    public function setProcessTime(\DateInterval $processTime): void
+    {
+        $this->processTime = $processTime;
     }
 }
