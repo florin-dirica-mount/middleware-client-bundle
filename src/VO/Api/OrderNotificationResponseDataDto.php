@@ -8,10 +8,10 @@ use JMS\Serializer\Annotation as Serializer;
 
 final class OrderNotificationResponseDataDto
 {
-    #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView])]
+    #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView,SerializationGroups::ProviderOrderNotificationView])]
     public bool $success = true;
 
-    #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView])]
+    #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView,SerializationGroups::ProviderOrderNotificationView])]
     public OrderNotification $data;
 
     public function __construct(OrderNotification $data, bool $success = true)
