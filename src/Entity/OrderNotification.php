@@ -107,7 +107,7 @@ class OrderNotification extends TenantAwareEntity
     private Collection|array $logs;
 
     #[ORM\Column(name: "process_time", type: "dateinterval", nullable: true)]
-    private \DateInterval $processTime;
+    private ?\DateInterval $processTime;
 
     public function __construct()
     {
@@ -436,7 +436,7 @@ class OrderNotification extends TenantAwareEntity
         return $this->processTime;
     }
 
-    public function setProcessTime(\DateInterval $processTime): void
+    public function setProcessTime(?\DateInterval $processTime): void
     {
         $this->processTime = $processTime;
     }
