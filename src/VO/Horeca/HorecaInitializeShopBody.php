@@ -11,7 +11,6 @@ class HorecaInitializeShopBody
 
     #[Serializer\SerializedName("horeca_external_service_id")]
     #[Serializer\Type("string")]
-    #[Assert\NotNull(message: "app.parameter.horeca_external_service_id.not_null")]
     /**
      * @deprecated
      */
