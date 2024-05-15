@@ -19,8 +19,9 @@ interface ProviderApiInterface
      */
     public function getProviderOrderClass(): string;
 
-    public function getMiddlewareToProviderOrderClass():string;
-    public function getProviderToMiddlewareOrderClass():string;
+    public function getMiddlewareToProviderOrderClass(): string;
+
+    public function getProviderToMiddlewareOrderClass(): string;
 
     /**
      * Saves the order data into the provider system and returns the external order ID, if it is applicable
@@ -44,10 +45,7 @@ interface ProviderApiInterface
      */
     public function mapProviderOrderToShoppingCart(Tenant $tenant, $order): ShoppingCart;
 
-    /**
-     * @param ProviderCredentialsInterface $credentials
-     */
-    public function initializeShop(string $tenantShopId, $credentials): bool;
+    public function initializeShop(string $tenantShopId, string $providerShopId): bool;
 
     /**
      * @param ProviderCredentialsInterface $credentials
