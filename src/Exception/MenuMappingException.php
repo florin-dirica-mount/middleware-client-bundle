@@ -2,7 +2,7 @@
 
 namespace Horeca\MiddlewareClientBundle\Exception;
 
-class OrderMappingException extends MappingException
+class MenuMappingException extends MappingException
 {
 
 }
