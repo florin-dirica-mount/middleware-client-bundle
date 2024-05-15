@@ -157,7 +157,7 @@ class HorecaApiController extends AbstractController
             $tenant = $this->protocolActionsService->authorizeTenant($request);
             $credentials = $this->tenantService->compileTenantCredentials($tenant, $body->providerCredentials);
 
-            if (!$this->providerApi->initializeShop($body->horecaExternalServiceId, $credentials)) {
+            if (!$this->providerApi->initializeShop($body->tenantShopId, $credentials)) {
                 return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
             }
 
