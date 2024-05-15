@@ -1595,16 +1595,16 @@
         },
         {
             "name": "horeca/middleware-common-lib",
-            "version": "3.0.9",
+            "version": "3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://gitlab.com/horeca-universal/libs/middleware-common-lib.git",
-                "reference": "fc7cf72ae6c4b86990c588f09b2bc3d5d2a8eeff"
+                "reference": "b8f0343b82899bcb2da098c851470e1d84997fbc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://gitlab.com/api/v4/projects/horeca-universal%2Flibs%2Fmiddleware-common-lib/repository/archive.zip?sha=fc7cf72ae6c4b86990c588f09b2bc3d5d2a8eeff",
-                "reference": "fc7cf72ae6c4b86990c588f09b2bc3d5d2a8eeff",
+                "url": "https://gitlab.com/api/v4/projects/horeca-universal%2Flibs%2Fmiddleware-common-lib/repository/archive.zip?sha=b8f0343b82899bcb2da098c851470e1d84997fbc",
+                "reference": "b8f0343b82899bcb2da098c851470e1d84997fbc",
                 "shasum": ""
             },
             "require": {
@@ -1631,9 +1631,9 @@
                 }
             ],
             "support": {
-                "source": "https://gitlab.com/horeca-universal/libs/middleware-common-lib/-/tree/3.0.9"
+                "source": "https://gitlab.com/horeca-universal/libs/middleware-common-lib/-/tree/3.1.0"
             },
-            "time": "2024-03-29T15:07:21+02:00"
+            "time": "2024-03-29T16:12:22+02:00"
         },
         {
             "name": "jms/metadata",
