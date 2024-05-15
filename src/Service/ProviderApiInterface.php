@@ -47,7 +47,7 @@ interface ProviderApiInterface
     /**
      * @param ProviderCredentialsInterface $credentials
      */
-    public function initializeShop(string $horecaExternalServiceId, $credentials): bool;
+    public function initializeShop(string $tenantShopId, $credentials): bool;
 
     /**
      * @param ProviderCredentialsInterface $credentials
