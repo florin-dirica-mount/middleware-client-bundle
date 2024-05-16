@@ -160,11 +160,7 @@ class HorecaApiController extends AbstractController
                 return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
             }
 
-            return new JsonResponse([
-                'success'        => true,
-                'providerShopId' => $body->providerShopId,
-                'tenantShopId'   => $body->tenantShopId
-            ]);
+            return new JsonResponse(['success' => true]);
         } catch (\Exception $e) {
             return $this->handleException($e);
         }
