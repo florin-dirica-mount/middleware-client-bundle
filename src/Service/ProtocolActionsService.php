@@ -74,7 +74,7 @@ class ProtocolActionsService
 
 //        $notification->setErrorMessage(null);
         $cart = $this->providerApi->mapProviderOrderToShoppingCart($notification->getTenant(), $providerOrder);
-        $notification->setHorecaPayloadString($this->serializer->serialize($cart, 'json'));
+        $notification->setTenantPayloadString($this->serializer->serialize($cart, 'json'));
 
         $notification->changeStatus(OrderNotificationStatus::Mapped);
         //notified at represent time when order was mapped and send to tenant
@@ -99,7 +99,7 @@ class ProtocolActionsService
             return null;
         }
 
-        $cart = $this->serializer->deserialize($notification->getHorecaPayloadString(), ShoppingCart::class, 'json');
+        $cart = $this->serializer->deserialize($notification->getTenantPayloadString(), ShoppingCart::class, 'json');
 // provider to tenant validation differs from tenant to provider validation
 //        $errors = $this->validator->validate($cart);
 //        if (count($errors) > 0) {
@@ -124,7 +124,7 @@ class ProtocolActionsService
     public function mapTenantOrderToProviderOrder(OrderNotification $notification): ProviderOrderInterface
     {
         /** @var ShoppingCart $cart */
-        $cart = $this->serializer->deserialize($notification->getHorecaPayloadString(), ShoppingCart::class, 'json');
+        $cart = $this->serializer->deserialize($notification->getTenantPayloadString(), ShoppingCart::class, 'json');
 
         $errors = $this->validator->validate($cart);
         if (count($errors) > 0) {
