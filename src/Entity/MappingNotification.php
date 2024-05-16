@@ -280,7 +280,7 @@ class MappingNotification extends TenantAwareEntity
 
     public function getTenantPayload(): ?array
     {
-        return $this->tenantPayload;
+        return $this->tenantPayload ?? $this->horecaPayload;
     }
 
     public function setTenantPayload(?array $tenantPayload): void
