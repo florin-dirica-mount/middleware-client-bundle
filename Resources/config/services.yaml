@@ -9,6 +9,14 @@ services:
         tags:
             - { name: doctrine.repository_service }
 
+    Horeca\MiddlewareClientBundle\Repository\MenuNotificationRepository:
+        tags:
+            - { name: doctrine.repository_service }
+
+    Horeca\MiddlewareClientBundle\Repository\ProductNotificationRepository:
+        tags:
+            - { name: doctrine.repository_service }
+
     Horeca\MiddlewareClientBundle\Repository\UserRepository:
         tags:
             - { name: doctrine.repository_service }
