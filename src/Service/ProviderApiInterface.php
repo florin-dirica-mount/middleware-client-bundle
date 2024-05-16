@@ -45,7 +45,7 @@ interface ProviderApiInterface
      */
     public function mapProviderOrderToShoppingCart(Tenant $tenant, $order): ShoppingCart;
 
-    public function initializeShop(string $tenantShopId, string $providerShopId): bool;
+    public function initializeShop(Tenant $tenant, string $tenantShopId, string $providerShopId): bool;
 
     /**
      * @param ProviderCredentialsInterface $credentials
