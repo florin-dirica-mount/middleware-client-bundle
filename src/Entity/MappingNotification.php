@@ -59,8 +59,14 @@ class MappingNotification extends TenantAwareEntity
     #[ORM\Column(name: "service_credentials", type: "json", nullable: true)]
     private ?array $serviceCredentials = [];
 
+    /**
+     * @deprecated use tenantPayload
+     */
     #[ORM\Column(name: "horeca_payload", type: "json", nullable: true)]
     private ?array $horecaPayload = null;
+
+    #[ORM\Column(name: "tenant_payload", type: "json", nullable: true)]
+    private ?array $tenantPayload = null;
 
     #[ORM\Column(name: "service_payload", type: "json", nullable: true)]
     /**
@@ -240,24 +246,51 @@ class MappingNotification extends TenantAwareEntity
         $this->serviceCredentials = $serviceCredentials;
     }
 
+    /**
+     * @deprecated
+     */
     public function getHorecaPayload(): ?array
     {
         return $this->horecaPayload;
     }
-
+    /**
+     * @deprecated
+     */
     public function setHorecaPayload(array $horecaPayload): void
     {
         $this->horecaPayload = $horecaPayload;
     }
 
+    /**
+     * @deprecated
+     */
     public function getHorecaPayloadString(): ?string
     {
         return json_encode($this->horecaPayload);
     }
 
+    /**
+     * @deprecated
+     */
     public function setHorecaPayloadString(string $horecaPayload): void
     {
         $this->horecaPayload = json_decode($horecaPayload, true);
+        $this->tenantPayload = json_decode($horecaPayload, true);
+    }
+
+    public function getTenantPayload(): ?array
+    {
+        return $this->tenantPayload;
+    }
+
+    public function setTenantPayload(?array $tenantPayload): void
+    {
+        $this->tenantPayload = $tenantPayload;
+    }
+
+    public function setTenantPayloadString(string $tenantProduct): void
+    {
+        $this->tenantPayload = json_decode($tenantProduct, true);
     }
 
     public function getServicePayload(): ?array
