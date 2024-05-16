@@ -294,8 +294,8 @@ class MappingNotification extends TenantAwareEntity
     }
     public function getTenantPayloadString(): ?string
     {
-//       return json_encode($this->tenantPayload) ?? json_encode($this->horecaPayload);
-       return json_encode($this->tenantPayload);
+       return json_encode($this->tenantPayload) ?? json_encode($this->horecaPayload);
+//       return json_encode($this->tenantPayload);
     }
 
     public function getServicePayload(): ?array
