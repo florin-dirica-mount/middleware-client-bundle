@@ -9,6 +9,10 @@ class HorecaInitializeShopBody
 {
 
 
+    #[Serializer\SerializedName("shop_name")]
+    #[Serializer\Type("string")]
+    public ?string $shopName = null;
+
     #[Serializer\SerializedName("tenant_shop_id")]
     #[Serializer\Type("string")]
     #[Assert\NotNull(message: "app.parameter.tenant_shop_id.not_null")]
