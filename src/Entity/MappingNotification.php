@@ -17,11 +17,11 @@ use JMS\Serializer\Annotation as Serializer;
 //#[ORM\Entity(repositoryClass: OrderNotificationRepository::class)]
 //#[ORM\Table(name: "hmc_order_notifications")]
 #[ORM\MappedSuperclass]
-#[ORM\Index(columns: ["created_at", "status"], name: "hmc_order_notifications_created_at_status_idx")]
-#[ORM\Index(columns: ["horeca_order_id", "type"], name: "hmc_order_notifications_type_idx")]
-#[ORM\Index(columns: ["service_order_id", "type"], name: "hmc_order_notifications_service_order_id_type_idx")]
-#[ORM\Index(columns: ["restaurant_id", "type"], name: "hmc_order_notifications_restaurant_id_type_idx")]
-#[ORM\Index(columns: ["horeca_order_id"], name: "hmc_order_notifications_horeca_order_id_idx")]
+#[ORM\Index(columns: ["created_at", "status"])]
+#[ORM\Index(columns: ["horeca_order_id", "type"])]
+#[ORM\Index(columns: ["service_order_id", "type"])]
+#[ORM\Index(columns: ["restaurant_id", "type"])]
+#[ORM\Index(columns: ["horeca_order_id"])]
 class MappingNotification extends TenantAwareEntity
 {
     use TenantObjectId;
