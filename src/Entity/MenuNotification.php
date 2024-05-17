@@ -18,7 +18,9 @@ use Horeca\MiddlewareClientBundle\Repository\MenuNotificationRepository;
         ],
         joinTable: new ORM\JoinTable(
             name: "menu_notification_has_status",
-        )
+        ),
+        inversedBy: 'menuNotifications',
+        fetch: 'EXTRA_LAZY'
     ),
     new ORM\AssociationOverride(
         name: "logs",
@@ -30,7 +32,9 @@ use Horeca\MiddlewareClientBundle\Repository\MenuNotificationRepository;
         ],
         joinTable: new ORM\JoinTable(
             name: "menu_notification_has_logs",
-        )
+        ),
+        inversedBy: 'menuMappingLogs',
+        fetch: 'EXTRA_LAZY'
     ),
 ])]
 class MenuNotification extends MappingNotification

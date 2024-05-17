@@ -18,7 +18,9 @@ use Horeca\MiddlewareClientBundle\Repository\ProductNotificationRepository;
         ],
         joinTable: new ORM\JoinTable(
             name: "product_notification_has_status",
-        )
+        ),
+        inversedBy: 'productNotifications',
+        fetch: 'EXTRA_LAZY'
     ),
     new ORM\AssociationOverride(
         name: "logs",
@@ -30,7 +32,9 @@ use Horeca\MiddlewareClientBundle\Repository\ProductNotificationRepository;
         ],
         joinTable: new ORM\JoinTable(
             name: "product_notification_has_logs",
-        )
+        ),
+        inversedBy: 'productMappingLogs',
+        fetch: 'EXTRA_LAZY'
     ),
 ])]
 class ProductNotification extends MappingNotification

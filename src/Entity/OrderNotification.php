@@ -18,7 +18,9 @@ use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
         ],
         joinTable: new ORM\JoinTable(
             name: "order_notification_has_status",
-        )
+        ),
+        inversedBy: 'orderNotifications',
+        fetch: 'EXTRA_LAZY'
     ),
     new ORM\AssociationOverride(
         name: "logs",
@@ -30,7 +32,9 @@ use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
         ],
         joinTable: new ORM\JoinTable(
             name: "order_notification_has_logs",
-        )
+        ),
+        inversedBy: 'orderMappingLogs',
+        fetch: 'EXTRA_LAZY'
     ),
 ])]
 class OrderNotification extends MappingNotification
