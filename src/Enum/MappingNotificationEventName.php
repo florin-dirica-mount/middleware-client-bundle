@@ -2,10 +2,7 @@
 
 namespace Horeca\MiddlewareClientBundle\Enum;
 
-/**
- * @deprecated use Horeca\MiddlewareClientBundle\Enum\MappingNotificationEventName instead
- */
-final class OrderNotificationEventName
+final class MappingNotificationEventName
 {
     public const MAPPING_FAILED = 'hmc.order_notification.mapping_failed';
     public const MAPPING_COMPLETED = 'hmc.order_notification.mapping_completed';

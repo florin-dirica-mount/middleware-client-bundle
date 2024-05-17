@@ -9,7 +9,7 @@ use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantApiServiceDI
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantServiceDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
-use Horeca\MiddlewareClientBundle\Enum\OrderNotificationStatus;
+use Horeca\MiddlewareClientBundle\Enum\MappingNotificationStatus;
 use Horeca\MiddlewareClientBundle\Exception\ApiException;
 use Horeca\MiddlewareClientBundle\Exception\OrderMappingException;
 use Horeca\MiddlewareClientBundle\VO\Provider\BaseProviderOrderResponse;
@@ -76,7 +76,7 @@ class ProtocolActionsService
         $cart = $this->providerApi->mapProviderOrderToShoppingCart($notification->getTenant(), $providerOrder);
         $notification->setTenantPayloadString($this->serializer->serialize($cart, 'json'));
 
-        $notification->changeStatus(OrderNotificationStatus::Mapped);
+        $notification->changeStatus(MappingNotificationStatus::Mapped);
         //notified at represent time when order was mapped and send to tenant
 //        $notification->setNotifiedAt(new \DateTime());
 
@@ -91,7 +91,7 @@ class ProtocolActionsService
         if (!$notification->getTenantShopId()) {
             $this->logger->warning('[handleExternalServiceOrderNotification] missing ServicePayload or RestaurantId. Action aborted for notification: ' . $notification->getId());
 
-            $notification->changeStatus(OrderNotificationStatus::Failed);
+            $notification->changeStatus(MappingNotificationStatus::Failed);
             $notification->setErrorMessage('Missing ServicePayload. Action aborted');
 
             $this->orderNotificationRepository->save($notification);
@@ -110,7 +110,7 @@ class ProtocolActionsService
 
         $notification->setResponsePayloadString($this->serializer->serialize($response, 'json'));
         $notification->setTenantObjectId((string) $response->horecaOrderId);
-        $notification->changeStatus(OrderNotificationStatus::Notified);
+        $notification->changeStatus(MappingNotificationStatus::Notified);
         $notification->setNotifiedAt(new \DateTime());
 
         $this->orderNotificationRepository->save($notification);
@@ -135,7 +135,7 @@ class ProtocolActionsService
         $providerOrder = $this->providerApi->mapShoppingCartToProviderOrder($notification->getTenant(), $cart);
         $notification->setProviderPayloadString($this->serializer->serialize($providerOrder, 'json'));
 
-        $notification->changeStatus(OrderNotificationStatus::Mapped);
+        $notification->changeStatus(MappingNotificationStatus::Mapped);
 //        $notification->setNotifiedAt(new \DateTime());
 
         $this->orderNotificationRepository->save($notification);
@@ -160,7 +160,7 @@ class ProtocolActionsService
 
         $notification->setResponsePayloadString($this->serializer->serialize($response, 'json'));
         $notification->setProviderObjectId((string) $response->orderId);
-        $notification->changeStatus(OrderNotificationStatus::Notified);
+        $notification->changeStatus(MappingNotificationStatus::Notified);
         $notification->setNotifiedAt(new \DateTime());
 
         $this->orderNotificationRepository->save($notification);
@@ -174,7 +174,7 @@ class ProtocolActionsService
      */
     public function confirmTenantOrderProcessed(OrderNotification $notification): void
     {
-        if ($notification->getStatus() !== OrderNotificationStatus::Notified) {
+        if ($notification->getStatus() !== MappingNotificationStatus::Notified) {
             $this->logger->warning('[sendTenantOrderStatusNotification] notification status is not notified. Action aborted for notification: ' . $notification->getId());
 
             throw new OrderMappingException('Order is not sent to provider.');
@@ -182,7 +182,7 @@ class ProtocolActionsService
 
         $this->tenantApiService->confirmProviderNotified($notification);
 
-        $notification->changeStatus(OrderNotificationStatus::Confirmed);
+        $notification->changeStatus(MappingNotificationStatus::Confirmed);
 
         $this->orderNotificationRepository->save($notification);
     }

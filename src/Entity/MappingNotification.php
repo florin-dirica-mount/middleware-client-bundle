@@ -8,14 +8,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Horeca\MiddlewareClientBundle\Entity\Log\OrderLog;
 use Horeca\MiddlewareClientBundle\Entity\Traits\ProviderObjectId;
 use Horeca\MiddlewareClientBundle\Entity\Traits\TenantObjectId;
-use Horeca\MiddlewareClientBundle\Enum\OrderNotificationStatus;
+use Horeca\MiddlewareClientBundle\Enum\MappingNotificationStatus;
 use Horeca\MiddlewareClientBundle\Enum\OrderNotificationType;
 use Horeca\MiddlewareClientBundle\Enum\SerializationGroups;
-use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
 use JMS\Serializer\Annotation as Serializer;
 
-//#[ORM\Entity(repositoryClass: OrderNotificationRepository::class)]
-//#[ORM\Table(name: "hmc_order_notifications")]
 #[ORM\MappedSuperclass]
 #[ORM\Index(columns: ["created_at", "status"])]
 #[ORM\Index(columns: ["horeca_order_id", "type"])]
@@ -136,7 +133,7 @@ class MappingNotification extends TenantAwareEntity
         $this->statusEntries = new ArrayCollection();
         $this->logs = new ArrayCollection();
         $this->type = OrderNotificationType::NewOrder;
-        $this->changeStatus(OrderNotificationStatus::Received);
+        $this->changeStatus(MappingNotificationStatus::Received);
     }
 
     public function __toString()

@@ -2,10 +2,8 @@
 
 namespace Horeca\MiddlewareClientBundle\Enum;
 
-/**
- * @deprecated use Horeca\MiddlewareClientBundle\Enum\MappingNotificationSource instead
- */
-final class OrderNotificationSource
+
+final class MappingNotificationSource
 {
     const Tenant = 'tenant';
     const Provider = 'provider';

@@ -2,11 +2,7 @@
 
 namespace Horeca\MiddlewareClientBundle\Enum;
 
-/**
- * @deprecated use Horeca\MiddlewareClientBundle\Enum\MappingNotificationStatus instead
-
- */
-final class OrderNotificationStatus
+final class MappingNotificationStatus
 {
     /** order is received from the source system and it's products can be mapped  */
     const Received = 'received';

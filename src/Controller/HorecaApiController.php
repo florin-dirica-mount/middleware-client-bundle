@@ -8,7 +8,7 @@ use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProtocolActionsSer
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProviderApiDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantServiceDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
-use Horeca\MiddlewareClientBundle\Enum\OrderNotificationSource;
+use Horeca\MiddlewareClientBundle\Enum\MappingNotificationSource;
 use Horeca\MiddlewareClientBundle\Enum\OrderNotificationType;
 use Horeca\MiddlewareClientBundle\Enum\SerializationGroups;
 use Horeca\MiddlewareClientBundle\Event\TenantOrderEvent;
@@ -111,7 +111,7 @@ class HorecaApiController extends AbstractController
 
                 $order = new OrderNotification();
                 $order->setType(OrderNotificationType::NewOrder);
-                $order->setSource(OrderNotificationSource::Tenant);
+                $order->setSource(MappingNotificationSource::Tenant);
 
                 $dispatchMessage = true;
             } else {
