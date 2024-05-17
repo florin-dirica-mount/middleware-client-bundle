@@ -11,10 +11,10 @@ use Horeca\MiddlewareClientBundle\Repository\ProductNotificationRepository;
     new ORM\AssociationOverride(
         name: "statusEntries",
         joinColumns: [
-            new ORM\JoinColumn(name: "status_entry_id", referencedColumnName: "id", onDelete: "RESTRICT")
+            new ORM\JoinColumn(name: "notification_id", referencedColumnName: "id", onDelete: "RESTRICT")
         ],
         inverseJoinColumns: [
-            new ORM\JoinColumn(name: "notification_id", referencedColumnName: "id", onDelete: "CASCADE")
+            new ORM\JoinColumn(name: "status_entry_id", referencedColumnName: "id", onDelete: "CASCADE")
         ],
         joinTable: new ORM\JoinTable(
             name: "product_notification_has_status",
@@ -23,10 +23,10 @@ use Horeca\MiddlewareClientBundle\Repository\ProductNotificationRepository;
     new ORM\AssociationOverride(
         name: "logs",
         joinColumns: [
-            new ORM\JoinColumn(name: "mapping_log_id", referencedColumnName: "id", onDelete: "RESTRICT")
+            new ORM\JoinColumn(name: "notification_id", referencedColumnName: "id", onDelete: "RESTRICT")
         ],
         inverseJoinColumns: [
-            new ORM\JoinColumn(name: "notification_id", referencedColumnName: "id", onDelete: "CASCADE")
+            new ORM\JoinColumn(name: "mapping_log_id", referencedColumnName: "id", onDelete: "CASCADE")
         ],
         joinTable: new ORM\JoinTable(
             name: "product_notification_has_logs",

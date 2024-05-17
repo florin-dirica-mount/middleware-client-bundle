@@ -64,20 +64,20 @@ class MappingLogger
      */
     public function saveTo(OrderNotification|ProductNotification|MenuNotification $notification, string $action): bool
     {
-        $tableName = null;
+      $tableName = 'hmc_mapping_logs';
         $joinTableName = null;
 
         if ($notification instanceof OrderNotification) {
-            $tableName = 'hmc_order_notifications';
-            $joinTableName = 'order_notification_has_status';
+//            $tableName = 'hmc_order_notifications';
+            $joinTableName = 'order_notification_has_logs';
         }
         if ($notification instanceof ProductNotification) {
-            $tableName = 'hmc_product_notifications';
-            $joinTableName = 'hmc_product_notifications';
+//            $tableName = 'hmc_product_notifications';
+            $joinTableName = 'product_notification_has_logs';
         }
         if ($notification instanceof MenuNotification) {
-            $tableName = 'hmc_menu_notifications';
-            $joinTableName = 'hmc_menu_notifications';
+//            $tableName = 'hmc_menu_notifications';
+            $joinTableName = 'menu_notification_has_logs';
         }
 
 
@@ -95,29 +95,44 @@ VALUES (nextval('hmc_mapping_logs_id_seq'), :action, :micro_time, :level, :log, 
             'created_at' => date('Y-m-d H:i:s')
         ];
 
-        $joinTableSql = "INSERT INTO $joinTableName (notification_id, mapping_log_id) values (:notification_id,mapping_log_id)";
+        $joinTableSql = "INSERT INTO $joinTableName (notification_id, mapping_log_id) values (:notification_id,:mapping_log_id)";
 
         $joinTableParams = [
-            'notification_id' => 1,
-            'mapping_log_id'  => 1,
+            'notification_id' => $notification->getId(),
+            'mapping_log_id'  => null,
         ];
 
         try {
             $connection = $this->entityManager->getConnection();
+            try {
 
-            $connection->beginTransaction();
-            dd($connection->executeQuery($sql, $params));
-            $connection->executeQuery($joinTableSql, $joinTableParams);
+                $connection->beginTransaction();
+                $result = $connection->executeQuery($sql, $params);
 
-            $connection->commit();
-            $this->buffer = [];
+                // Get the last inserted ID
+                $idQuery = "SELECT currval('hmc_mapping_logs_id_seq')";
+                $stmt = $connection->executeQuery($idQuery);
+                $newId = $stmt->fetchOne();
 
-            return true;
-        } catch (Exception $e) {
+                $joinTableParams['mapping_log_id'] = $newId;
+
+                $connection->executeQuery($joinTableSql, $joinTableParams);
+
+                $connection->commit();
+                $this->buffer = [];
+
+                return true;
+            } catch (Exception $e) {
+                $connection->rollBack();
+                $this->logger->info(sprintf('[%s.%d] Error: %s', __METHOD__, __LINE__, $e->getMessage()));
+                return false;
+            }
+        } catch (\Exception) {
             $this->logger->info(sprintf('[%s.%d] Error: %s', __METHOD__, __LINE__, $e->getMessage()));
 
             return false;
         }
+
     }
 
     private function format(string $level, string $method, int $line, string|array|null $log = null): string
