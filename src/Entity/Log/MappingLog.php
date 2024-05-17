@@ -3,7 +3,9 @@
 namespace Horeca\MiddlewareClientBundle\Entity\Log;
 
 use Doctrine\ORM\Mapping as ORM;
+use Horeca\MiddlewareClientBundle\Entity\MenuNotification;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
+use Horeca\MiddlewareClientBundle\Entity\ProductNotification;
 use JMS\Serializer\Annotation as Serializer;
 
 #[ORM\Entity]
@@ -31,6 +33,13 @@ class MappingLog
 //    #[ORM\JoinColumn(name: 'order_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
 //    #[Serializer\Exclude]
 //    private OrderNotification $order;
+
+    #[ORM\OneToMany(mappedBy: 'logs', targetEntity: OrderNotification::class, orphanRemoval: true)]
+    private $orderMappingLogs;
+    #[ORM\OneToMany(mappedBy: 'logs', targetEntity: MenuNotification::class, orphanRemoval: true)]
+    private $menuMappingLogs;
+    #[ORM\OneToMany(mappedBy: 'logs', targetEntity: ProductNotification::class, orphanRemoval: true)]
+    private $productMappingLogs;
 
     #[ORM\Column(name: 'micro_time', type: 'float', nullable: false)]
     private float $microTime;

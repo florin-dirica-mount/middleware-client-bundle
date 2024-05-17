@@ -64,24 +64,21 @@ class MappingLogger
      */
     public function saveTo(OrderNotification|ProductNotification|MenuNotification $notification, string $action): bool
     {
-      $tableName = 'hmc_mapping_logs';
+        $tableName = 'hmc_mapping_logs';
         $joinTableName = null;
 
         if ($notification instanceof OrderNotification) {
-//            $tableName = 'hmc_order_notifications';
             $joinTableName = 'order_notification_has_logs';
         }
         if ($notification instanceof ProductNotification) {
-//            $tableName = 'hmc_product_notifications';
             $joinTableName = 'product_notification_has_logs';
         }
         if ($notification instanceof MenuNotification) {
-//            $tableName = 'hmc_menu_notifications';
             $joinTableName = 'menu_notification_has_logs';
         }
 
 
-        if (empty($this->buffer) || !$tableName) {
+        if (empty($this->buffer)) {
             return false;
         }
 
