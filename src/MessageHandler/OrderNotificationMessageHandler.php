@@ -4,7 +4,7 @@ namespace Horeca\MiddlewareClientBundle\MessageHandler;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\OrderNotificationRepositoryDI;
-use Horeca\MiddlewareClientBundle\DependencyInjection\Service\OrderLoggerDI;
+use Horeca\MiddlewareClientBundle\DependencyInjection\Service\MappingLoggerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProtocolActionsServiceDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantApiServiceDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
@@ -28,7 +28,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 class OrderNotificationMessageHandler implements MessageSubscriberInterface
 {
-    use OrderLoggerDI;
+    use MappingLoggerDI;
     use OrderNotificationRepositoryDI;
     use ProtocolActionsServiceDI;
     use TenantApiServiceDI;
@@ -70,7 +70,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
 
     public function handleMapTenantOrderToProviderMessage(OrderNotificationMessage $message): void
     {
-        $this->orderLogger->logMemoryUsage();
+        $this->mappingLogger->logMemoryUsage();
         $notification = $this->getMessageOrderNotification($message);
 
         try {
@@ -91,13 +91,13 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
                 $this->messageBus->dispatch(new OrderNotificationEventMessage(MappingNotificationEventName::MAPPING_FAILED, $notification));
             }
         } finally {
-            $this->orderLogger->logMemoryUsage();
-            $this->orderLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleMapTenantOrderToProviderMessage');
+            $this->mappingLogger->logMemoryUsage();
+            $this->mappingLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleMapTenantOrderToProviderMessage');
         }
     }
     public function handleMapProviderOrderToTenantMessage(OrderNotificationMessage $message): void
     {
-        $this->orderLogger->logMemoryUsage();
+        $this->mappingLogger->logMemoryUsage();
         $notification = $this->getMessageOrderNotification($message);
 
         try {
@@ -120,19 +120,19 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
 //                $this->messageBus->dispatch(new OrderNotificationEventMessage(MappingNotificationEventName::MAPPING_FAILED, $notification));
 //            }
         } finally {
-            $this->orderLogger->logMemoryUsage();
-            $this->orderLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleMapProviderOrderToTenantMessage');
+            $this->mappingLogger->logMemoryUsage();
+            $this->mappingLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleMapProviderOrderToTenantMessage');
         }
     }
 
     public function handleSendTenantOrderToProviderMessage(OrderNotificationMessage $message): void
     {
-        $this->orderLogger->logMemoryUsage();
+        $this->mappingLogger->logMemoryUsage();
         $notification = $this->getMessageOrderNotification($message);
 
         try {
             if (!$notification->hasStatus(MappingNotificationStatus::Mapped) || empty($notification->getProviderPayload())) {
-                $this->orderLogger->info(__METHOD__, __LINE__, sprintf('Notification %s status is not *mapped*. Action aborted.', $notification->getId()));
+                $this->mappingLogger->info(__METHOD__, __LINE__, sprintf('Notification %s status is not *mapped*. Action aborted.', $notification->getId()));
 
                 throw new OrderMappingException('Order is not sent to provider.');
             }
@@ -142,9 +142,9 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
                 $this->orderNotificationRepository->save($notification);
             }
 
-            $this->orderLogger->info(__METHOD__, __LINE__, 'Sending order to provider...');
+            $this->mappingLogger->info(__METHOD__, __LINE__, 'Sending order to provider...');
             $this->protocolActionsService->sendTenantOrderToProvider($notification);
-            $this->orderLogger->info(__METHOD__, __LINE__, sprintf('Order %s sent to provider with id %s', $notification->getId(), $notification->getProviderObjectId()));
+            $this->mappingLogger->info(__METHOD__, __LINE__, sprintf('Order %s sent to provider with id %s', $notification->getId(), $notification->getProviderObjectId()));
 
             if ($notification->getTenant()->isSubscribedToEvent(MappingNotificationEventName::PROVIDER_NOTIFIED)) {
                 $this->messageBus->dispatch(new OrderNotificationEventMessage(MappingNotificationEventName::PROVIDER_NOTIFIED, $notification));
@@ -156,14 +156,14 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
                 $this->messageBus->dispatch(new OrderNotificationEventMessage(MappingNotificationEventName::PROVIDER_NOTIFICATION_FAILED, $notification));
             }
         } finally {
-            $this->orderLogger->logMemoryUsage();
-            $this->orderLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleSendTenantOrderToProviderMessage');
+            $this->mappingLogger->logMemoryUsage();
+            $this->mappingLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleSendTenantOrderToProviderMessage');
         }
     }
 
     public function handleOrderNotificationEventMessage(OrderNotificationEventMessage $message): void
     {
-        $this->orderLogger->logMemoryUsage();
+        $this->mappingLogger->logMemoryUsage();
         $notification = $this->getMessageOrderNotification($message);
 
         try {
@@ -181,14 +181,14 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
         } catch (\Throwable $e) {
             $this->onOrderNotificationException($notification, $e);
         } finally {
-            $this->orderLogger->logMemoryUsage();
-            $this->orderLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleOrderNotificationEventMessage');
+            $this->mappingLogger->logMemoryUsage();
+            $this->mappingLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleOrderNotificationEventMessage');
         }
     }
 
     public function handleSendProviderOrderToTenantMessage(OrderNotificationMessage $message): void
     {
-        $this->orderLogger->logMemoryUsage();
+        $this->mappingLogger->logMemoryUsage();
         $notification = $this->getMessageOrderNotification($message);
 
         try {
@@ -199,14 +199,14 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
         } catch (\Throwable $e) {
             $this->onOrderNotificationException($notification, $e);
         } finally {
-            $this->orderLogger->logMemoryUsage();
-            $this->orderLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleSendProviderOrderToTenantMessage');
+            $this->mappingLogger->logMemoryUsage();
+            $this->mappingLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleSendProviderOrderToTenantMessage');
         }
     }
 
     protected function onOrderNotificationException(OrderNotification $notification, \Throwable $e): void
     {
-        $this->orderLogger->error(__METHOD__, __LINE__, $e->getMessage());
+        $this->mappingLogger->error(__METHOD__, __LINE__, $e->getMessage());
 
         $notification->changeStatus(MappingNotificationStatus::Failed);
         $notification->setErrorMessage($e->getMessage());

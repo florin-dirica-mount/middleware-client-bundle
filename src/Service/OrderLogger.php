@@ -8,6 +8,9 @@ use Horeca\MiddlewareClientBundle\Entity\Log\OrderLog;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @deprecated
+ */
 class OrderLogger
 {
 

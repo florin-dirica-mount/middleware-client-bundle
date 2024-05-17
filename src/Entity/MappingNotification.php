@@ -5,6 +5,7 @@ namespace Horeca\MiddlewareClientBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Horeca\MiddlewareClientBundle\Entity\Log\MappingLog;
 use Horeca\MiddlewareClientBundle\Entity\Log\OrderLog;
 use Horeca\MiddlewareClientBundle\Entity\Traits\ProviderObjectId;
 use Horeca\MiddlewareClientBundle\Entity\Traits\TenantObjectId;
@@ -101,6 +102,7 @@ class MappingNotification extends TenantAwareEntity
 
     /**
      * @var Collection<int, OrderLog>|OrderLog[]
+     * @deprecated
      */
     #[ORM\OneToMany(mappedBy: "order", targetEntity: OrderLog::class, cascade: [
         "persist",
@@ -108,6 +110,17 @@ class MappingNotification extends TenantAwareEntity
     ], fetch: "EXTRA_LAZY", orphanRemoval: true)]
     #[Serializer\Exclude]
     #[ORM\OrderBy(["createdAt" => "ASC"])]
+    private Collection|array $logsHistory;
+
+    /**
+     * @var Collection<int, MappingLog>|MappingLog[]
+     */
+    #[ORM\ManyToMany(targetEntity: MappingLog::class, cascade: ["persist"], fetch: "EXTRA_LAZY")]
+    #[ORM\JoinTable(name: 'mapping_notifications_mapping_log_entries')]
+    #[ORM\JoinColumn(name: 'mapping_log_id', referencedColumnName: 'id', onDelete: 'RESTRICT')]
+    #[ORM\InverseJoinColumn(name: 'notification_id', referencedColumnName: 'id',onDelete: 'CASCADE')]
+    #[ORM\OrderBy(["createdAt" => "ASC"])]
+    #[Serializer\Exclude]
     private Collection|array $logs;
 
     #[ORM\Column(name: "process_time", type: "dateinterval", nullable: true)]
@@ -132,6 +145,7 @@ class MappingNotification extends TenantAwareEntity
         $this->statusEntriesHistory = new ArrayCollection();
         $this->statusEntries = new ArrayCollection();
         $this->logs = new ArrayCollection();
+        $this->logsHistory = new ArrayCollection();
         $this->type = OrderNotificationType::NewOrder;
         $this->changeStatus(MappingNotificationStatus::Received);
     }
@@ -442,7 +456,7 @@ class MappingNotification extends TenantAwareEntity
     }
 
     /**
-     * @return Collection<int, OrderLog>|OrderLog[]
+     * @return Collection<int, MappingLog>|MappingLog[]
      */
     public function getLogs(): Collection|array
     {
@@ -450,16 +464,15 @@ class MappingNotification extends TenantAwareEntity
     }
 
     /**
-     * @param Collection<int, OrderLog>|OrderLog[] $logs
+     * @param Collection<int, MappingLog>|MappingLog[] $logs
      */
     public function setLogs(Collection|array $logs): void
     {
         $this->logs = $logs;
     }
 
-    public function addLog(OrderLog $log): void
+    public function addLog(MappingLog $log): void
     {
-        $log->setOrder($this);
         if (!$this->getLogs()->contains($log)) {
             $this->getLogs()->add($log);
         }

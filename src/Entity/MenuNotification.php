@@ -19,7 +19,19 @@ use Horeca\MiddlewareClientBundle\Repository\MenuNotificationRepository;
         joinTable: new ORM\JoinTable(
             name: "menu_notification_has_status",
         )
-    )
+    ),
+    new ORM\AssociationOverride(
+        name: "logs",
+        joinColumns: [
+            new ORM\JoinColumn(name: "mapping_log_id", referencedColumnName: "id", onDelete: "RESTRICT")
+        ],
+        inverseJoinColumns: [
+            new ORM\JoinColumn(name: "notification_id", referencedColumnName: "id", onDelete: "CASCADE")
+        ],
+        joinTable: new ORM\JoinTable(
+            name: "menu_notification_has_logs",
+        )
+    ),
 ])]
 class MenuNotification extends MappingNotification
 {
