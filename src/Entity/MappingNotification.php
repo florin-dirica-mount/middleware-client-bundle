@@ -116,15 +116,13 @@ class MappingNotification extends TenantAwareEntity
     #[ORM\Column(name: "process_time", type: "dateinterval", nullable: true)]
     private ?\DateInterval $processTime;
 
-
-
     /**
      * @var Collection<int, StatusEntry>
      */
     #[ORM\ManyToMany(targetEntity: StatusEntry::class)]
-    #[ORM\JoinTable()]
-    #[ORM\JoinColumn(name: 'status_entry_id', referencedColumnName: 'id')]
-    #[ORM\InverseJoinColumn(name: 'notification_id', referencedColumnName: 'id')]
+    #[ORM\JoinTable(name: 'mapping_notifications_status_entries')]
+    #[ORM\JoinColumn(name: 'status_entry_id', referencedColumnName: 'id', onDelete: 'RESTRICT')]
+    #[ORM\InverseJoinColumn(name: 'notification_id', referencedColumnName: 'id',onDelete: 'CASCADE')]
     #[ORM\OrderBy(["createdAt" => "ASC"])]
     #[Serializer\Exclude]
     private Collection|array $statusEntries;

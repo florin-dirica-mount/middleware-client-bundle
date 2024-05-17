@@ -7,6 +7,20 @@ use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
 
 #[ORM\Entity(repositoryClass: OrderNotificationRepository::class)]
 #[ORM\Table(name: "hmc_order_notifications")]
+#[ORM\AssociationOverrides([
+    new ORM\AssociationOverride(
+        name: "statusEntries",
+        joinColumns: [
+            new ORM\JoinColumn(name: "status_entry_id", referencedColumnName: "id", onDelete: "RESTRICT")
+        ],
+        inverseJoinColumns: [
+            new ORM\JoinColumn(name: "notification_id", referencedColumnName: "id", onDelete: "CASCADE")
+        ],
+        joinTable: new ORM\JoinTable(
+            name: "order_notification_has_status",
+        )
+    )
+])]
 class OrderNotification extends MappingNotification
 {
 
