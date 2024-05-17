@@ -119,7 +119,7 @@ class MappingNotification extends TenantAwareEntity
     /**
      * @var Collection<int, StatusEntry>
      */
-    #[ORM\ManyToMany(targetEntity: StatusEntry::class)]
+    #[ORM\ManyToMany(targetEntity: StatusEntry::class, cascade: ["persist"], fetch: "EXTRA_LAZY")]
     #[ORM\JoinTable(name: 'mapping_notifications_status_entries')]
     #[ORM\JoinColumn(name: 'status_entry_id', referencedColumnName: 'id', onDelete: 'RESTRICT')]
     #[ORM\InverseJoinColumn(name: 'notification_id', referencedColumnName: 'id',onDelete: 'CASCADE')]
