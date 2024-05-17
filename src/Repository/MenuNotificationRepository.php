@@ -5,7 +5,6 @@ namespace Horeca\MiddlewareClientBundle\Repository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Horeca\MiddlewareClientBundle\Entity\MenuNotification;
-use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
 
 /**
@@ -25,27 +24,27 @@ class MenuNotificationRepository extends ServiceEntityRepository
     /**
      * @deprecated use self::findOneByTenantOrderId
      */
-    public function findOneByHorecaOrderId(string $id): ?OrderNotification
+    public function findOneByHorecaOrderId(string $id): ?MenuNotification
     {
         return $this->findOneBy(['horecaOrderId' => $id]);
     }
 
-    public function findOneByTenantOrderId(Tenant $tenant, string $id): ?OrderNotification
+    public function findOneByTenantOrderId(Tenant $tenant, string $id): ?MenuNotification
     {
         return $this->findOneBy(['tenant' => $tenant, 'tenantObjectId' => $id]);
     }
 
-    public function findOneByTenantAndProviderOrderId(Tenant $tenant, string $id): ?OrderNotification
+    public function findOneByTenantAndProviderOrderId(Tenant $tenant, string $id): ?MenuNotification
     {
         return $this->findOneBy(['tenant' => $tenant, 'providerObjectId' => $id]);
     }
 
-    public function findOneByProviderOrderId(string $id): ?OrderNotification
+    public function findOneByProviderOrderId(string $id): ?MenuNotification
     {
         return $this->findOneBy(['providerObjectId' => $id]);
     }
 
-    public function save(OrderNotification $notification): void
+    public function save(MenuNotification $notification): void
     {
         $this->_em->persist($notification);
         $this->_em->flush();
