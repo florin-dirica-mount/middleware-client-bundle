@@ -100,7 +100,7 @@ class MappingNotification extends TenantAwareEntity
     ], fetch: "EXTRA_LAZY", orphanRemoval: true)]
     #[Serializer\Exclude]
     #[ORM\OrderBy(["createdAt" => "ASC"])]
-    private Collection|array $statusEntries;
+    private Collection|array $statusEntriesHistory;
 
     /**
      * @var Collection<int, OrderLog>|OrderLog[]
@@ -116,10 +116,25 @@ class MappingNotification extends TenantAwareEntity
     #[ORM\Column(name: "process_time", type: "dateinterval", nullable: true)]
     private ?\DateInterval $processTime;
 
+
+
+    /**
+     * @var Collection<int, StatusEntry>
+     */
+    #[ORM\ManyToMany(targetEntity: StatusEntry::class)]
+    #[ORM\JoinTable()]
+    #[ORM\JoinColumn(name: 'status_entry_id', referencedColumnName: 'id')]
+    #[ORM\InverseJoinColumn(name: 'notification_id', referencedColumnName: 'id')]
+    #[ORM\OrderBy(["createdAt" => "ASC"])]
+    #[Serializer\Exclude]
+    private Collection|array $statusEntries;
+
+
     public function __construct()
     {
         parent::__construct();
 
+        $this->statusEntriesHistory = new ArrayCollection();
         $this->statusEntries = new ArrayCollection();
         $this->logs = new ArrayCollection();
         $this->type = OrderNotificationType::NewOrder;
@@ -135,11 +150,34 @@ class MappingNotification extends TenantAwareEntity
     {
         $this->status = $status;
 
-        $entry = new OrderStatusEntry();
+//        $entry = new OrderStatusEntry();
+        $entry = new StatusEntry();
         $entry->setStatus($status);
-        $entry->setOrder($this);
         $this->getStatusEntries()->add($entry);
     }
+
+    public function getStatusEntriesHistory(): Collection|array
+    {
+        return $this->statusEntriesHistory;
+    }
+
+    public function setStatusEntriesHistory(Collection|array $statusEntriesHistory): void
+    {
+        $this->statusEntriesHistory = $statusEntriesHistory;
+    }
+
+    public function addStatusEntry(StatusEntry $statusEntry): void
+    {
+        if (!$this->getStatusEntries()->contains($statusEntry)) {
+            $this->getStatusEntries()->add($statusEntry);
+        }
+    }
+
+    public function removeStatusEntry(StatusEntry $statusEntry)
+    {
+        $this->getStatusEntries()->removeElement($statusEntry);
+    }
+
 
     public function getTruncatedError(int $length = 80): ?string
     {
@@ -253,6 +291,7 @@ class MappingNotification extends TenantAwareEntity
     {
         return $this->horecaPayload;
     }
+
     /**
      * @deprecated
      */
@@ -292,9 +331,10 @@ class MappingNotification extends TenantAwareEntity
     {
         $this->tenantPayload = json_decode($tenantProduct, true);
     }
+
     public function getTenantPayloadString(): ?string
     {
-       return json_encode($this->tenantPayload) ?? json_encode($this->horecaPayload);
+        return json_encode($this->tenantPayload) ?? json_encode($this->horecaPayload);
 //       return json_encode($this->tenantPayload);
     }
 

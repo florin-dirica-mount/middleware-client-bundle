@@ -7,8 +7,8 @@ use JMS\Serializer\Annotation as Serializer;
 
 #[ORM\Entity]
 #[ORM\Table(name: "hmc_order_status_entries")]
-#[ORM\Index(columns: ["created_at"], name: "hmc_status_entries_created_at_idx")]
-#[ORM\Index(columns: ["created_at", "status"], name: "hmc_status_entries_created_at_status_idx")]
+#[ORM\Index(columns: ["created_at"], name: "hmc_order_status_entries_created_at_idx")]
+#[ORM\Index(columns: ["created_at", "status"], name: "hmc_order_status_entries_created_at_status_idx")]
 class OrderStatusEntry extends DefaultEntity
 {
     #[ORM\Column(name: "status", type: "string", length: 50, nullable: false)]
