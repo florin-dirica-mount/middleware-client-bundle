@@ -14,13 +14,6 @@ class StatusEntry extends DefaultEntity
     #[ORM\Column(name: "status", type: "string", length: 50, nullable: false)]
     protected ?string $status = null;
 
-    #[ORM\OneToMany(mappedBy: 'statusEntries', targetEntity: OrderNotification::class, orphanRemoval: true)]
-    private $orderNotifications;
-    #[ORM\OneToMany(mappedBy: 'statusEntries', targetEntity: MenuNotification::class, orphanRemoval: true)]
-    private $menuNotifications;
-    #[ORM\OneToMany(mappedBy: 'statusEntries', targetEntity: ProductNotification::class, orphanRemoval: true)]
-    private $productNotifications;
-
 
 
     public function __construct(?OrderNotification $order = null, ?string $status = null)

@@ -112,27 +112,28 @@ class MappingNotification extends TenantAwareEntity
     #[ORM\OrderBy(["createdAt" => "ASC"])]
     private Collection|array $logsHistory;
 
+    #[ORM\Column(name: "process_time", type: "dateinterval", nullable: true)]
+    private ?\DateInterval $processTime;
+
     /**
      * @var Collection<int, MappingLog>|MappingLog[]
      */
     #[ORM\ManyToMany(targetEntity: MappingLog::class, cascade: ["persist"], fetch: "EXTRA_LAZY")]
     #[ORM\JoinTable(name: 'mapping_notifications_mapping_log_entries')]
-    #[ORM\JoinColumn(name: 'mapping_log_id', referencedColumnName: 'id', onDelete: 'RESTRICT')]
-    #[ORM\InverseJoinColumn(name: 'notification_id', referencedColumnName: 'id',onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'notification_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\InverseJoinColumn(name: 'mapping_log_id', referencedColumnName: 'id', onDelete: 'RESTRICT')]
     #[ORM\OrderBy(["createdAt" => "ASC"])]
     #[Serializer\Exclude]
     private Collection|array $logs;
 
-    #[ORM\Column(name: "process_time", type: "dateinterval", nullable: true)]
-    private ?\DateInterval $processTime;
 
     /**
-     * @var Collection<int, StatusEntry>
+     * @var Collection<int, StatusEntry> | StatusEntry[]
      */
     #[ORM\ManyToMany(targetEntity: StatusEntry::class, cascade: ["persist"], fetch: "EXTRA_LAZY")]
     #[ORM\JoinTable(name: 'mapping_notifications_status_entries')]
-    #[ORM\JoinColumn(name: 'status_entry_id', referencedColumnName: 'id', onDelete: 'RESTRICT')]
-    #[ORM\InverseJoinColumn(name: 'notification_id', referencedColumnName: 'id',onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'notification_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\InverseJoinColumn(name: 'status_entry_id', referencedColumnName: 'id', onDelete: 'RESTRICT')]
     #[ORM\OrderBy(["createdAt" => "ASC"])]
     #[Serializer\Exclude]
     private Collection|array $statusEntries;
