@@ -29,17 +29,6 @@ class MappingLog
     #[ORM\Column(name: 'action', type: 'string', length: 128, nullable: false)]
     private string $action;
 
-//    #[ORM\ManyToOne(targetEntity: OrderNotification::class, cascade: ['persist'], inversedBy: 'logs')]
-//    #[ORM\JoinColumn(name: 'order_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
-//    #[Serializer\Exclude]
-//    private OrderNotification $order;
-
-    #[ORM\OneToMany(mappedBy: 'logs', targetEntity: OrderNotification::class, orphanRemoval: true)]
-    private $orderMappingLogs;
-    #[ORM\OneToMany(mappedBy: 'logs', targetEntity: MenuNotification::class, orphanRemoval: true)]
-    private $menuMappingLogs;
-    #[ORM\OneToMany(mappedBy: 'logs', targetEntity: ProductNotification::class, orphanRemoval: true)]
-    private $productMappingLogs;
 
     #[ORM\Column(name: 'micro_time', type: 'float', nullable: false)]
     private float $microTime;

@@ -15,7 +15,6 @@ class StatusEntry extends DefaultEntity
     protected ?string $status = null;
 
 
-
     public function __construct(?OrderNotification $order = null, ?string $status = null)
     {
         parent::__construct();
