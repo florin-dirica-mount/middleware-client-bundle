@@ -35,7 +35,7 @@ use Horeca\MiddlewareClientBundle\Repository\ProductNotificationRepository;
         ),
         inversedBy: 'productMappingLogs',
         fetch: 'EXTRA_LAZY'
-    ),x
+    ),
 ])]
 class ProductNotification extends MappingNotification
 {
