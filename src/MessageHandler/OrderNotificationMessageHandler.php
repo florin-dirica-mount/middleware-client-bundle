@@ -216,10 +216,10 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
 
     protected function getMessageOrderNotification(MappingNotificationMessage $message): OrderNotification
     {
-        $notification = $this->orderNotificationRepository->find($message->getOrderNotificationId());
+        $notification = $this->orderNotificationRepository->find($message->getNotificationId());
 
         if (!$notification) {
-            throw new UnrecoverableMessageHandlingException(sprintf('OrderNotification with id %s not found', $message->getOrderNotificationId()));
+            throw new UnrecoverableMessageHandlingException(sprintf('OrderNotification with id %s not found', $message->getNotificationId()));
         }
 
         return $notification;

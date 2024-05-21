@@ -2,19 +2,19 @@
 
 namespace Horeca\MiddlewareClientBundle\Message;
 
-use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
+use Horeca\MiddlewareClientBundle\Entity\MappingNotification;
 
 abstract class MappingNotificationMessage
 {
-    protected string $orderNotificationId;
+    protected string $notificationId;
 
-    public function __construct(OrderNotification $order)
+    public function __construct(MappingNotification $order)
     {
-        $this->orderNotificationId = $order->getId();
+        $this->notificationId = $order->getId();
     }
 
-    public function getOrderNotificationId(): string
+    public function getNotificationId(): string
     {
-        return $this->orderNotificationId;
+        return $this->notificationId;
     }
 }
