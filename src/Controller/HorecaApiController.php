@@ -13,7 +13,7 @@ use Horeca\MiddlewareClientBundle\Enum\OrderNotificationType;
 use Horeca\MiddlewareClientBundle\Enum\SerializationGroups;
 use Horeca\MiddlewareClientBundle\Event\TenantOrderEvent;
 use Horeca\MiddlewareClientBundle\Exception\ApiException;
-use Horeca\MiddlewareClientBundle\Message\MapTenantMappingToProviderMessage;
+use Horeca\MiddlewareClientBundle\Message\MapTenantOrderToProviderMessage;
 use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
 use Horeca\MiddlewareClientBundle\VO\Api\OrderNotificationResponseDataDto;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaInitializeShopBody;
@@ -137,7 +137,7 @@ class HorecaApiController extends AbstractController
             $this->eventDispatcher->dispatch(new TenantOrderEvent($order), TenantOrderEvent::ORDER_RECEIVED);
 
             if ($dispatchMessage) {
-                $messageBus->dispatch(new MapTenantMappingToProviderMessage($order));
+                $messageBus->dispatch(new MapTenantOrderToProviderMessage($order));
             }
 
             $context = SerializationContext::create()->setGroups([SerializationGroups::TenantOrderNotificationView]);
