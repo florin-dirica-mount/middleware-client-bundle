@@ -446,6 +446,11 @@ class MappingNotification extends TenantAwareEntity
         $this->type = $type;
     }
 
+    public function isType(string $type)
+    {
+        return $this->type === $type;
+    }
+
     public function getSource(): ?string
     {
         return $this->source;
@@ -528,4 +533,6 @@ class MappingNotification extends TenantAwareEntity
     {
         $this->processTime = $processTime;
     }
+
+
 }
