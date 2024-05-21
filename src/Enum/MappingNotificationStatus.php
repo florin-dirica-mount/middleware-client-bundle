@@ -32,7 +32,7 @@ final class MappingNotificationStatus
     const Failed = 'failed';
 
     /** order is being sent to the target system */
-    const Skyped = 'skyped';
+    const Skipped = 'skipped';
 
     protected function __construct() { }
 }
