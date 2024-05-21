@@ -7,7 +7,7 @@ use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 /**
  * Message is dispatched after a Tenant order is sent to the provider
  */
-class OrderNotificationEventMessage extends OrderNotificationMessage
+class OrderNotificationEventMessage extends MappingNotificationMessage
 {
     public function __construct(protected string $event, OrderNotification $order)
     {

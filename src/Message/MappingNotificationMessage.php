@@ -4,7 +4,7 @@ namespace Horeca\MiddlewareClientBundle\Message;
 
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 
-abstract class OrderNotificationMessage
+abstract class MappingNotificationMessage
 {
     protected string $orderNotificationId;
 

@@ -2,6 +2,6 @@
 
 namespace Horeca\MiddlewareClientBundle\Message;
 
-class SendProviderOrderToTenantMessage extends OrderNotificationMessage
+class SendProviderOrderToTenantMessage extends MappingNotificationMessage
 {
 }

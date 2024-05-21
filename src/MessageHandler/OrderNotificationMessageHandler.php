@@ -12,11 +12,11 @@ use Horeca\MiddlewareClientBundle\Enum\MappingNotificationStatus;
 use Horeca\MiddlewareClientBundle\Enum\MappingNotificationEventName;
 use Horeca\MiddlewareClientBundle\Enum\MappingNotificationSource;
 use Horeca\MiddlewareClientBundle\Exception\OrderMappingException;
+use Horeca\MiddlewareClientBundle\Message\MappingNotificationMessage;
 use Horeca\MiddlewareClientBundle\Message\MapProviderOrderToTenantMessage;
 use Horeca\MiddlewareClientBundle\Message\MapTenantOrderToProviderMessage;
 use Horeca\MiddlewareClientBundle\Message\MessageTransports;
 use Horeca\MiddlewareClientBundle\Message\OrderNotificationEventMessage;
-use Horeca\MiddlewareClientBundle\Message\OrderNotificationMessage;
 use Horeca\MiddlewareClientBundle\Message\SendProviderOrderToTenantMessage;
 use Horeca\MiddlewareClientBundle\Message\SendTenantOrderToProviderMessage;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
@@ -68,7 +68,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
         ];
     }
 
-    public function handleMapTenantOrderToProviderMessage(OrderNotificationMessage $message): void
+    public function handleMapTenantOrderToProviderMessage(MappingNotificationMessage $message): void
     {
         $this->mappingLogger->logMemoryUsage();
         $notification = $this->getMessageOrderNotification($message);
@@ -95,7 +95,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             $this->mappingLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleMapTenantOrderToProviderMessage');
         }
     }
-    public function handleMapProviderOrderToTenantMessage(OrderNotificationMessage $message): void
+    public function handleMapProviderOrderToTenantMessage(MappingNotificationMessage $message): void
     {
         $this->mappingLogger->logMemoryUsage();
         $notification = $this->getMessageOrderNotification($message);
@@ -125,7 +125,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
         }
     }
 
-    public function handleSendTenantOrderToProviderMessage(OrderNotificationMessage $message): void
+    public function handleSendTenantOrderToProviderMessage(MappingNotificationMessage $message): void
     {
         $this->mappingLogger->logMemoryUsage();
         $notification = $this->getMessageOrderNotification($message);
@@ -186,7 +186,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
         }
     }
 
-    public function handleSendProviderOrderToTenantMessage(OrderNotificationMessage $message): void
+    public function handleSendProviderOrderToTenantMessage(MappingNotificationMessage $message): void
     {
         $this->mappingLogger->logMemoryUsage();
         $notification = $this->getMessageOrderNotification($message);
@@ -214,7 +214,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
         $this->orderNotificationRepository->save($notification);
     }
 
-    protected function getMessageOrderNotification(OrderNotificationMessage $message): OrderNotification
+    protected function getMessageOrderNotification(MappingNotificationMessage $message): OrderNotification
     {
         $notification = $this->orderNotificationRepository->find($message->getOrderNotificationId());
 

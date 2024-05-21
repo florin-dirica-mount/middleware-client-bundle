@@ -5,6 +5,6 @@ namespace Horeca\MiddlewareClientBundle\Message;
 /**
  * Message is dispatched after a Tenant order mapped to the appropriate provider model
  */
-class SendTenantOrderToProviderMessage extends OrderNotificationMessage
+class SendTenantOrderToProviderMessage extends MappingNotificationMessage
 {
 }
