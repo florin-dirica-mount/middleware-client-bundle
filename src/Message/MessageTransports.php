@@ -15,6 +15,11 @@ final class MessageTransports
     public const SYNC_PROVIDER_PRODUCTS_EVENT = 'hmc_sync_provider_products_event';
     public const SYNC_TENANT_PRODUCTS_EVENT = 'hmc_sync_tenant_products_event';
 
+    public const MAP_TENANT_PRODUCT_TO_PROVIDER = 'hmc_map_tenant_product_to_provider';
+    public const MAP_PROVIDER_PRODUCT_TO_TENANT = 'hm_map_provider_product_to_tenant';
+    public const SEND_PROVIDER_PRODUCT_TO_TENANT = 'hmc_send_provider_product_to_tenant';
+    public const SEND_TENANT_PRODUCT_TO_PROVIDER = 'hmc_send_tenant_product_to_provider';
+
 
     //menu
     public const SEND_PROVIDER_MENU_TO_TENANT = 'hmc_send_provider_menu_to_tenant';
