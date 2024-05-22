@@ -6,7 +6,7 @@ use Horeca\MiddlewareCommonLib\Model\Restaurant\Restaurant;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class TenantShopMenuUploadBody
+class TenantShopMenuUploadBody extends TenantShopIdAwareBody
 {
 
     #[Serializer\SerializedName("restaurant")]
@@ -18,8 +18,5 @@ class TenantShopMenuUploadBody
     #[Serializer\Type("array")]
     public array $providerCredentials = [];
 
-    #[Serializer\SerializedName("tenant_shop_id")]
-    #[Serializer\Type("string")]
-    #[Assert\NotNull(message: "app.parameter.tenant_shop_id.not_null")]
-    public string $tenantShopId;
+
 }
