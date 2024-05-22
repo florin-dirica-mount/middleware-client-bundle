@@ -486,7 +486,8 @@ class MappingNotification extends TenantAwareEntity
 
     public function hasStatus(string $status): bool
     {
-        return $this->statusEntries->filter(fn(OrderStatusEntry $entry) => $entry->getStatus() === $status)->count() > 0;
+//        return $this->statusEntries->filter(fn(OrderStatusEntry $entry) => $entry->getStatus() === $status)->count() > 0;
+        return $this->statusEntries->filter(fn(StatusEntry $entry) => $entry->getStatus() === $status)->count() > 0;
     }
 
     public function getViewUrl(): ?string
