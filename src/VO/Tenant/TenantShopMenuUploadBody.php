@@ -21,5 +21,5 @@ class TenantShopMenuUploadBody
     #[Serializer\SerializedName("tenant_shop_id")]
     #[Serializer\Type("string")]
     #[Assert\NotNull(message: "app.parameter.tenant_shop_id.not_null")]
-    public string $tenantShopIdId;
+    public string $tenantShopId;
 }
