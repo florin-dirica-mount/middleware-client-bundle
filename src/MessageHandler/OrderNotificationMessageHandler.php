@@ -207,6 +207,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
     protected function onOrderNotificationException(OrderNotification $notification, \Throwable $e): void
     {
         $this->mappingLogger->error(__METHOD__, __LINE__, $e->getMessage());
+        $this->mappingLogger->debug(__METHOD__, __LINE__, $e->getTraceAsString());
 
         $notification->changeStatus(MappingNotificationStatus::Failed);
         $notification->setErrorMessage($e->getMessage());
