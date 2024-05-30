@@ -54,10 +54,9 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             'from_transport' => MessageTransports::MAP_TENANT_ORDER_TO_PROVIDER
         ];
         yield MapTenantOrderToProviderSyncMessage::class => [
-            'method'         => 'handleMapTenantOrderToProviderMessage',
+            'method'         => 'handleMapTenantOrderToProviderSyncMessage',
             'from_transport' => MessageTransportsSync::SYNC
         ];
-
 
 
         yield MapProviderOrderToTenantMessage::class => [
@@ -65,10 +64,9 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             'from_transport' => MessageTransports::MAP_PROVIDER_ORDER_TO_TENANT
         ];
         yield MapProviderOrderToTenantSyncMessage::class => [
-            'method'         => 'handleMapProviderOrderToTenantMessage',
+            'method'         => 'handleMapProviderOrderToTenantSyncMessage',
             'from_transport' => MessageTransportsSync::SYNC
         ];
-
 
 
         yield SendTenantOrderToProviderMessage::class => [
@@ -76,10 +74,9 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             'from_transport' => MessageTransports::SEND_TENANT_ORDER_TO_PROVIDER
         ];
         yield SendTenantOrderToProviderSyncMessage::class => [
-            'method'         => 'handleSendTenantOrderToProviderMessage',
+            'method'         => 'handleSendTenantOrderToProviderSyncMessage',
             'from_transport' => MessageTransportsSync::SYNC
         ];
-
 
 
         yield OrderNotificationEventMessage::class => [
@@ -87,10 +84,9 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             'from_transport' => MessageTransports::ORDER_NOTIFICATION_EVENT
         ];
         yield OrderNotificationEventSyncMessage::class => [
-            'method'         => 'handleOrderNotificationEventMessage',
+            'method'         => 'handleOrderNotificationEventSyncMessage',
             'from_transport' => MessageTransportsSync::SYNC
         ];
-
 
 
         yield SendProviderOrderToTenantMessage::class => [
@@ -98,12 +94,12 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             'from_transport' => MessageTransports::SEND_PROVIDER_ORDER_TO_TENANT
         ];
         yield SendProviderOrderToTenantSyncMessage::class => [
-            'method'         => 'handleSendProviderOrderToTenantMessage',
+            'method'         => 'handleSendProviderOrderToTenantSyncMessage',
             'from_transport' => MessageTransportsSync::SYNC
         ];
     }
 
-    public function handleMapTenantOrderToProviderMessage(MappingNotificationMessage $message): void
+    public function handleMapTenantOrderToProviderMessageBase(MappingNotificationMessage $message, ?bool $sync = false): void
     {
         $this->mappingLogger->logMemoryUsage();
         $notification = $this->getMessageOrderNotification($message);
@@ -118,7 +114,9 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
                 $this->messageBus->dispatch(new OrderNotificationEventMessage(MappingNotificationEventName::MAPPING_COMPLETED, $notification));
             }
 
-            $this->messageBus->dispatch(new SendTenantOrderToProviderMessage($notification));
+            if (!$sync) {
+                $this->messageBus->dispatch(new SendTenantOrderToProviderMessage($notification));
+            }
         } catch (\Throwable $e) {
             $this->onOrderNotificationException($notification, $e);
 
@@ -130,7 +128,20 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             $this->mappingLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleMapTenantOrderToProviderMessage');
         }
     }
-    public function handleMapProviderOrderToTenantMessage(MappingNotificationMessage $message): void
+
+    public function handleMapTenantOrderToProviderMessage(MappingNotificationMessage $message): void
+    {
+        $this->handleMapTenantOrderToProviderMessageBase($message);
+    }
+
+    public function handleMapTenantOrderToProviderSyncMessage(MappingNotificationMessage $message): void
+    {
+        $this->handleMapTenantOrderToProviderMessageBase($message, true);
+    }
+
+
+
+    public function handleMapProviderOrderToTenantMessageBase(MappingNotificationMessage $message, ?bool $sync = false): void
     {
         $this->mappingLogger->logMemoryUsage();
         $notification = $this->getMessageOrderNotification($message);
@@ -145,8 +156,9 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
 //            if ($notification->getTenant()->isSubscribedToEvent(MappingNotificationEventName::MAPPING_COMPLETED)) {
 //                $this->messageBus->dispatch(new OrderNotificationEventMessage(MappingNotificationEventName::MAPPING_COMPLETED, $notification));
 //            }
-
-            $this->messageBus->dispatch(new SendProviderOrderToTenantMessage($notification));
+            if (!$sync) {
+                $this->messageBus->dispatch(new SendProviderOrderToTenantMessage($notification));
+            }
         } catch (\Throwable $e) {
             $this->onOrderNotificationException($notification, $e);
             //todo send event to provider if subscribed
@@ -160,7 +172,20 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
         }
     }
 
-    public function handleSendTenantOrderToProviderMessage(MappingNotificationMessage $message): void
+    public function handleMapProviderOrderToTenantMessage(MappingNotificationMessage $message)
+    {
+        $this->handleMapProviderOrderToTenantMessageBase($message);
+    }
+
+    public function handleMapProviderOrderToTenantSyncMessage(MappingNotificationMessage $message)
+    {
+        $this->handleMapProviderOrderToTenantMessageBase($message, true);
+    }
+
+
+
+
+    public function handleSendTenantOrderToProviderMessageBase(MappingNotificationMessage $message, ?bool $sync = false): void
     {
         $this->mappingLogger->logMemoryUsage();
         $notification = $this->getMessageOrderNotification($message);
@@ -182,7 +207,9 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             $this->mappingLogger->info(__METHOD__, __LINE__, sprintf('Order %s sent to provider with id %s', $notification->getId(), $notification->getProviderObjectId()));
 
             if ($notification->getTenant()->isSubscribedToEvent(MappingNotificationEventName::PROVIDER_NOTIFIED)) {
-                $this->messageBus->dispatch(new OrderNotificationEventMessage(MappingNotificationEventName::PROVIDER_NOTIFIED, $notification));
+                if (!$sync) {
+                    $this->messageBus->dispatch(new OrderNotificationEventMessage(MappingNotificationEventName::PROVIDER_NOTIFIED, $notification));
+                }
             }
         } catch (\Throwable $e) {
             $this->onOrderNotificationException($notification, $e);
@@ -196,7 +223,17 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
         }
     }
 
-    public function handleOrderNotificationEventMessage(OrderNotificationEventMessage $message): void
+    public function handleSendTenantOrderToProviderMessage(MappingNotificationMessage $message){
+      $this->handleSendTenantOrderToProviderMessageBase($message);
+    }
+    public function handleSendTenantOrderToProviderSyncMessage(MappingNotificationMessage $message){
+      $this->handleSendTenantOrderToProviderMessageBase($message, true);
+    }
+
+
+
+
+    public function handleOrderNotificationEventMessageBase(OrderNotificationEventMessage $message, ?bool $sync = false): void
     {
         $this->mappingLogger->logMemoryUsage();
         $notification = $this->getMessageOrderNotification($message);
@@ -207,7 +244,10 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             }
 
             if ($notification->getStatus() !== MappingNotificationStatus::Confirmed
-                && in_array($message->getEvent(), [MappingNotificationEventName::PROVIDER_NOTIFIED, MappingNotificationEventName::TENANT_NOTIFIED])) {
+                && in_array($message->getEvent(), [
+                    MappingNotificationEventName::PROVIDER_NOTIFIED,
+                    MappingNotificationEventName::TENANT_NOTIFIED
+                ])) {
                 $notification->changeStatus(MappingNotificationStatus::Confirmed);
                 $this->entityManager->flush();
             }
@@ -221,7 +261,15 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
         }
     }
 
-    public function handleSendProviderOrderToTenantMessage(MappingNotificationMessage $message): void
+    public function handleOrderNotificationEventMessage(OrderNotificationEventMessage $message){
+        $this->handleOrderNotificationEventMessageBase($message);
+    }
+    public function handleOrderNotificationEventSyncMessage(OrderNotificationEventMessage $message){
+        $this->handleOrderNotificationEventMessageBase($message, true);
+    }
+
+
+    public function handleSendProviderOrderToTenantMessageBase(MappingNotificationMessage $message, ?bool $sync = false): void
     {
         $this->mappingLogger->logMemoryUsage();
         $notification = $this->getMessageOrderNotification($message);
@@ -237,6 +285,12 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             $this->mappingLogger->logMemoryUsage();
             $this->mappingLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleSendProviderOrderToTenantMessage');
         }
+    }
+    public function handleSendProviderOrderToTenantMessage(MappingNotificationMessage $message){
+        $this->handleSendProviderOrderToTenantMessageBase($message);
+    }
+    public function handleSendProviderOrderToTenantSyncMessage(MappingNotificationMessage $message){
+        $this->handleSendProviderOrderToTenantMessageBase($message,true);
     }
 
     protected function onOrderNotificationException(OrderNotification $notification, \Throwable $e): void
