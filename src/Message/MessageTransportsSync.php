@@ -5,6 +5,7 @@ namespace Horeca\MiddlewareClientBundle\Message;
 final class MessageTransportsSync
 {
     //order
+    public const SYNC = 'sync';
     public const SEND_PROVIDER_ORDER_TO_TENANT = 'hmc_external_service_order_notification_sync';
     public const MAP_TENANT_ORDER_TO_PROVIDER = 'hmc_map_tenant_order_to_provider_sync';
     public const MAP_PROVIDER_ORDER_TO_TENANT = 'hmc_map_provider_order_to_tenant_sync';
