@@ -8,6 +8,7 @@ use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaRequestDeliveryBody;
 use Horeca\MiddlewareClientBundle\VO\Provider\BaseProviderOrderResponse;
 use Horeca\MiddlewareClientBundle\VO\Provider\ProviderCredentialsInterface;
 use Horeca\MiddlewareClientBundle\VO\Provider\ProviderOrderInterface;
+use Horeca\MiddlewareClientBundle\VO\Provider\ProviderOrderPayloadInterface;
 use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
 
 interface ProviderApiInterface
@@ -26,7 +27,7 @@ interface ProviderApiInterface
     /**
      * Saves the order data into the provider system and returns the external order ID, if it is applicable
      *
-     * @param ProviderOrderInterface $order
+     * @param ProviderOrderPayloadInterface $order
      * @param ProviderCredentialsInterface $credentials
      */
     public function sendOrderToProvider($order, $credentials): ?BaseProviderOrderResponse;
@@ -34,7 +35,7 @@ interface ProviderApiInterface
     /**
      * Handles the mapping between ShoppingCart and ProviderOrder models
      *
-     * @return ProviderOrderInterface
+     * @return ProviderOrderPayloadInterface
      */
     public function mapShoppingCartToProviderOrder(Tenant $tenant, ShoppingCart $cart);
 
