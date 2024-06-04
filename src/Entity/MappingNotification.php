@@ -126,7 +126,6 @@ class MappingNotification extends TenantAwareEntity
     #[Serializer\Exclude]
     private Collection|array $logs;
 
-
     /**
      * @var Collection<int, StatusEntry> | StatusEntry[]
      */
@@ -134,10 +133,9 @@ class MappingNotification extends TenantAwareEntity
     #[ORM\JoinTable(name: 'mapping_notifications_status_entries')]
     #[ORM\JoinColumn(name: 'notification_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     #[ORM\InverseJoinColumn(name: 'status_entry_id', referencedColumnName: 'id', onDelete: 'RESTRICT')]
-    #[ORM\OrderBy(["createdAt" => "ASC"])]
+    #[ORM\OrderBy(["id" => "ASC"])]
     #[Serializer\Exclude]
     private Collection|array $statusEntries;
-
 
     public function __construct()
     {
