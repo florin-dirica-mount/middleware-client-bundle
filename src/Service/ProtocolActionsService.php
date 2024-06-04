@@ -14,6 +14,7 @@ use Horeca\MiddlewareClientBundle\Exception\ApiException;
 use Horeca\MiddlewareClientBundle\Exception\OrderMappingException;
 use Horeca\MiddlewareClientBundle\VO\Provider\BaseProviderOrderResponse;
 use Horeca\MiddlewareClientBundle\VO\Provider\ProviderOrderInterface;
+use Horeca\MiddlewareClientBundle\VO\Provider\ProviderOrderPayloadInterface;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
 use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
 use Horeca\MiddlewareCommonLib\Model\Protocol\SendShoppingCartResponse;
@@ -121,7 +122,7 @@ class ProtocolActionsService
     /**
      * @throws ApiException
      */
-    public function mapTenantOrderToProviderOrder(OrderNotification $notification): ProviderOrderInterface
+    public function mapTenantOrderToProviderOrder(OrderNotification $notification): ProviderOrderPayloadInterface
     {
         /** @var ShoppingCart $cart */
         $cart = $this->serializer->deserialize($notification->getTenantPayloadString(), ShoppingCart::class, 'json');
