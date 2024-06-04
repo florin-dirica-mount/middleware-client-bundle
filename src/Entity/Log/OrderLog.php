@@ -6,6 +6,9 @@ use Doctrine\ORM\Mapping as ORM;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use JMS\Serializer\Annotation as Serializer;
 
+/**
+ * @deprecated use MappingLog entity instead
+ */
 #[ORM\Entity]
 #[ORM\Table(name: 'hmc_order_logs')]
 #[ORM\Index(columns: ['created_at'], name: 'idx_hmc_order_logs_created_at')]

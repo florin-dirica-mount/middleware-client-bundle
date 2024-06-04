@@ -4,14 +4,11 @@ namespace Horeca\MiddlewareClientBundle\Service;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
-use Horeca\MiddlewareClientBundle\Entity\BaseProviderCredentials;
 use Horeca\MiddlewareClientBundle\Entity\Log\MappingLog;
-use Horeca\MiddlewareClientBundle\Entity\Log\OrderLog;
 use Horeca\MiddlewareClientBundle\Entity\MappingNotification;
 use Horeca\MiddlewareClientBundle\Entity\MenuNotification;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Entity\ProductNotification;
-use Horeca\MiddlewareClientBundle\Exception\MiddlewareClientException;
 use Psr\Log\LoggerInterface;
 
 
@@ -62,11 +59,11 @@ class MappingLogger
      * @param string $action
      * @return bool
      */
-    public function saveTo(OrderNotification|ProductNotification|MenuNotification $notification, string $action): bool
+    public function saveTo(MappingNotification $notification, string $action): bool
     {
-        $tableName = 'hmc_mapping_logs';
         $joinTableName = null;
 
+        // todo: check if table name can be read from doctrine metadata
         if ($notification instanceof OrderNotification) {
             $joinTableName = 'order_notification_has_logs';
         }
@@ -77,17 +74,16 @@ class MappingLogger
             $joinTableName = 'menu_notification_has_logs';
         }
 
-
         if (empty($this->buffer)) {
             return false;
         }
 
-        $sql = "INSERT INTO $tableName (id, action, micro_time, level, log, created_at) 
+        $sql = "INSERT INTO hmc_mapping_logs (id, action, micro_time, level, log, created_at) 
 VALUES (nextval('hmc_mapping_logs_id_seq'), :action, :micro_time, :level, :log, :created_at)";
         $params = [
             'action'     => $action,
             'micro_time' => microtime(true),
-            'level'      => OrderLog::LEVEL_INFO,
+            'level' => MappingLog::LEVEL_INFO,
             'log'        => implode("\n", $this->buffer),
             'created_at' => date('Y-m-d H:i:s')
         ];
