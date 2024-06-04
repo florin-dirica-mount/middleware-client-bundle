@@ -2,10 +2,8 @@
 
 namespace Horeca\MiddlewareClientBundle\VO\Provider;
 
-class BaseProviderOrderResponse
+interface ProviderOrderPayloadInterface
 {
-
-    public mixed $orderId = null;
 
 
 }
