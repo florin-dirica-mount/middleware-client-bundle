@@ -91,6 +91,7 @@ class MappingNotification extends TenantAwareEntity
 
     /**
      * @var Collection<int, OrderStatusEntry>|OrderStatusEntry[]
+     * @deprecated
      */
     #[ORM\OneToMany(mappedBy: "order", targetEntity: OrderStatusEntry::class, cascade: [
         "persist",
