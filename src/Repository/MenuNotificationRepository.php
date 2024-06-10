@@ -5,6 +5,7 @@ namespace Horeca\MiddlewareClientBundle\Repository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Horeca\MiddlewareClientBundle\Entity\MenuNotification;
+use Horeca\MiddlewareClientBundle\Entity\ProductNotification;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
 
 /**
@@ -37,6 +38,11 @@ class MenuNotificationRepository extends ServiceEntityRepository
     public function findOneByTenantAndProviderOrderId(Tenant $tenant, string $id): ?MenuNotification
     {
         return $this->findOneBy(['tenant' => $tenant, 'providerObjectId' => $id]);
+    }
+
+    public function findOneByTenantTypeAndProviderOrderId(Tenant $tenant,string $type, string $id): ?MenuNotification
+    {
+        return $this->findOneBy(['tenant' => $tenant, 'providerObjectId' => $id, 'type' => $type]);
     }
 
     public function findOneByProviderOrderId(string $id): ?MenuNotification
