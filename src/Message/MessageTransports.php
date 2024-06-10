@@ -5,7 +5,11 @@ namespace Horeca\MiddlewareClientBundle\Message;
 final class MessageTransports
 {
     //order
-    public const SEND_PROVIDER_ORDER_TO_TENANT = 'hmc_external_service_order_notification';
+//    /**
+//     * @deprecated
+//     */
+//    public const SEND_PROVIDER_ORDER_TO_TENANT = 'hmc_external_service_order_notification';
+    public const SEND_PROVIDER_ORDER_TO_TENANT = 'hmc_send_provider_order_to_tenant';
     public const MAP_TENANT_ORDER_TO_PROVIDER = 'hmc_map_tenant_order_to_provider';
     public const MAP_PROVIDER_ORDER_TO_TENANT = 'hmc_map_provider_order_to_tenant';
     public const SEND_TENANT_ORDER_TO_PROVIDER = 'hmc_tenant_order_send_to_provider';
