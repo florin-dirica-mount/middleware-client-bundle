@@ -96,7 +96,6 @@ class ProtocolActionsService
             $notification->setErrorMessage('Missing TenantShopId. Action aborted');
 
             $this->orderNotificationRepository->save($notification);
-
             return null;
         }
 

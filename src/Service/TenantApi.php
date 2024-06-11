@@ -98,6 +98,11 @@ class TenantApi implements TenantApiInterface
         try {
             $client = $this->tenantClientFactory->client($tenant);
             $webhook = $client->getWebhook(TenantWebhookName::WEBHOOK_SHOPPING_CART_SEND);
+
+            if(!$webhook){
+                throw new HorecaException(sprintf('%s webhook was not registered for tenant %s', TenantWebhookName::WEBHOOK_SHOPPING_CART_SEND, $tenant->getName()));
+            }
+
             $json = $this->serializer->serialize($cart, 'json');
 
             $options = [
