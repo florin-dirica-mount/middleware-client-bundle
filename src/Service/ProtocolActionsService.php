@@ -93,7 +93,7 @@ class ProtocolActionsService
             $this->logger->warning('[handleExternalServiceOrderNotification] missing ServicePayload or RestaurantId. Action aborted for notification: ' . $notification->getId());
 
             $notification->changeStatus(MappingNotificationStatus::Failed);
-            $notification->setErrorMessage('Missing ServicePayload. Action aborted');
+            $notification->setErrorMessage('Missing TenantShopId. Action aborted');
 
             $this->orderNotificationRepository->save($notification);
 
