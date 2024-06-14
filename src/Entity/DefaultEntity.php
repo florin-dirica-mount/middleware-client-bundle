@@ -16,7 +16,7 @@ abstract class DefaultEntity
     #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
     #[Serializer\Expose]
     #[Serializer\Groups([SerializationGroups::Default, SerializationGroups::TenantOrderNotificationView])]
-    protected string $id;
+    protected ?string $id = null;
 
     #[ORM\Column(name: "created_at", type: "datetime", nullable: false, options: ["default" => "CURRENT_TIMESTAMP"])]
     protected \DateTime $createdAt;
@@ -35,21 +35,11 @@ abstract class DefaultEntity
         return (string) $this->id;
     }
 
-    /**
-     * @return string
-     */
-    public function getId(): string
+    public function getId(): ?string
     {
         return $this->id;
     }
 
-    /**
-     * @param string $id
-     */
-    public function setId(string $id): void
-    {
-        $this->id = $id;
-    }
 
     /**
      * @return \DateTime
