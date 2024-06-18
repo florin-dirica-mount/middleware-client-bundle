@@ -106,7 +106,7 @@ class ProtocolActionsService
 //            throw new OrderMappingException($errors->get(0)->getMessage());
 //        }
 
-        $response = $this->tenantApiService->sendShoppingCart($notification->getTenant(), $cart, $notification->getTenantShopId());
+        $response = $this->tenantApiService->sendShoppingCart($notification->getTenant(), $cart, $notification->getTenantShopId(),$notification);
 
         $notification->setResponsePayloadString($this->serializer->serialize($response, 'json'));
         $notification->setTenantObjectId((string) $response->horecaOrderId);

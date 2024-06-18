@@ -93,7 +93,7 @@ class TenantApi implements TenantApiInterface
     /**
      * @throws HorecaException
      */
-    public function sendShoppingCart(Tenant $tenant, ShoppingCart $cart, $restaurantId): SendShoppingCartResponse
+    public function sendShoppingCart(Tenant $tenant, ShoppingCart $cart, $restaurantId,?OrderNotification $orderNotification = null): SendShoppingCartResponse
     {
         try {
             $client = $this->tenantClientFactory->client($tenant);
@@ -111,8 +111,14 @@ class TenantApi implements TenantApiInterface
 
             if ($webhook->getMethod() === 'GET') {
                 $options['query']['payload'] = base64_encode($json);
+                if($orderNotification->getViewUrl()){
+                    $options['query']['view_url'] = base64_encode($orderNotification->getViewUrl());
+                }
             } else {
                 $options['json'] = json_decode($json, true);
+                if($orderNotification->getViewUrl()) {
+                    $options['json']['view_url'] = $orderNotification->getViewUrl();
+                }
             }
 
 
