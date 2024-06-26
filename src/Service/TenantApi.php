@@ -117,8 +117,7 @@ class TenantApi implements TenantApiInterface
                     $options['query']['view_url'] = base64_encode($orderNotification->getViewUrl());
                 }
             } else {
-                $options['query']['payload'] = base64_encode($json);
-                $options['json'] = json_decode($json, true);
+                $options['json']['payload'] = base64_encode($json);
                 if ($orderNotification->getViewUrl()) {
                     $options['json']['view_url'] = $orderNotification->getViewUrl();
                 }
@@ -139,48 +138,4 @@ class TenantApi implements TenantApiInterface
         }
     }
 
-    public function sendShoppingCartUpdate(Tenant $tenant, ShoppingCart $cart, ?OrderNotification $orderNotification = null): SendShoppingCartResponse
-    {
-        try {
-            $client = $this->tenantClientFactory->client($tenant);
-            $webhook = $client->getWebhook(TenantWebhookName::WEBHOOK_SHOPPING_CART_UPDATE_SEND);
-
-            if (!$webhook) {
-                throw new HorecaException(sprintf('%s webhook was not registered for tenant %s', TenantWebhookName::WEBHOOK_SHOPPING_CART_UPDATE_SEND, $tenant->getName()));
-            }
-
-            $json = $this->serializer->serialize($cart, 'json');
-
-            $options = ['query' => []];
-
-            if ($shopId = $cart->getRestaurant()?->getId()) {
-                $options['query']['restaurantId'] = $shopId;
-            }
-
-            if ($webhook->getMethod() === 'GET') {
-                $options['query']['payload'] = base64_encode($json);
-                if ($orderNotification->getViewUrl()) {
-                    $options['query']['view_url'] = base64_encode($orderNotification->getViewUrl());
-                }
-            } else {
-                $options['json']['payload'] = json_decode($json, true);
-                if ($orderNotification->getViewUrl()) {
-                    $options['json']['view_url'] = $orderNotification->getViewUrl();
-                }
-            }
-
-
-            $this->mappingLogger->info(__METHOD__, __LINE__, sprintf('%s %s', $webhook->getMethod(), $webhook->getPath()));
-
-            $response = $client->sendWebhook($webhook, $options);
-            $contents = $response->getBody()->getContents();
-            $statusCode = $response->getStatusCode();
-
-            $this->mappingLogger->info(__METHOD__, __LINE__, sprintf('Response: %d %s', $statusCode, $contents));
-
-            return $this->serializer->deserialize($contents, SendShoppingCartResponse::class, 'json');
-        } catch (GuzzleException|\Exception $e) {
-            throw new HorecaException($e->getMessage());
-        }
-    }
 }
