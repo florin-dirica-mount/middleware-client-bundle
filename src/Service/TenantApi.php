@@ -117,7 +117,7 @@ class TenantApi implements TenantApiInterface
                     $options['query']['view_url'] = base64_encode($orderNotification->getViewUrl());
                 }
             } else {
-                $options['json']['payload'] = base64_encode($json);
+                $options['json']['payload'] = json_decode($json, true);
                 if ($orderNotification->getViewUrl()) {
                     $options['json']['view_url'] = $orderNotification->getViewUrl();
                 }
