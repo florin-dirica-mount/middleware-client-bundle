@@ -89,8 +89,11 @@ class ProtocolActionsService
     public function sendProviderOrderToTenant(OrderNotification $notification): ?SendShoppingCartResponse
     {
 //        if (empty($notification->getServicePayload()) || !$notification->getTenantShopId()) {
-        if (!$notification->getTenantShopId()) {
-            $this->logger->warning('[handleExternalServiceOrderNotification] missing ServicePayload or RestaurantId. Action aborted for notification: ' . $notification->getId());
+        $cart = $this->serializer->deserialize($notification->getTenantPayloadString(), ShoppingCart::class, 'json');
+
+        //todo remove after all clients are updated tenant shop id shouldn't be required
+        if (!$notification->getTenantShopId() || !$cart->getRestaurant()?->getId()) {
+            $this->logger->warning('[handleExternalServiceOrderNotification] missing ProviderPayload or RestaurantId. Action aborted for notification: ' . $notification->getId());
 
             $notification->changeStatus(MappingNotificationStatus::Failed);
             $notification->setErrorMessage('Missing TenantShopId. Action aborted');
@@ -99,14 +102,13 @@ class ProtocolActionsService
             return null;
         }
 
-        $cart = $this->serializer->deserialize($notification->getTenantPayloadString(), ShoppingCart::class, 'json');
-// provider to tenant validation differs from tenant to provider validation
+//        provider to tenant validation differs from tenant to provider validation todo move it
 //        $errors = $this->validator->validate($cart);
 //        if (count($errors) > 0) {
 //            throw new OrderMappingException($errors->get(0)->getMessage());
 //        }
 
-        $response = $this->tenantApiService->sendShoppingCart($notification->getTenant(), $cart, $notification->getTenantShopId(),$notification);
+        $response = $this->tenantApiService->sendShoppingCart($notification->getTenant(), $cart, $notification);
 
         $notification->setResponsePayloadString($this->serializer->serialize($response, 'json'));
         $notification->setTenantObjectId((string) $response->horecaOrderId);

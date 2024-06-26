@@ -23,7 +23,7 @@ final class MappingNotificationStatus
     const Notified = 'notified';
 
     /** conformation is being sent to the source system after target system has confirmed the order */
-    const SendingConfirmation = 'sending-notification';
+    const SendingConfirmation = 'sending-confirmation';
 
     /** conformation was sent to the source system after target system has confirmed the order */
     const Confirmed = 'confirmed';

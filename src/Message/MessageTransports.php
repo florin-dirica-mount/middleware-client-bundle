@@ -31,5 +31,9 @@ final class MessageTransports
     public const MAP_PROVIDER_MENU_TO_TENANT = 'hmc_map_provider_menu_to_tenant';
     public const MAP_TENANT_MENU_TO_PROVIDER = 'hmc_map_tenant_menu_to_provider';
 
+
+    public const SEND_PROVIDER_ORDER_UPDATE_TO_TENANT = 'hmc_send_provider_order_update_to_tenant';
+
+
     private function __construct() { }
 }
