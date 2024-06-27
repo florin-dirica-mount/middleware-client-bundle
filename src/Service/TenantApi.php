@@ -146,7 +146,7 @@ class TenantApi implements TenantApiInterface
     /**
      * @throws HorecaException
      */
-    public function sendShoppingCartUpdate(Tenant $tenant, $updateObject, ?string $viewUrl): SendShoppingCartResponse
+    public function sendShoppingCartUpdate(Tenant $tenant, $object, ?string $viewUrl): SendShoppingCartResponse
     {
         try {
             $client = $this->tenantClientFactory->client($tenant);
@@ -156,7 +156,7 @@ class TenantApi implements TenantApiInterface
                 throw new HorecaException(sprintf('%s webhook was not registered for tenant %s', TenantWebhookName::WEBHOOK_SHOPPING_CART_UPDATE_SEND, $tenant->getName()));
             }
 
-            $json = $this->serializer->serialize($updateObject, 'json');
+            $json = $this->serializer->serialize($object, 'json');
 
 
             if ($webhook->getMethod() === 'GET') {
