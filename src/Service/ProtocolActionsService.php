@@ -103,7 +103,7 @@ class ProtocolActionsService
         $viewUrl = $notification->getViewUrl();
 
         //todo remove after all clients are updated tenant shop id shouldn't be required
-        if (!$notification->getTenantShopId() || !$cart->getRestaurant()?->getId()) {
+        if (!$notification->getTenantShopId() && !$cart->getRestaurant()?->getId()) {
             $this->logger->warning('[handleExternalServiceOrderNotification] missing ProviderPayload or RestaurantId. Action aborted for notification: ' . $notification->getId());
 
             $notification->changeStatus(MappingNotificationStatus::Failed);
