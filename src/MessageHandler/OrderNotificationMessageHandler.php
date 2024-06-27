@@ -102,11 +102,11 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
 
 
         yield SendProviderOrderUpdateToTenantMessage::class => [
-            'method'         => 'handleSendProviderOrderToTenantMessage',
+            'method'         => 'handleSendProviderOrderUpdateToTenantMessage',
             'from_transport' => MessageTransports::SEND_PROVIDER_ORDER_UPDATE_TO_TENANT
         ];
         yield SendProviderOrderUpdateToTenantSyncMessage::class => [
-            'method'         => 'handleSendProviderOrderToTenantSyncMessage',
+            'method'         => 'handleSendProviderOrderUpdateToTenantSyncMessage',
             'from_transport' => MessageTransportsSync::SYNC
         ];
 
