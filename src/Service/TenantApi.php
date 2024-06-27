@@ -116,14 +116,11 @@ class TenantApi implements TenantApiInterface
                 $target = 'query';
                 $payload = base64_encode($json);
                 if ($viewUrl) {
-                    $payload = base64_encode($viewUrl);
+                    $viewUrl = base64_encode($viewUrl);
                 }
             } else {
                 $target = 'json';
                 $payload = json_decode($json, true);
-                if ($viewUrl) {
-                    $payload = $viewUrl;
-                }
             }
 
             $options[$target]['payload'] = $payload;
@@ -166,14 +163,11 @@ class TenantApi implements TenantApiInterface
                 $target = 'query';
                 $payload = base64_encode($json);
                 if ($viewUrl) {
-                    $payload = base64_encode($viewUrl);
+                    $viewUrl = base64_encode($viewUrl);
                 }
             } else {
                 $target = 'json';
                 $payload = json_decode($json, true);
-                if ($viewUrl) {
-                    $payload = $viewUrl;
-                }
             }
 
             $options[$target]['payload'] = $payload;
