@@ -14,7 +14,7 @@ interface TenantApiInterface
      */
     public function confirmProviderNotified(OrderNotification $notification): bool;
 
-    public function sendShoppingCart(Tenant $tenant, ShoppingCart $cart, ?OrderNotification $orderNotification = null): SendShoppingCartResponse;
+    public function sendShoppingCart(Tenant $tenant, ShoppingCart $cart, ?string $shopId, ?string $viewUrl): SendShoppingCartResponse;
 
     public function sendOrderNotificationEvent(string $event, OrderNotification $notification): void;
 }

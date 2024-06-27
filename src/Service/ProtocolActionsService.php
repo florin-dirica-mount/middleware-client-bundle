@@ -18,6 +18,7 @@ use Horeca\MiddlewareClientBundle\VO\Provider\ProviderOrderPayloadInterface;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
 use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
 use Horeca\MiddlewareCommonLib\Model\Protocol\SendShoppingCartResponse;
+use Horeca\MiddlewareCommonLib\Model\Protocol\ShoppingCartStatusUpdate;
 use JMS\Serializer\SerializerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,10 +35,10 @@ class ProtocolActionsService
     use TenantApiServiceDI;
     use TenantServiceDI;
 
-    public function __construct(protected string                 $providerCredentialsClass,
-                                protected LoggerInterface        $logger,
-                                protected ValidatorInterface     $validator,
-                                protected SerializerInterface    $serializer)
+    public function __construct(protected string              $providerCredentialsClass,
+                                protected LoggerInterface     $logger,
+                                protected ValidatorInterface  $validator,
+                                protected SerializerInterface $serializer)
     {
     }
 
@@ -52,7 +53,7 @@ class ProtocolActionsService
 
             $tenant = $this->tenantRepository->findOneByApiKeyAndId($apiKey, $id);
         } elseif ($auth = $request->headers->get(self::API_KEY_HEADER)) {
-            $tenant = $this->tenantRepository->findOneByApiKey((string) $auth);
+            $tenant = $this->tenantRepository->findOneByApiKey((string)$auth);
         } else {
             $tenant = null;
         }
@@ -90,6 +91,8 @@ class ProtocolActionsService
     {
 //        if (empty($notification->getServicePayload()) || !$notification->getTenantShopId()) {
         $cart = $this->serializer->deserialize($notification->getTenantPayloadString(), ShoppingCart::class, 'json');
+        $tenant = $notification->getTenant();
+        $viewUrl = $notification->getViewUrl();
 
         //todo remove after all clients are updated tenant shop id shouldn't be required
         if (!$notification->getTenantShopId() || !$cart->getRestaurant()?->getId()) {
@@ -108,10 +111,27 @@ class ProtocolActionsService
 //            throw new OrderMappingException($errors->get(0)->getMessage());
 //        }
 
-        $response = $this->tenantApiService->sendShoppingCart($notification->getTenant(), $cart, $notification);
+
+        $response = $this->tenantApiService->sendShoppingCart($tenant, $cart, $notification->getTenantShopId(), $viewUrl);
 
         $notification->setResponsePayloadString($this->serializer->serialize($response, 'json'));
-        $notification->setTenantObjectId((string) $response->horecaOrderId);
+        $notification->setTenantObjectId((string)$response->horecaOrderId);
+        $notification->changeStatus(MappingNotificationStatus::Notified);
+        $notification->setNotifiedAt(new \DateTime());
+
+        $this->orderNotificationRepository->save($notification);
+
+        return $response;
+    }
+
+    public function sendProviderOrderUpdateToTenant(OrderNotification $notification): ?SendShoppingCartResponse
+    {
+        $cart = $this->serializer->deserialize($notification->getTenantPayloadString(), ShoppingCartStatusUpdate::class, 'json');
+
+        $response = $this->tenantApiService->sendShoppingCartUpdate($notification->getTenant(), $cart, $notification->getViewUrl());
+
+        $notification->setResponsePayloadString($this->serializer->serialize($response, 'json'));
+        $notification->setTenantObjectId((string)$response->horecaOrderId);
         $notification->changeStatus(MappingNotificationStatus::Notified);
         $notification->setNotifiedAt(new \DateTime());
 
@@ -161,7 +181,7 @@ class ProtocolActionsService
         $response = $this->providerApi->sendOrderToProvider($providerOrder, $credentials);
 
         $notification->setResponsePayloadString($this->serializer->serialize($response, 'json'));
-        $notification->setProviderObjectId((string) $response->orderId);
+        $notification->setProviderObjectId((string)$response->orderId);
         $notification->changeStatus(MappingNotificationStatus::Notified);
         $notification->setNotifiedAt(new \DateTime());
 

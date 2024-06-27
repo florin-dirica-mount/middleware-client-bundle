@@ -93,7 +93,7 @@ class TenantApi implements TenantApiInterface
     /**
      * @throws HorecaException
      */
-    public function sendShoppingCart(Tenant $tenant, ShoppingCart $cart, ?OrderNotification $orderNotification = null): SendShoppingCartResponse
+    public function sendShoppingCart(Tenant $tenant, ShoppingCart $cart, ?string $shopId, ?string $viewUrl): SendShoppingCartResponse
     {
         try {
             $client = $this->tenantClientFactory->client($tenant);
@@ -107,20 +107,78 @@ class TenantApi implements TenantApiInterface
 
             $options = ['query' => []];
 
-            if ($shopId = $cart->getRestaurant()?->getId() ?? $orderNotification?->getTenantShopId()) {
+            if ($shopId = $cart->getRestaurant()?->getId() ?? $shopId) {
                 $options['query']['restaurantId'] = $shopId;
             }
 
+
             if ($webhook->getMethod() === 'GET') {
-                $options['query']['payload'] = base64_encode($json);
-                if ($orderNotification->getViewUrl()) {
-                    $options['query']['view_url'] = base64_encode($orderNotification->getViewUrl());
+                $target = 'query';
+                $payload = base64_encode($json);
+                if ($viewUrl) {
+                    $payload = base64_encode($viewUrl);
                 }
             } else {
-                $options['json']['payload'] = json_decode($json, true);
-                if ($orderNotification->getViewUrl()) {
-                    $options['json']['view_url'] = $orderNotification->getViewUrl();
+                $target = 'json';
+                $payload = json_decode($json, true);
+                if ($viewUrl) {
+                    $payload = $viewUrl;
                 }
+            }
+
+            $options[$target]['payload'] = $payload;
+            if ($viewUrl) {
+                $options[$target]['view_url'] = $viewUrl;
+            }
+
+
+            $this->mappingLogger->info(__METHOD__, __LINE__, sprintf('%s %s', $webhook->getMethod(), $webhook->getPath()));
+
+            $response = $client->sendWebhook($webhook, $options);
+            $contents = $response->getBody()->getContents();
+            $statusCode = $response->getStatusCode();
+
+            $this->mappingLogger->info(__METHOD__, __LINE__, sprintf('Response: %d %s', $statusCode, $contents));
+
+            return $this->serializer->deserialize($contents, SendShoppingCartResponse::class, 'json');
+        } catch (GuzzleException|\Exception $e) {
+            throw new HorecaException($e->getMessage());
+        }
+    }
+
+    /**
+     * @throws HorecaException
+     */
+    public function sendShoppingCartUpdate(Tenant $tenant, $updateObject, ?string $viewUrl): SendShoppingCartResponse
+    {
+        try {
+            $client = $this->tenantClientFactory->client($tenant);
+            $webhook = $client->getWebhook(TenantWebhookName::WEBHOOK_SHOPPING_CART_UPDATE_SEND);
+
+            if (!$webhook) {
+                throw new HorecaException(sprintf('%s webhook was not registered for tenant %s', TenantWebhookName::WEBHOOK_SHOPPING_CART_UPDATE_SEND, $tenant->getName()));
+            }
+
+            $json = $this->serializer->serialize($updateObject, 'json');
+
+
+            if ($webhook->getMethod() === 'GET') {
+                $target = 'query';
+                $payload = base64_encode($json);
+                if ($viewUrl) {
+                    $payload = base64_encode($viewUrl);
+                }
+            } else {
+                $target = 'json';
+                $payload = json_decode($json, true);
+                if ($viewUrl) {
+                    $payload = $viewUrl;
+                }
+            }
+
+            $options[$target]['payload'] = $payload;
+            if ($viewUrl) {
+                $options[$target]['view_url'] = $viewUrl;
             }
 
 

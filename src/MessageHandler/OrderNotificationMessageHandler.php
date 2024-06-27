@@ -324,7 +324,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             $notification->changeStatus(MappingNotificationStatus::SendingNotification);
             $this->orderNotificationRepository->save($notification);
 
-            $this->protocolActionsService->sendProviderOrderToTenant($notification);
+            $this->protocolActionsService->sendProviderOrderUpdateToTenant($notification);
         } catch (\Throwable $e) {
             $this->onOrderNotificationException($notification, $e);
         } finally {
