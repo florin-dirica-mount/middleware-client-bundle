@@ -13,7 +13,6 @@ use Horeca\MiddlewareClientBundle\Enum\MappingNotificationStatus;
 use Horeca\MiddlewareClientBundle\Exception\ApiException;
 use Horeca\MiddlewareClientBundle\Exception\OrderMappingException;
 use Horeca\MiddlewareClientBundle\VO\Provider\BaseProviderOrderResponse;
-use Horeca\MiddlewareClientBundle\VO\Provider\ProviderOrderInterface;
 use Horeca\MiddlewareClientBundle\VO\Provider\ProviderOrderPayloadInterface;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
 use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
@@ -90,6 +89,15 @@ class ProtocolActionsService
     public function sendProviderOrderToTenant(OrderNotification $notification): ?SendShoppingCartResponse
     {
 //        if (empty($notification->getServicePayload()) || !$notification->getTenantShopId()) {
+        if (!$notification->getTenantPayloadString()) {
+            $this->logger->warning('[handleExternalServiceOrderNotification] missing ProviderPayload. Action aborted for notification: ' . $notification->getId());
+
+            $notification->changeStatus(MappingNotificationStatus::Failed);
+            $notification->setErrorMessage('Missing ProviderPayload. Action aborted');
+
+            $this->orderNotificationRepository->save($notification);
+            return null;
+        }
         $cart = $this->serializer->deserialize($notification->getTenantPayloadString(), ShoppingCart::class, 'json');
         $tenant = $notification->getTenant();
         $viewUrl = $notification->getViewUrl();
@@ -126,6 +134,16 @@ class ProtocolActionsService
 
     public function sendProviderOrderUpdateToTenant(OrderNotification $notification): ?SendShoppingCartResponse
     {
+        if (!$notification->getTenantPayloadString()) {
+            $this->logger->warning('[handleExternalServiceOrderNotification] missing ProviderPayload. Action aborted for notification: ' . $notification->getId());
+
+            $notification->changeStatus(MappingNotificationStatus::Failed);
+            $notification->setErrorMessage('Missing ProviderPayload. Action aborted');
+
+            $this->orderNotificationRepository->save($notification);
+            return null;
+        }
+
         $cart = $this->serializer->deserialize($notification->getTenantPayloadString(), ShoppingCartStatusUpdate::class, 'json');
 
         $response = $this->tenantApiService->sendShoppingCartUpdate($notification->getTenant(), $cart, $notification->getViewUrl());
