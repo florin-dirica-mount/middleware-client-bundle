@@ -100,9 +100,20 @@ class HorecaApiController extends AbstractController
                               OrderNotificationRepository $orderNotificationRepository): Response
     {
         try {
-            /** @var HorecaSendOrderBody $body */
-            $body = $this->deserializeRequestBody($request, HorecaSendOrderBody::class);
             $tenant = $this->protocolActionsService->authorizeTenant($request);
+
+            try {
+                /** @var HorecaSendOrderBody $body */
+                $body = $this->deserializeRequestBody($request, HorecaSendOrderBody::class);
+            } catch (\Throwable $e) {
+                if ($e instanceof ApiException) {
+                    throw $e;
+                } else {
+                    $this->logger->error(sprintf('[%s] %s', __METHOD__, $e->getMessage()));
+                    throw new ApiException('Invalid request body');
+                }
+            }
+
 
             $order = $orderNotificationRepository->findOneByTenantOrderId($tenant, $body->cart->getId());
             $dispatchMessage = false;
