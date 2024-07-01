@@ -119,6 +119,9 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
         $notification = $this->getMessageOrderNotification($message);
 
         try {
+            if($notification->getSource() !== MappingNotificationSource::Tenant){
+                throw new OrderMappingException('You can map to provider only tenant sourced orders.');
+            }
             $notification->changeStatus(MappingNotificationStatus::MappingStarted);
             $this->orderNotificationRepository->save($notification);
 
@@ -162,6 +165,10 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
         $notification = $this->getMessageOrderNotification($message);
 
         try {
+            if($notification->getSource() !== MappingNotificationSource::Provider){
+                throw new OrderMappingException('You can map to tenant only provider sourced orders.');
+            }
+
             $notification->changeStatus(MappingNotificationStatus::MappingStarted);
             $this->orderNotificationRepository->save($notification);
 
