@@ -67,7 +67,7 @@ class HorecaApiController extends AbstractController
             }
 
             return new JsonResponse(['success' => true]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $this->handleException($e);
         }
     }
@@ -200,14 +200,14 @@ class HorecaApiController extends AbstractController
         return $errorMessages;
     }
 
-    private function handleException(\Exception $e): JsonResponse
+    private function handleException(\Throwable $e): JsonResponse
     {
         $this->logger->error(sprintf('[%s] %s', __METHOD__, $e->getMessage()));
         $this->logger->error(sprintf('[%s] %s', __METHOD__, $e->getTraceAsString()));
 
         $data = [
             'success' => false,
-            'message' => $e->getMessage(),
+            'message' => ($e instanceof HorecaException || $e instanceof ApiException) ? $e->getMessage() : 'Internal Server Error',
         ];
 
         $env = $this->getParameter('kernel.environment');
