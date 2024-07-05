@@ -31,7 +31,7 @@ final class MappingNotificationStatus
     /** an error occurred during processing of this order, at any step */
     const Failed = 'failed';
 
-    /** order is being sent to the target system */
+    /** mapping is not handled */
     const Skipped = 'skipped';
 
     protected function __construct() { }
