@@ -9,6 +9,7 @@ class ProviderOrderEvent extends Event
 {
     public const ORDER_RECEIVED = 'hmc.provider.order.received';
     public const ORDER_MAPPED = 'hmc.provider.order.mapped';
+    public const TENANT_NOTIFIED = 'hmc.provider.order.tenant_notified';
 
     public function __construct(private OrderNotification $orderNotification)
     {

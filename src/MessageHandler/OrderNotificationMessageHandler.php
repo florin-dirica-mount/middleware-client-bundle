@@ -3,14 +3,16 @@
 namespace Horeca\MiddlewareClientBundle\MessageHandler;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Horeca\MiddlewareClientBundle\DependencyInjection\Framework\EventDispatcherDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\OrderNotificationRepositoryDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\MappingLoggerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProtocolActionsServiceDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantApiServiceDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
-use Horeca\MiddlewareClientBundle\Enum\MappingNotificationStatus;
 use Horeca\MiddlewareClientBundle\Enum\MappingNotificationEventName;
 use Horeca\MiddlewareClientBundle\Enum\MappingNotificationSource;
+use Horeca\MiddlewareClientBundle\Enum\MappingNotificationStatus;
+use Horeca\MiddlewareClientBundle\Event\ProviderOrderEvent;
 use Horeca\MiddlewareClientBundle\Exception\OrderMappingException;
 use Horeca\MiddlewareClientBundle\Message\MappingNotificationMessage;
 use Horeca\MiddlewareClientBundle\Message\MapProviderOrderToTenantMessage;
@@ -40,6 +42,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
     use OrderNotificationRepositoryDI;
     use ProtocolActionsServiceDI;
     use TenantApiServiceDI;
+    use EventDispatcherDI;
 
     public function __construct(protected MessageBusInterface    $messageBus,
                                 protected EntityManagerInterface $entityManager)
@@ -312,6 +315,8 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             if ($notification->getTenant()->isSubscribedToEvent(MappingNotificationEventName::TENANT_NOTIFIED)) {
                 $this->messageBus->dispatch(new OrderNotificationEventMessage(MappingNotificationEventName::TENANT_NOTIFIED, $notification));
             }
+            $this->eventDispatcher->dispatch(new ProviderOrderEvent($notification), ProviderOrderEvent::TENANT_NOTIFIED);
+
         } catch (\Throwable $e) {
             $this->onOrderNotificationException($notification, $e);
         } finally {
