@@ -391,7 +391,14 @@ class MappingNotification extends TenantAwareEntity
 
     public function setResponsePayloadString(string $responsePayload): void
     {
-        $this->responsePayload = json_decode($responsePayload, true);
+        try {
+            $this->responsePayload = json_decode($responsePayload, true);
+        } catch (\Throwable $e) {
+            $this->responsePayload = [
+                'error'    => 'Could not decode response payload',
+                'response' => $responsePayload
+            ];
+        }
     }
 
     public function getErrorMessage(): ?string

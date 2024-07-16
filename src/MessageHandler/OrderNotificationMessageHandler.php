@@ -12,6 +12,7 @@ use Horeca\MiddlewareClientBundle\Enum\MappingNotificationStatus;
 use Horeca\MiddlewareClientBundle\Enum\MappingNotificationEventName;
 use Horeca\MiddlewareClientBundle\Enum\MappingNotificationSource;
 use Horeca\MiddlewareClientBundle\Exception\OrderMappingException;
+use Horeca\MiddlewareClientBundle\Exception\ProviderApiException;
 use Horeca\MiddlewareClientBundle\Message\MappingNotificationMessage;
 use Horeca\MiddlewareClientBundle\Message\MapProviderOrderToTenantMessage;
 use Horeca\MiddlewareClientBundle\Message\MapProviderOrderToTenantSyncMessage;
@@ -371,6 +372,10 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
 
         $notification->changeStatus(MappingNotificationStatus::Failed);
         $notification->setErrorMessage($e->getMessage());
+
+        if ($e instanceof ProviderApiException) {
+            $notification->setResponsePayloadString($e->getResponseContent());
+        }
 
         $this->orderNotificationRepository->save($notification);
     }
