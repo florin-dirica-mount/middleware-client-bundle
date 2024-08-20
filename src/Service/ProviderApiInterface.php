@@ -35,9 +35,11 @@ interface ProviderApiInterface
     /**
      * Handles the mapping between ShoppingCart and ProviderOrder models
      *
+     * @param Tenant $tenant
+     * @param ShoppingCart $cart
      * @return ProviderOrderPayloadInterface
      */
-    public function mapShoppingCartToProviderOrder(Tenant $tenant, ShoppingCart $cart);
+    public function mapShoppingCartToProviderOrder(Tenant $tenant, ShoppingCart $cart): ProviderOrderPayloadInterface;
 
     /**
      * Handles the mapping between ProviderOrder and ShoppingCart models
