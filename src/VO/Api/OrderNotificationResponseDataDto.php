@@ -12,12 +12,12 @@ final class OrderNotificationResponseDataDto
     public bool $success = true;
 
     #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView,SerializationGroups::ProviderOrderNotificationView])]
-    public bool $confirmed = true;
+    public bool $confirmed = false;
 
     #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView,SerializationGroups::ProviderOrderNotificationView])]
     public OrderNotification $data;
 
-    public function __construct(OrderNotification $data, bool $success = true, bool $confirmed = true)
+    public function __construct(OrderNotification $data, bool $success = true, bool $confirmed = false)
     {
         $this->data = $data;
         $this->success = $success;
