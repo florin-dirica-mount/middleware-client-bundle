@@ -2,13 +2,11 @@
 
 namespace Horeca\MiddlewareClientBundle\VO\Api;
 
-abstract class HorecaDataUpdateEventDto
+abstract class HorecaDataUpdateDto
 {
     public string $serviceIdentifier;
-    public string $event;
     public \DateTime $time;
-
-    abstract function getData();
+    abstract function getPayload();
 
     public function __construct()
     {

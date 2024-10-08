@@ -6,7 +6,7 @@ use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Enum\SerializationGroups;
 use JMS\Serializer\Annotation as Serializer;
 
-final class OrderNotificationEventDto extends HorecaDataUpdateEventDto
+final class OrderNotificationEventDto
 {
     #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView])]
     public string $event;
@@ -16,13 +16,7 @@ final class OrderNotificationEventDto extends HorecaDataUpdateEventDto
 
     public function __construct(string $event, OrderNotification $notification)
     {
-        parent::__construct();
         $this->event = $event;
         $this->notification = $notification;
-    }
-
-    function getData(): OrderNotification
-    {
-        return $this->notification;
     }
 }
