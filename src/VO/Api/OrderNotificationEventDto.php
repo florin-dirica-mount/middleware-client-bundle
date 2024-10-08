@@ -16,6 +16,7 @@ final class OrderNotificationEventDto extends HorecaDataUpdateEventDto
 
     public function __construct(string $event, OrderNotification $notification)
     {
+        parent::__construct();
         $this->event = $event;
         $this->notification = $notification;
     }
