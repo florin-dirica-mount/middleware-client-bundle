@@ -185,4 +185,9 @@ abstract class AbstractTask extends TenantAwareEntity
         $this->progress = $progress;
     }
 
+    public function calculateProgress($completed, $total): void
+    {
+        $this->progress = $total > 0 ? round(($completed / $total) * 100) : 0;
+    }
+
 }
