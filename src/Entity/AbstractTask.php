@@ -2,7 +2,10 @@
 
 namespace Horeca\MiddlewareClientBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Horeca\MiddlewareClientBundle\Entity\Log\MappingLog;
 
 #[ORM\MappedSuperclass]
 abstract class AbstractTask extends TenantAwareEntity
@@ -31,6 +34,22 @@ abstract class AbstractTask extends TenantAwareEntity
     protected ?\DateTime $startedAt = null;
     #[ORM\Column(type: "datetime", nullable: true)]
     protected ?\DateTime $finishedAt = null;
+
+    /**
+     * @var Collection<int, MappingLog>
+     */
+    #[ORM\ManyToMany(targetEntity: MappingLog::class, cascade: ["persist"], fetch: "EXTRA_LAZY")]
+    #[ORM\JoinTable(name: 'tasks_mapping_log_entries')]
+    #[ORM\JoinColumn(name: 'task_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\InverseJoinColumn(name: 'mapping_log_id', referencedColumnName: 'id', onDelete: 'RESTRICT')]
+    #[ORM\OrderBy(["id" => "ASC"])]
+    private Collection $logs;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->logs = new ArrayCollection();
+    }
 
 
     public function __toString()
@@ -91,7 +110,7 @@ abstract class AbstractTask extends TenantAwareEntity
 
     public function getPayload(): array
     {
-        return (array) $this->payload;
+        return (array)$this->payload;
     }
 
     public function setPayload(?array $payload): void
@@ -189,5 +208,16 @@ abstract class AbstractTask extends TenantAwareEntity
     {
         $this->progress = $total > 0 ? round(($completed / $total) * 100) : 0;
     }
+
+    public function getLogs(): Collection
+    {
+        return $this->logs;
+    }
+
+    public function setLogs(Collection $logs): void
+    {
+        $this->logs = $logs;
+    }
+
 
 }
