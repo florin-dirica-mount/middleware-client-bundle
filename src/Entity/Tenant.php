@@ -154,6 +154,14 @@ class Tenant extends DefaultEntity
     {
         return $this->automaticTasks;
     }
+    public function getAutomaticTasksString(): ?string
+    {
+        if($this->automaticTasks === null) {
+            return null;
+        }
+
+        return json_encode($this->automaticTasks);
+    }
 
     public function setAutomaticTasks(?array $automaticTasks): void
     {
