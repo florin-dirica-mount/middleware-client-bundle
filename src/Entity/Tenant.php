@@ -43,7 +43,7 @@ class Tenant extends DefaultEntity
     protected \DateTime $createdAt;
 
     #[ORM\Column(type: "json", nullable: true)]
-    protected ?string $automaticTasks;
+    protected ?array $automaticTasks = null;
 
     public function __construct()
     {
@@ -150,12 +150,12 @@ class Tenant extends DefaultEntity
         return in_array($event, (array)$this->subscribedEvents);
     }
 
-    public function getAutomaticTasks(): ?string
+    public function getAutomaticTasks(): ?array
     {
         return $this->automaticTasks;
     }
 
-    public function setAutomaticTasks(?string $automaticTasks): void
+    public function setAutomaticTasks(?array $automaticTasks): void
     {
         $this->automaticTasks = $automaticTasks;
     }
