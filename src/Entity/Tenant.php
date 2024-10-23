@@ -163,9 +163,16 @@ class Tenant extends DefaultEntity
         return json_encode($this->automaticTasks);
     }
 
+
     public function setAutomaticTasks(?array $automaticTasks): void
     {
         $this->automaticTasks = $automaticTasks;
+    }
+
+    public function setAutomaticTasksString(?string $automaticTasks): void
+    {
+        $this->automaticTasks = json_decode($automaticTasks, true);
+
     }
 
 
