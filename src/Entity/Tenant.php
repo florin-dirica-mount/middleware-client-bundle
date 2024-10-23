@@ -42,6 +42,9 @@ class Tenant extends DefaultEntity
     #[ORM\Column(name: "created_at", type: "datetime", nullable: false, options: ["default" => "CURRENT_TIMESTAMP"])]
     protected \DateTime $createdAt;
 
+    #[ORM\Column(type: "json", nullable: true)]
+    protected ?array $automaticTasks = [];
+
     public function __construct()
     {
         parent::__construct();
@@ -145,6 +148,16 @@ class Tenant extends DefaultEntity
     public function isSubscribedToEvent(string $event): bool
     {
         return in_array($event, (array)$this->subscribedEvents);
+    }
+
+    public function getAutomaticTasks(): ?array
+    {
+        return $this->automaticTasks;
+    }
+
+    public function setAutomaticTasks(?array $automaticTasks): void
+    {
+        $this->automaticTasks = $automaticTasks;
     }
 
 
