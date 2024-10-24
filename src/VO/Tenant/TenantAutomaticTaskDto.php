@@ -9,6 +9,7 @@ class TenantAutomaticTaskDto
 
     public \DateTime $hour;
 
+    #[Serializer\Type('array')]
     public array $payload = [];
 
 }
