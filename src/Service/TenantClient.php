@@ -22,7 +22,7 @@ final class TenantClient implements TenantClientInterface
                 'Content-Type' => 'application/json',
                 'Api-Key'      => $tenant->getWebhookKey()
             ],
-            'timeout'  => 10,
+            'timeout'  => 30,
         ]);
     }
 
