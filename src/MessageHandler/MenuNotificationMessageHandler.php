@@ -68,14 +68,6 @@ class MenuNotificationMessageHandler implements MessageSubscriberInterface
         ];
 
 
-        yield MapTenantProductToProviderMessage::class => [
-            'method'         => 'handleMapTenantProductToProviderMessage',
-            'from_transport' => MessageTransports::MAP_TENANT_PRODUCT_TO_PROVIDER
-        ];
-        yield SendTenantProductToProviderMessage::class => [
-            'method'         => 'handleSendTenantProductToProviderMessage',
-            'from_transport' => MessageTransports::SEND_TENANT_PRODUCT_TO_PROVIDER
-        ];
 
     }
 
