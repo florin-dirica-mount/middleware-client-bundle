@@ -6,6 +6,7 @@ use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\OrderNotificati
 use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\TenantRepositoryDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProtocolActionsServiceDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProviderApiDI;
+use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantApiServiceDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantServiceDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Enum\MappingNotificationSource;
@@ -40,6 +41,7 @@ class HorecaApiController extends AbstractController
     use OrderNotificationRepositoryDI;
     use TenantRepositoryDI;
     use ProviderApiDI;
+    use TenantApiServiceDI;
     use ProtocolActionsServiceDI;
     use TenantServiceDI;
 
@@ -174,12 +176,12 @@ class HorecaApiController extends AbstractController
             $body = $this->deserializeRequestBody($request, HorecaInitializeShopBody::class);
             $tenant = $this->protocolActionsService->authorizeTenant($request);
 
-            if($this->providerApi instanceof InitializeShopApiInterface) {
-                if (!$this->providerApi->initializeShop($tenant, $body->tenantShopId, $body->providerShopId, $body->shopName)) {
+            if($this->tenantApiService instanceof InitializeShopApiInterface) {
+                if (!$this->tenantApiService->initializeShop($tenant, $body->tenantShopId, $body->providerShopId, $body->shopName)) {
                     return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
                 }
             } else {
-                $this->logger->error(sprintf('[%s] Provider API does not support shop initialization', __METHOD__));
+                $this->logger->error(sprintf('[%s] Tenant API does not support shop initialization', __METHOD__));
                 return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
             }
             return new JsonResponse(['success' => true]);

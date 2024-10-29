@@ -22,12 +22,4 @@ interface TenantApiInterface
 
     public function sendOrderNotificationEvent(string $event, OrderNotification $notification): void;
 
-    public function initializeShop(Tenant $tenant, string $tenantShopId, string $providerShopId, ?string $shopName): bool;
-
-    /**
-     * @param ProviderCredentialsInterface $credentials
-     */
-    public function requestDelivery(HorecaRequestDeliveryBody $body, $credentials): bool;
-
-    public function generateNotificationViewUrl(OrderNotification $notification): ?string;
 }
