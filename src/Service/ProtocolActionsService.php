@@ -208,23 +208,5 @@ class ProtocolActionsService
         return $response;
     }
 
-    /**
-     * @throws OrderMappingException
-     * @deprecated
-     */
-    public function confirmTenantOrderProcessed(OrderNotification $notification): void
-    {
-        if ($notification->getStatus() !== MappingNotificationStatus::Notified) {
-            $this->logger->warning('[sendTenantOrderStatusNotification] notification status is not notified. Action aborted for notification: ' . $notification->getId());
-
-            throw new OrderMappingException('Order is not sent to provider.');
-        }
-
-        $this->tenantApiService->confirmProviderNotified($notification);
-
-        $notification->changeStatus(MappingNotificationStatus::Confirmed);
-
-        $this->orderNotificationRepository->save($notification);
-    }
 
 }

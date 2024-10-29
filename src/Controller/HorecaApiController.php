@@ -15,6 +15,8 @@ use Horeca\MiddlewareClientBundle\Event\TenantOrderEvent;
 use Horeca\MiddlewareClientBundle\Exception\ApiException;
 use Horeca\MiddlewareClientBundle\Message\MapTenantOrderToProviderMessage;
 use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
+use Horeca\MiddlewareClientBundle\Service\InitializeShopApiInterface;
+use Horeca\MiddlewareClientBundle\Service\RequestDeliveryApiInterface;
 use Horeca\MiddlewareClientBundle\VO\Api\OrderNotificationResponseDataDto;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaInitializeShopBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaRequestDeliveryBody;
@@ -62,7 +64,12 @@ class HorecaApiController extends AbstractController
                 return new Response(json_encode($errors));
             }
 
-            if (!$this->providerApi->requestDelivery($body, $credentials)) {
+            if($this->providerApi instanceof RequestDeliveryApiInterface) {
+                if (!$this->providerApi->requestDelivery($body, $credentials)) {
+                    return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
+                }
+            } else {
+                $this->logger->error(sprintf('[%s] Provider API does not support delivery request', __METHOD__));
                 return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
             }
 
@@ -167,10 +174,14 @@ class HorecaApiController extends AbstractController
             $body = $this->deserializeRequestBody($request, HorecaInitializeShopBody::class);
             $tenant = $this->protocolActionsService->authorizeTenant($request);
 
-            if (!$this->providerApi->initializeShop($tenant, $body->tenantShopId, $body->providerShopId, $body->shopName)) {
+            if($this->providerApi instanceof InitializeShopApiInterface) {
+                if (!$this->providerApi->initializeShop($tenant, $body->tenantShopId, $body->providerShopId, $body->shopName)) {
+                    return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
+                }
+            } else {
+                $this->logger->error(sprintf('[%s] Provider API does not support shop initialization', __METHOD__));
                 return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
             }
-
             return new JsonResponse(['success' => true]);
         } catch (\Exception $e) {
             return $this->handleException($e);

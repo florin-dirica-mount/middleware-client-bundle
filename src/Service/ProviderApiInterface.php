@@ -14,11 +14,6 @@ use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
 interface ProviderApiInterface
 {
 
-    /**
-     * Return the classname of the provider order model
-     * @deprecated use getMiddlewareToProviderOrderClass and getProviderToMiddlewareOrderClass instead
-     */
-    public function getProviderOrderClass(): string;
 
     public function getMiddlewareToProviderOrderClass(): string;
 
@@ -47,13 +42,6 @@ interface ProviderApiInterface
      * @param ProviderOrderInterface $order
      */
     public function mapProviderOrderToShoppingCart(Tenant $tenant, $order): ShoppingCart;
-
-    public function initializeShop(Tenant $tenant, string $tenantShopId, string $providerShopId, ?string $shopName): bool;
-
-    /**
-     * @param ProviderCredentialsInterface $credentials
-     */
-    public function requestDelivery(HorecaRequestDeliveryBody $body, $credentials): bool;
 
     public function generateNotificationViewUrl(OrderNotification $notification): ?string;
 
