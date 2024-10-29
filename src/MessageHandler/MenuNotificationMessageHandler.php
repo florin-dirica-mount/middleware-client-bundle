@@ -17,8 +17,6 @@ use Horeca\MiddlewareClientBundle\Message\Menu\SendTenantMenuToProviderMessage;
 use Horeca\MiddlewareClientBundle\Message\Menu\SendTenantMenuToProviderSyncMessage;
 use Horeca\MiddlewareClientBundle\Message\MessageTransports;
 use Horeca\MiddlewareClientBundle\Message\MessageTransportsSync;
-use Horeca\MiddlewareClientBundle\Message\Product\MapTenantProductToProviderMessage;
-use Horeca\MiddlewareClientBundle\Message\Product\SendTenantProductToProviderMessage;
 use Horeca\MiddlewareClientBundle\Service\MenuMapperApiInterface;
 use JMS\Serializer\SerializerInterface;
 use Psr\Log\LoggerInterface;
@@ -68,7 +66,6 @@ class MenuNotificationMessageHandler implements MessageSubscriberInterface
         ];
 
 
-
     }
 
     public function handleMapTenantMenuToProviderMessageBase(MappingNotificationMessage $message, ?bool $sync = false): void
@@ -89,7 +86,7 @@ class MenuNotificationMessageHandler implements MessageSubscriberInterface
             if ($this->providerApi instanceof MenuMapperApiInterface) {
                 $this->providerApi->mapTenantMenuToProvider($notification);
             } else {
-                throw new MenuMappingException('Provider API does not support menu mapping');
+                throw new MenuMappingException('Provider API does not support menu mapping. Implement MenuMapperApiInterface In ProviderApi');
             }
             // after mapping notification should have provider payload
             if (!$notification->getProviderPayload()) {
@@ -119,7 +116,6 @@ class MenuNotificationMessageHandler implements MessageSubscriberInterface
     }
 
 
-
     public function handleSendTenantMenuToProviderMessageBase(MappingNotificationMessage $message, $sync = false): void
     {
 
@@ -143,7 +139,7 @@ class MenuNotificationMessageHandler implements MessageSubscriberInterface
             if ($this->providerApi instanceof MenuMapperApiInterface) {
                 $notification = $this->providerApi->sendTenantMenuToProvider($notification);
             } else {
-                throw new MenuMappingException('Provider API does not support menu mapping');
+                throw new MenuMappingException('Provider API does not support menu mapping. Implement MenuMapperApiInterface In ProviderApi');
             }
 
             $notification->setNotifiedAt(new \DateTime());
