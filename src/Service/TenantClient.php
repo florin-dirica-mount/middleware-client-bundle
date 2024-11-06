@@ -52,7 +52,16 @@ final class TenantClient implements TenantClientInterface
     {
         if (is_string($webhook)) {
             if (!$this->supportsWebhook($webhook)) {
-                throw new HorecaException(sprintf('Tenant %s does not support webhook %s', $this->tenant->getId(), $webhook));
+                $supportedWebhooks = implode(', ', $this->tenant->getWebhooks()->map(fn(TenantWebhook $webhook) => $webhook->getName())->toArray());
+
+                throw new HorecaException(
+                    sprintf(
+                        'Tenant %s does not support webhook %s. Supported webhooks are : %s',
+                        $this->tenant->getName(),
+                        $webhook,
+                        $supportedWebhooks
+                    )
+                );
             }
 
             $webhook = $this->tenant->getWebhookByName($webhook);
