@@ -7,6 +7,7 @@ final class OrderNotificationType
     const NewOrder = 'new-order';
     const OrderUpdate = 'order-update';
     const Retry = 'retry';
+    const Skipped = 'skipped';
 
     protected function __construct() { }
 }
