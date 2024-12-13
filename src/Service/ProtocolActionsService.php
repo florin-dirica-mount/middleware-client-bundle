@@ -151,8 +151,9 @@ class ProtocolActionsService
 
         $response = $this->tenantApiService->sendShoppingCartUpdate(
             tenant: $notification->getTenant(),
-            object:  $updateData,
-            viewUrl: $notification->getViewUrl()
+            json: $notification->getTenantPayloadString(),
+            viewUrl: $notification->getViewUrl(),
+            eventType: $updateData->eventType
         );
 
         $notification->setResponsePayloadString($this->serializer->serialize($response, 'json'));
