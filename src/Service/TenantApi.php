@@ -13,6 +13,7 @@ use Horeca\MiddlewareClientBundle\VO\Api\OrderNotificationEventDto;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
 use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
 use Horeca\MiddlewareCommonLib\Model\Protocol\SendShoppingCartResponse;
+use Horeca\MiddlewareCommonLib\Model\Protocol\ShoppingCartStatusUpdate;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -146,7 +147,7 @@ class TenantApi implements TenantApiInterface
     /**
      * @throws HorecaException
      */
-    public function sendShoppingCartUpdate(Tenant $tenant, $object, ?string $viewUrl): SendShoppingCartResponse
+    public function sendShoppingCartUpdate(Tenant $tenant, ShoppingCartStatusUpdate $object, ?string $viewUrl): SendShoppingCartResponse
     {
         try {
             $client = $this->tenantClientFactory->client($tenant);
@@ -171,8 +172,14 @@ class TenantApi implements TenantApiInterface
             }
 
             $options[$target]['payload'] = $payload;
+
             if ($viewUrl) {
                 $options[$target]['view_url'] = $viewUrl;
+                $options[$target]['viewUrl'] = $viewUrl;
+            }
+
+            if($object->eventType){
+                $options[$target]['eventType'] = $object->eventType;
             }
 
 

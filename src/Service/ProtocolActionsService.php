@@ -144,9 +144,16 @@ class ProtocolActionsService
             return null;
         }
 
-        $cart = $this->serializer->deserialize($notification->getTenantPayloadString(), ShoppingCartStatusUpdate::class, 'json');
+        /**
+         * @var ShoppingCartStatusUpdate $updateData
+         */
+        $updateData = $this->serializer->deserialize($notification->getTenantPayloadString(), ShoppingCartStatusUpdate::class, 'json');
 
-        $response = $this->tenantApiService->sendShoppingCartUpdate($notification->getTenant(), $cart, $notification->getViewUrl());
+        $response = $this->tenantApiService->sendShoppingCartUpdate(
+            tenant: $notification->getTenant(),
+            object:  $updateData,
+            viewUrl: $notification->getViewUrl()
+        );
 
         $notification->setResponsePayloadString($this->serializer->serialize($response, 'json'));
         $notification->setTenantObjectId((string)$response->horecaOrderId);
