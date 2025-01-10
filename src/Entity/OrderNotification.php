@@ -2,6 +2,7 @@
 
 namespace Horeca\MiddlewareClientBundle\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
 
@@ -39,6 +40,20 @@ use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
 ])]
 class OrderNotification extends MappingNotification
 {
+
+    #[ORM\Column(name: "event_type", type: Types::STRING, length: 50, nullable: true)]
+    /* used for event subtypes on update order use : Horeca\MiddlewareCommonLib\Constants\ShoppingCartUpdateEvents  */
+    private string $eventType;
+
+    public function getEventType(): string
+    {
+        return $this->eventType;
+    }
+
+    public function setEventType(string $eventType): void
+    {
+        $this->eventType = $eventType;
+    }
 
 
 }

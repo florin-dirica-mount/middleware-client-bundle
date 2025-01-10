@@ -11,6 +11,8 @@ final class MessageTransports
 //    public const SEND_PROVIDER_ORDER_TO_TENANT = 'hmc_external_service_order_notification';
     public const SEND_PROVIDER_ORDER_TO_TENANT = 'hmc_send_provider_order_to_tenant';
     public const MAP_TENANT_ORDER_TO_PROVIDER = 'hmc_map_tenant_order_to_provider';
+    public const MAP_TENANT_ORDER_AND_SEND_TO_PROVIDER = 'hmc_map_tenant_order_and_send_to_provider';
+    public const MAP_TENANT_ORDER_AND_SEND_UPDATE_TO_PROVIDER = 'hmc_map_tenant_order_and_send_update_to_provider';
     public const MAP_PROVIDER_ORDER_TO_TENANT = 'hmc_map_provider_order_to_tenant';
     public const SEND_TENANT_ORDER_TO_PROVIDER = 'hmc_tenant_order_send_to_provider';
     public const ORDER_NOTIFICATION_EVENT = 'hmc_order_notification_event';

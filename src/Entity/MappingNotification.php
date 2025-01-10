@@ -30,7 +30,6 @@ class MappingNotification extends TenantAwareEntity
      */
     #[ORM\Column(name: "horeca_order_id", type: "string", length: 36, nullable: true)]
     #[Serializer\SerializedName("tenantObjectId")]
-//    #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView])]
     private ?string $horecaOrderId = null;
 
     /**
@@ -38,7 +37,6 @@ class MappingNotification extends TenantAwareEntity
      */
     #[ORM\Column(name: "service_order_id", type: "string", length: 36, nullable: true)]
     #[Serializer\SerializedName("providerObjectId")]
-//    #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView])]
     private ?string $serviceOrderId = null;
 
     #[ORM\Column(name: "status", type: "string", length: 50, nullable: false, options: ["default" => "received"])]

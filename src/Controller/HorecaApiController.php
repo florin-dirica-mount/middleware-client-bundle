@@ -14,15 +14,17 @@ use Horeca\MiddlewareClientBundle\Enum\OrderNotificationType;
 use Horeca\MiddlewareClientBundle\Enum\SerializationGroups;
 use Horeca\MiddlewareClientBundle\Event\TenantOrderEvent;
 use Horeca\MiddlewareClientBundle\Exception\ApiException;
-use Horeca\MiddlewareClientBundle\Message\MapTenantOrderToProviderMessage;
+use Horeca\MiddlewareClientBundle\Message\MapTenantOrderAndSendToProviderMessage;
+use Horeca\MiddlewareClientBundle\Message\MapTenantOrderAndSendUpdateToProviderMessage;
 use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
 use Horeca\MiddlewareClientBundle\Service\InitializeShopApiInterface;
 use Horeca\MiddlewareClientBundle\Service\RequestDeliveryApiInterface;
 use Horeca\MiddlewareClientBundle\VO\Api\OrderNotificationResponseDataDto;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaInitializeShopBody;
-use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaReceiveOrderBody;
+use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaReceiveOrderUpdateBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaRequestDeliveryBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaSendOrderBody;
+use Horeca\MiddlewareCommonLib\Constants\ShoppingCartUpdateEvents;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
@@ -148,6 +150,7 @@ class HorecaApiController extends AbstractController
                 $dispatchMessage = true;
             } else {
                 $order->setType(OrderNotificationType::OrderUpdate);
+                $order->setEventType(ShoppingCartUpdateEvents::GENERIC_UPDATE);
             }
 
             $order->setTenant($tenant);
@@ -169,7 +172,7 @@ class HorecaApiController extends AbstractController
             $this->eventDispatcher->dispatch(new TenantOrderEvent($order), TenantOrderEvent::ORDER_RECEIVED);
 
             if ($dispatchMessage) {
-                $messageBus->dispatch(new MapTenantOrderToProviderMessage($order));
+                $messageBus->dispatch(new MapTenantOrderAndSendToProviderMessage($order));
             }
 
             $context = SerializationContext::create()->setGroups([SerializationGroups::TenantOrderNotificationView]);
@@ -188,8 +191,8 @@ class HorecaApiController extends AbstractController
             $tenant = $this->protocolActionsService->authorizeTenant($request);
 
             try {
-                /** @var HorecaReceiveOrderBody $body */
-                $body = $this->deserializeRequestBody($request, HorecaReceiveOrderBody::class);
+                /** @var HorecaReceiveOrderUpdateBody $body */
+                $body = $this->deserializeRequestBody($request, HorecaReceiveOrderUpdateBody::class);
             } catch (\Throwable $e) {
                 if ($e instanceof ApiException) {
                     throw $e;
@@ -205,6 +208,7 @@ class HorecaApiController extends AbstractController
             $order = new OrderNotification();
             $order->setType(OrderNotificationType::OrderUpdate);
             $order->setSource(MappingNotificationSource::Tenant);
+            $order->setEventType($body->eventType);
 
 
             $order->setTenant($tenant);
@@ -223,9 +227,9 @@ class HorecaApiController extends AbstractController
             );
             $this->orderNotificationRepository->save($order);
 
-            $this->eventDispatcher->dispatch(new TenantOrderEvent($order), TenantOrderEvent::ORDER_UPDATE);
+            $this->eventDispatcher->dispatch(new TenantOrderEvent($order), TenantOrderEvent::ORDER_UPDATE_RECEIVED);
 
-            $messageBus->dispatch(new MapTenantOrderToProviderMessage($order));
+            $messageBus->dispatch(new MapTenantOrderAndSendUpdateToProviderMessage($order));
 
             $context = SerializationContext::create()->setGroups([SerializationGroups::TenantOrderNotificationView]);
             $data = $this->serializer->serialize(new OrderNotificationResponseDataDto($order), 'json', $context);
