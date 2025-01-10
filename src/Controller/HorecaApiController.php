@@ -20,6 +20,7 @@ use Horeca\MiddlewareClientBundle\Service\InitializeShopApiInterface;
 use Horeca\MiddlewareClientBundle\Service\RequestDeliveryApiInterface;
 use Horeca\MiddlewareClientBundle\VO\Api\OrderNotificationResponseDataDto;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaInitializeShopBody;
+use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaReceiveOrderBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaRequestDeliveryBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaSendOrderBody;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
@@ -66,7 +67,7 @@ class HorecaApiController extends AbstractController
                 return new Response(json_encode($errors));
             }
 
-            if($this->providerApi instanceof RequestDeliveryApiInterface) {
+            if ($this->providerApi instanceof RequestDeliveryApiInterface) {
                 if (!$this->providerApi->requestDelivery($body, $credentials)) {
                     return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
                 }
@@ -104,9 +105,20 @@ class HorecaApiController extends AbstractController
         }
     }
 
+
+    /**
+     * @deprecated
+     */
     public function sendOrder(Request                     $request,
                               MessageBusInterface         $messageBus,
                               OrderNotificationRepository $orderNotificationRepository): Response
+    {
+        return $this->receiveOrder($request, $messageBus, $orderNotificationRepository);
+    }
+
+    public function receiveOrder(Request                     $request,
+                                 MessageBusInterface         $messageBus,
+                                 OrderNotificationRepository $orderNotificationRepository): Response
     {
         try {
             $tenant = $this->protocolActionsService->authorizeTenant($request);
@@ -169,6 +181,61 @@ class HorecaApiController extends AbstractController
         }
     }
 
+    public function receiveOrderUpdate(Request             $request,
+                                       MessageBusInterface $messageBus): Response
+    {
+        try {
+            $tenant = $this->protocolActionsService->authorizeTenant($request);
+
+            try {
+                /** @var HorecaReceiveOrderBody $body */
+                $body = $this->deserializeRequestBody($request, HorecaReceiveOrderBody::class);
+            } catch (\Throwable $e) {
+                if ($e instanceof ApiException) {
+                    throw $e;
+                } else {
+                    $this->logger->error(sprintf('[%s] %s', __METHOD__, $e->getMessage()));
+                    throw new ApiException('Invalid request body');
+                }
+            }
+
+
+            $this->logger->info(sprintf('[%s.%d] New order received: %s', __METHOD__, __LINE__, $body->cart->getId()));
+
+            $order = new OrderNotification();
+            $order->setType(OrderNotificationType::OrderUpdate);
+            $order->setSource(MappingNotificationSource::Tenant);
+
+
+            $order->setTenant($tenant);
+            $order->setTenantObjectId($body->cart->getId());
+            $order->setTenantPayloadString($this->serializer->serialize($body->cart, 'json'));
+            $order->setTenantShopId($body->cart->getRestaurant()->getId());
+
+            if ($body->providerCredentials) {
+                $order->setServiceCredentials($body->providerCredentials);
+            }
+
+            $this->orderNotificationRepository->save($order);
+
+            $order->setViewUrl(
+                $this->generateUrl('horeca_api_notification_view', ['id' => $order->getId()], UrlGeneratorInterface::ABSOLUTE_URL)
+            );
+            $this->orderNotificationRepository->save($order);
+
+            $this->eventDispatcher->dispatch(new TenantOrderEvent($order), TenantOrderEvent::ORDER_UPDATE);
+
+            $messageBus->dispatch(new MapTenantOrderToProviderMessage($order));
+
+            $context = SerializationContext::create()->setGroups([SerializationGroups::TenantOrderNotificationView]);
+            $data = $this->serializer->serialize(new OrderNotificationResponseDataDto($order), 'json', $context);
+
+            return new JsonResponse($data, 200, [], true);
+        } catch (\Exception $e) {
+            return $this->handleException($e);
+        }
+    }
+
     public function initializeShop(Request $request): Response
     {
         try {
@@ -176,7 +243,7 @@ class HorecaApiController extends AbstractController
             $body = $this->deserializeRequestBody($request, HorecaInitializeShopBody::class);
             $tenant = $this->protocolActionsService->authorizeTenant($request);
 
-            if($this->tenantApiService instanceof InitializeShopApiInterface) {
+            if ($this->tenantApiService instanceof InitializeShopApiInterface) {
                 if (!$this->tenantApiService->initializeShop($tenant, $body->tenantShopId, $body->providerShopId, $body->shopName)) {
                     return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
                 }

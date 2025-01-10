@@ -5,7 +5,12 @@ horeca_api_request_delivery:
 
 horeca_api_order_send:
     path: /api/order/send
-    controller: Horeca\MiddlewareClientBundle\Controller\HorecaApiController::sendOrder
+    controller: Horeca\MiddlewareClientBundle\Controller\HorecaApiController::receiveOrder
+    methods: [POST]
+
+horeca_api_order_update:
+    path: /api/order/update
+    controller: Horeca\MiddlewareClientBundle\Controller\HorecaApiController::receiveOrderUpdate
     methods: [POST]
 
 horeca_api_notification_view:
