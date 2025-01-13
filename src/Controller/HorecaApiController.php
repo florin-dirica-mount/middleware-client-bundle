@@ -213,6 +213,9 @@ class HorecaApiController extends AbstractController
 
             $order->setTenant($tenant);
             $order->setTenantObjectId($body->cart->getId());
+            if($body->cart->getExternalProviderId()){
+                $order->setProviderObjectId($body->cart->getExternalProviderId());
+            }
             $order->setTenantPayloadString($this->serializer->serialize($body->cart, 'json'));
             $order->setTenantShopId($body->cart->getRestaurant()->getId());
 
