@@ -175,13 +175,14 @@ class ProtocolActionsService
         /** @var ShoppingCart $cart */
         $cart = $this->serializer->deserialize($notification->getTenantPayloadString(), ShoppingCart::class, 'json');
 
-        $errors = $this->validator->validate($cart);
-        if (count($errors) > 0) {
-            throw new OrderMappingException($errors->get(0)->getMessage());
-        }
-
         $notification->setErrorMessage(null);
         if( $notification->isType(OrderNotificationType::NewOrder)){
+
+            $errors = $this->validator->validate($cart);
+            if (count($errors) > 0) {
+                throw new OrderMappingException($errors->get(0)->getMessage());
+            }
+
             $providerOrder = $this->providerApi->mapShoppingCartToProviderOrder($notification->getTenant(), $cart);
 
         }else{
