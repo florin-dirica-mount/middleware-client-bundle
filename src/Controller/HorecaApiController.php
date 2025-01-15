@@ -191,8 +191,11 @@ class HorecaApiController extends AbstractController
             $tenant = $this->protocolActionsService->authorizeTenant($request);
 
             try {
+                // this perform validate and is not the case for updates
+//                $body = $this->deserializeRequestBody($request, HorecaReceiveOrderUpdateBody::class);
+
                 /** @var HorecaReceiveOrderUpdateBody $body */
-                $body = $this->deserializeRequestBody($request, HorecaReceiveOrderUpdateBody::class);
+                $body = $this->deserializeObject($request->getContent(), HorecaReceiveOrderUpdateBody::class);
             } catch (\Throwable $e) {
                 if ($e instanceof ApiException) {
                     throw $e;
