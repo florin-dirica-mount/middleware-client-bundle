@@ -5,7 +5,11 @@ namespace Horeca\MiddlewareClientBundle\VO\Provider;
 class BaseProviderOrderResponse
 {
 
-    public mixed $orderId = null;
+
+    public function __construct(public mixed $orderId = null)
+    {
+
+    }
 
 
 }
