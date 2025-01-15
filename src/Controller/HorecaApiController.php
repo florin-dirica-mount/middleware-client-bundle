@@ -60,7 +60,7 @@ class HorecaApiController extends AbstractController
     {
         try {
             /** @var HorecaRequestDeliveryBody $body */
-            $body = $this->deserializeRequestBody($request, HorecaSendOrderBody::class);
+            $body = $this->deserializeRequestBodyAndValidate($request, HorecaSendOrderBody::class);
             $tenant = $this->protocolActionsService->authorizeTenant($request);
             $credentials = $this->tenantService->compileTenantCredentials($tenant, $body->providerCredentials);
 
@@ -127,7 +127,7 @@ class HorecaApiController extends AbstractController
 
             try {
                 /** @var HorecaSendOrderBody $body */
-                $body = $this->deserializeRequestBody($request, HorecaSendOrderBody::class);
+                $body = $this->deserializeRequestBodyAndValidate($request, HorecaSendOrderBody::class);
             } catch (\Throwable $e) {
                 if ($e instanceof ApiException) {
                     throw $e;
@@ -250,7 +250,7 @@ class HorecaApiController extends AbstractController
     {
         try {
             /** @var HorecaInitializeShopBody $body */
-            $body = $this->deserializeRequestBody($request, HorecaInitializeShopBody::class);
+            $body = $this->deserializeRequestBodyAndValidate($request, HorecaInitializeShopBody::class);
             $tenant = $this->protocolActionsService->authorizeTenant($request);
 
             if ($this->tenantApiService instanceof InitializeShopApiInterface) {
@@ -270,7 +270,7 @@ class HorecaApiController extends AbstractController
     /**
      * @throws ApiException
      */
-    private function deserializeRequestBody(Request $request, string $type): object
+    private function deserializeRequestBodyAndValidate(Request $request, string $type): object
     {
         $body = $this->deserializeObject($request->getContent(), $type);
 
