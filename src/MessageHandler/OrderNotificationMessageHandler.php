@@ -33,7 +33,6 @@ use Horeca\MiddlewareClientBundle\Message\SendProviderOrderToTenantMessage;
 use Horeca\MiddlewareClientBundle\Message\SendProviderOrderToTenantSyncMessage;
 use Horeca\MiddlewareClientBundle\Message\SendTenantOrderToProviderMessage;
 use Horeca\MiddlewareClientBundle\Message\SendTenantOrderToProviderSyncMessage;
-use Horeca\MiddlewareClientBundle\Message\SendTenantOrderUpdateToProviderMessage;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -185,7 +184,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
 
         $this->eventDispatcher->dispatch(new TenantOrderEvent($notification), TenantOrderEvent::ORDER_UPDATE_MAPPED);
 
-//        $this->messageBus->dispatch(new SendTenantOrderUpdateToProviderMessage($notification));
+        $this->messageBus->dispatch(new SendTenantOrderToProviderMessage($notification));
 
     }
     /// Map Tenant Order To Provider [END]

@@ -10,6 +10,7 @@ use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantServiceDI;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
 use Horeca\MiddlewareClientBundle\Enum\MappingNotificationStatus;
+use Horeca\MiddlewareClientBundle\Enum\OrderNotificationType;
 use Horeca\MiddlewareClientBundle\Exception\ApiException;
 use Horeca\MiddlewareClientBundle\Exception\OrderMappingException;
 use Horeca\MiddlewareClientBundle\VO\Provider\BaseProviderOrderResponse;
@@ -180,11 +181,19 @@ class ProtocolActionsService
         }
 
         $notification->setErrorMessage(null);
-        $providerOrder = $this->providerApi->mapShoppingCartToProviderOrder($notification->getTenant(), $cart);
+        if( $notification->isType(OrderNotificationType::NewOrder)){
+            $providerOrder = $this->providerApi->mapShoppingCartToProviderOrder($notification->getTenant(), $cart);
+
+        }else{
+            if ($this->providerApi instanceof OrderUpdatesApiInterface) {
+                $providerOrder = $this->providerApi->mapTenantOrderUpdateToProvider($notification);
+            }else{
+                throw new OrderMappingException('Provider does not support order updates, implement OrderUpdatesApiInterface');
+            }
+        }
         $notification->setProviderPayloadString($this->serializer->serialize($providerOrder, 'json'));
 
         $notification->changeStatus(MappingNotificationStatus::Mapped);
-//        $notification->setNotifiedAt(new \DateTime());
 
         $this->orderNotificationRepository->save($notification);
 
@@ -196,15 +205,27 @@ class ProtocolActionsService
      */
     public function sendTenantOrderToProvider(OrderNotification $notification): BaseProviderOrderResponse
     {
-        $providerOrder = $this->serializer->deserialize($notification->getProviderPayloadString(), $this->providerApi->getMiddlewareToProviderOrderClass(), 'json');
 
-        $errors = $this->validator->validate($providerOrder);
-        if (count($errors) > 0) {
-            throw new OrderMappingException($errors->get(0)->getMessage());
-        }
 
         $credentials = $this->tenantService->compileTenantCredentials($notification->getTenant(), $notification->getServiceCredentials());
-        $response = $this->providerApi->sendOrderToProvider($providerOrder, $credentials);
+
+        if($notification->isType(OrderNotificationType::NewOrder)) {
+
+            $providerOrder = $this->serializer->deserialize($notification->getProviderPayloadString(), $this->providerApi->getMiddlewareToProviderOrderClass(), 'json');
+
+            $errors = $this->validator->validate($providerOrder);
+            if (count($errors) > 0) {
+                throw new OrderMappingException($errors->get(0)->getMessage());
+            }
+
+            $response = $this->providerApi->sendOrderToProvider($providerOrder, $credentials);
+        }else{
+            if($this->providerApi instanceof OrderUpdatesApiInterface) {
+                $response = $this->providerApi->sendTenantOrderUpdateToProvider($notification);
+            }else{
+                throw new OrderMappingException('Provider does not support order updates, implement OrderUpdatesApiInterface');
+            }
+        }
 
         $notification->setResponsePayloadString($this->serializer->serialize($response, 'json'));
         $notification->setProviderObjectId((string)$response->orderId);

@@ -8,7 +8,7 @@ interface OrderUpdatesApiInterface
 {
     public function mapTenantOrderUpdateToProvider(OrderNotification $notification): OrderNotification;
 
-    public function sendTenantOrderToProvider(OrderNotification $notification): OrderNotification;
+    public function sendTenantOrderUpdateToProvider(OrderNotification $notification): OrderNotification;
 
 
 }
