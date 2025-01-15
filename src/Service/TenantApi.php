@@ -34,6 +34,9 @@ class TenantApi implements TenantApiInterface
     {
         $client = $this->tenantClientFactory->client($notification->getTenant());
         $webhook = $client->getWebhook(TenantWebhookName::WEBHOOK_ORDER_NOTIFICATION_EVENT);
+        if(!$webhook){
+            throw new HorecaException(sprintf('%s webhook was not registered for tenant %s', TenantWebhookName::WEBHOOK_ORDER_NOTIFICATION_EVENT, $notification->getTenant()->getName()));
+        }
 
         $data = new OrderNotificationEventDto($event, $notification);
         $context = SerializationContext::create()->setGroups(SerializationGroups::TenantOrderNotificationView);
