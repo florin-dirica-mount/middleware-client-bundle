@@ -170,7 +170,8 @@ class ProtocolActionsService
     /**
      * @throws ApiException
      */
-    public function mapTenantOrderToProviderOrder(OrderNotification $notification): ProviderOrderPayloadInterface
+//    public function mapTenantOrderToProviderOrder(OrderNotification $notification): ProviderOrderPayloadInterface
+    public function mapTenantOrderToProviderOrder(OrderNotification $notification): void
     {
         /** @var ShoppingCart $cart */
         $cart = $this->serializer->deserialize($notification->getTenantPayloadString(), ShoppingCart::class, 'json');
@@ -198,7 +199,7 @@ class ProtocolActionsService
 
         $this->orderNotificationRepository->save($notification);
 
-        return $providerOrder;
+//        return $providerOrder;
     }
 
     /**
