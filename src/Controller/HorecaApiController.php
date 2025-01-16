@@ -21,6 +21,7 @@ use Horeca\MiddlewareClientBundle\Service\InitializeShopApiInterface;
 use Horeca\MiddlewareClientBundle\Service\RequestDeliveryApiInterface;
 use Horeca\MiddlewareClientBundle\VO\Api\OrderNotificationResponseDataDto;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaInitializeShopBody;
+use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaReceiveOrderBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaReceiveOrderUpdateBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaRequestDeliveryBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaSendOrderBody;
@@ -126,8 +127,12 @@ class HorecaApiController extends AbstractController
             $tenant = $this->protocolActionsService->authorizeTenant($request);
 
             try {
-                /** @var HorecaSendOrderBody $body */
-                $body = $this->deserializeRequestBodyAndValidate($request, HorecaSendOrderBody::class);
+                /** @var HorecaReceiveOrderBody $body */
+                $body = $this->deserializeRequestBodyAndValidate($request, HorecaReceiveOrderBody::class);
+
+                // this perform validate and is not the case for updates
+//                $body = $this->deserializeRequestBody($request, HorecaReceiveOrderBody::class);
+
             } catch (\Throwable $e) {
                 if ($e instanceof ApiException) {
                     throw $e;
