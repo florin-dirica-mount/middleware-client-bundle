@@ -174,6 +174,8 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
     {
         $notification = $this->handleMapTenantOrderToProviderMessageBase($message);
 
+        $this->eventDispatcher->dispatch(new TenantOrderEvent($notification), TenantOrderEvent::ORDER_MAPPED);
+
         $this->messageBus->dispatch(new SendTenantOrderToProviderMessage($notification));
 
     }
@@ -269,7 +271,7 @@ class OrderNotificationMessageHandler implements MessageSubscriberInterface
             $this->onOrderNotificationException($notification, $e);
 
             if ($notification->getTenant()->isSubscribedToEvent(MappingNotificationEventName::PROVIDER_NOTIFICATION_FAILED)) {
-                $this->messageBus->dispatch(new OrderNotificationEventMessage(MappingNotificationEventName::PROVIDER_NOTIFICATION_FAILED, $notification));
+                $this->messageBus->dispatch(new OrderNotificationEventMessage(MappingNotificationEventName::PROVIDER_NOTIFICATION_FAILED, $notification , 'handleSendTenantOrderToProviderMessageBase'));
             }
         } finally {
             $this->mappingLogger->logMemoryUsage();

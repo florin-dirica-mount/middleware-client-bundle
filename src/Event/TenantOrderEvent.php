@@ -8,6 +8,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 class TenantOrderEvent extends Event
 {
     public const ORDER_RECEIVED = 'hmc.tenant.order.received';
+    public const ORDER_MAPPED = 'hmc.tenant.order.mapped';
     public const ORDER_UPDATE_RECEIVED = 'hmc.tenant.order.update.received';
     public const ORDER_UPDATE_MAPPED = 'hmc.tenant.order.update.mapped';
 //    public const ORDER_MAPPED = 'hmc.tenant.order.mapped';
