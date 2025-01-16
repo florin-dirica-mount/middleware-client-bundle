@@ -127,11 +127,12 @@ class HorecaApiController extends AbstractController
             $tenant = $this->protocolActionsService->authorizeTenant($request);
 
             try {
-                /** @var HorecaReceiveOrderBody $body */
-                $body = $this->deserializeRequestBodyAndValidate($request, HorecaReceiveOrderBody::class);
-
                 // this perform validate and is not the case for updates
-//                $body = $this->deserializeRequestBody($request, HorecaReceiveOrderBody::class);
+//                /** @var HorecaSendOrderBody $body */
+//                $body = $this->deserializeRequestBodyAndValidate($request, HorecaSendOrderBody::class);
+
+                /** @var HorecaReceiveOrderBody $body */
+                $body = $this->deserializeObject($request->getContent(), HorecaReceiveOrderBody::class);
 
             } catch (\Throwable $e) {
                 if ($e instanceof ApiException) {
@@ -221,7 +222,7 @@ class HorecaApiController extends AbstractController
 
             $order->setTenant($tenant);
             $order->setTenantObjectId($body->cart->getId());
-            if($body->cart->getExternalProviderId()){
+            if ($body->cart->getExternalProviderId()) {
                 $order->setProviderObjectId($body->cart->getExternalProviderId());
             }
             $order->setTenantPayloadString($this->serializer->serialize($body->cart, 'json'));
