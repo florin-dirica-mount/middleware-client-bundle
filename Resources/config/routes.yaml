@@ -27,3 +27,8 @@ horeca_api_shop_availability:
     path: /api/tenant/shop/availability
     controller: Horeca\MiddlewareClientBundle\Controller\HorecaApiController::updateShopAvailability
     methods: [POST]
+
+horeca_api_shop:
+    path: /api/tenant/shop/update
+    controller: Horeca\MiddlewareClientBundle\Controller\HorecaApiController::updateShop
+    methods: [POST]

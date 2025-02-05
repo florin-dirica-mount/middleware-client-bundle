@@ -19,6 +19,7 @@ use Horeca\MiddlewareClientBundle\Message\MapTenantOrderAndSendUpdateToProviderM
 use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
 use Horeca\MiddlewareClientBundle\Service\InitializeShopApiInterface;
 use Horeca\MiddlewareClientBundle\Service\RequestDeliveryApiInterface;
+use Horeca\MiddlewareClientBundle\Service\UpdateShopApiInterface;
 use Horeca\MiddlewareClientBundle\Service\UpdateShopAvailabilityApiInterface;
 use Horeca\MiddlewareClientBundle\VO\Api\OrderNotificationResponseDataDto;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaInitializeShopBody;
@@ -27,6 +28,7 @@ use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaReceiveOrderUpdateBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaRequestDeliveryBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaSendOrderBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaUpdateShopAvailabilityBody;
+use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaUpdateShopBody;
 use Horeca\MiddlewareCommonLib\Constants\ShoppingCartUpdateEvents;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
 use JMS\Serializer\SerializationContext;
@@ -283,6 +285,26 @@ class HorecaApiController extends AbstractController
 
             if ($this->providerApi instanceof UpdateShopAvailabilityApiInterface) {
                 if (!$this->providerApi->updateShopAvailability($tenant, $body->tenantShopId, $body->open)) {
+                    return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
+                }
+            } else {
+                $this->logger->error(sprintf('[%s] Tenant API does not support shop updateShopAvailability', __METHOD__));
+                return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
+            }
+            return new JsonResponse(['success' => true]);
+        } catch (\Exception $e) {
+            return $this->handleException($e);
+        }
+    }
+    public function updateShop(Request $request): Response
+    {
+        try {
+            /** @var HorecaUpdateShopBody $body */
+            $body = $this->deserializeRequestBodyAndValidate($request, HorecaUpdateShopBody::class);
+            $tenant = $this->protocolActionsService->authorizeTenant($request);
+
+            if ($this->providerApi instanceof UpdateShopApiInterface) {
+                if (!$this->providerApi->updateShopAvailability($tenant, $body->tenantShopId, $body->shop)) {
                     return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
                 }
             } else {
