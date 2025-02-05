@@ -7,7 +7,7 @@ use Horeca\MiddlewareCommonLib\Model\Restaurant\Restaurant;
 
 interface UpdateShopApiInterface
 {
-    public function updateShopAvailability(Tenant $tenant, string $tenantShopId, Restaurant $restaurant): bool;
+    public function updateShop(Tenant $tenant, string $tenantShopId, Restaurant $restaurant): bool;
 
 
 }

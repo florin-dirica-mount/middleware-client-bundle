@@ -304,7 +304,7 @@ class HorecaApiController extends AbstractController
             $tenant = $this->protocolActionsService->authorizeTenant($request);
 
             if ($this->providerApi instanceof UpdateShopApiInterface) {
-                if (!$this->providerApi->updateShopAvailability($tenant, $body->tenantShopId, $body->shop)) {
+                if (!$this->providerApi->updateShop($tenant, $body->tenantShopId, $body->shop)) {
                     return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
                 }
             } else {
