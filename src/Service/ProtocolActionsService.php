@@ -2,6 +2,7 @@
 
 namespace Horeca\MiddlewareClientBundle\Service;
 
+use Doctrine\ORM\Mapping\MappingException;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\OrderNotificationRepositoryDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\TenantRepositoryDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProviderApiDI;
@@ -198,6 +199,10 @@ class ProtocolActionsService
         $notification->changeStatus(MappingNotificationStatus::Mapped);
 
         $this->orderNotificationRepository->save($notification);
+
+        if ($cart->isTestOrder()) {
+            throw  new MappingException('Order is marked as  test order');
+        }
 
 //        return $providerOrder;
     }
