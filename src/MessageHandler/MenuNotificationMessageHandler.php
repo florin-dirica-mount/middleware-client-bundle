@@ -97,7 +97,7 @@ class MenuNotificationMessageHandler implements MessageSubscriberInterface
 
             $this->menuNotificationRepository->save($notification);
 
-            $this->mappingLogger->saveTo($notification, 'MenuNotificationMessageHandler::' . __METHOD__);
+            $this->mappingLogger->saveTo($notification, 'MenuNotificationMessageHandler::');
 
             if (!$sync) {
                 $this->messageBus->dispatch(new SendTenantMenuToProviderMessage($notification));
@@ -151,6 +151,8 @@ class MenuNotificationMessageHandler implements MessageSubscriberInterface
             $this->mappingLogger->info(__METHOD__, __LINE__, sprintf('Menu %s sent to provider with id %s', $notification->getId(), $notification->getProviderObjectId()));
 
             $this->menuNotificationRepository->save($notification);
+
+            $this->mappingLogger->saveTo($notification, 'handleSendTenantMenuToProviderMessageBase::');
 
         } catch (\Throwable $e) {
             $this->onNotificationException($notification, $e, __METHOD__);
