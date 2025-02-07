@@ -5,6 +5,7 @@ namespace Horeca\MiddlewareClientBundle\Service;
 use Doctrine\ORM\Mapping\MappingException;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\OrderNotificationRepositoryDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\TenantRepositoryDI;
+use Horeca\MiddlewareClientBundle\DependencyInjection\Service\MappingLoggerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProviderApiDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantApiServiceDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\TenantServiceDI;
@@ -35,6 +36,7 @@ class ProtocolActionsService
     use TenantRepositoryDI;
     use TenantApiServiceDI;
     use TenantServiceDI;
+    use MappingLoggerDI;
 
     public function __construct(protected string              $providerCredentialsClass,
                                 protected LoggerInterface     $logger,
@@ -128,6 +130,8 @@ class ProtocolActionsService
         $notification->setTenantObjectId((string)$response->horecaOrderId);
         $notification->changeStatus(MappingNotificationStatus::Notified);
         $notification->setNotifiedAt(new \DateTime());
+
+        $this->mappingLogger->saveTo($notification, 'sendProviderOrderToTenant::');
 
         $this->orderNotificationRepository->save($notification);
 
