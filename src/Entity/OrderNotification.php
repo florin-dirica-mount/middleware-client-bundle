@@ -45,7 +45,8 @@ class OrderNotification extends MappingNotification
     /* used for event subtypes on update order use : Horeca\MiddlewareCommonLib\Constants\ShoppingCartUpdateEvents  */
     private string $eventType;
 
-    public function getEventType(): string
+    //will be required next version
+    public function getEventType(): ?string
     {
         return $this->eventType;
     }
