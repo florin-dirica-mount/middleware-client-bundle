@@ -43,7 +43,7 @@ class OrderNotification extends MappingNotification
 
     #[ORM\Column(name: "event_type", type: Types::STRING, length: 50, nullable: true)]
     /* used for event subtypes on update order use : Horeca\MiddlewareCommonLib\Constants\ShoppingCartUpdateEvents  */
-    private string $eventType;
+    private ?string $eventType = null;
 
     //will be required next version
     public function getEventType(): ?string
