@@ -29,7 +29,7 @@ use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
             new ORM\JoinColumn(name: "notification_id", referencedColumnName: "id", onDelete: "CASCADE")
         ],
         inverseJoinColumns: [
-            new ORM\JoinColumn(name: "mapping_log_id", referencedColumnName: "id", onDelete: "RESTRICT")
+            new ORM\JoinColumn(name: "mapping_log_id", referencedColumnName: "id", onDelete: "CASCADE")
         ],
         joinTable: new ORM\JoinTable(
             name: "order_notification_has_logs",
