@@ -120,7 +120,7 @@ class MappingNotification extends TenantAwareEntity
     #[ORM\ManyToMany(targetEntity: MappingLog::class, cascade: ["persist"], fetch: "EXTRA_LAZY")]
     #[ORM\JoinTable(name: 'mapping_notifications_mapping_log_entries')]
     #[ORM\JoinColumn(name: 'notification_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    #[ORM\InverseJoinColumn(name: 'mapping_log_id', referencedColumnName: 'id', onDelete: 'RESTRICT')]
+    #[ORM\InverseJoinColumn(name: 'mapping_log_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     #[ORM\OrderBy(["createdAt" => "ASC"])]
     #[Serializer\Exclude]
     private Collection|array $logs;

@@ -28,7 +28,7 @@ use Horeca\MiddlewareClientBundle\Repository\MenuNotificationRepository;
             new ORM\JoinColumn(name: "notification_id", referencedColumnName: "id", onDelete: "CASCADE")
         ],
         inverseJoinColumns: [
-            new ORM\JoinColumn(name: "mapping_log_id", referencedColumnName: "id", onDelete: "RESTRICT")
+            new ORM\JoinColumn(name: "mapping_log_id", referencedColumnName: "id", onDelete: "CASCADE")
         ],
         joinTable: new ORM\JoinTable(
             name: "menu_notification_has_logs",

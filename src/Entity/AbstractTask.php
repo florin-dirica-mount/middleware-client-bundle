@@ -41,7 +41,7 @@ abstract class AbstractTask extends TenantAwareEntity
     #[ORM\ManyToMany(targetEntity: MappingLog::class, cascade: ["persist"], fetch: "EXTRA_LAZY")]
     #[ORM\JoinTable(name: 'tasks_mapping_log_entries')]
     #[ORM\JoinColumn(name: 'task_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    #[ORM\InverseJoinColumn(name: 'mapping_log_id', referencedColumnName: 'id', onDelete: 'RESTRICT')]
+    #[ORM\InverseJoinColumn(name: 'mapping_log_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     #[ORM\OrderBy(["id" => "ASC"])]
     private Collection $logs;
 
