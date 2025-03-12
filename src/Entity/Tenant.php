@@ -44,6 +44,8 @@ class Tenant extends DefaultEntity
 
     #[ORM\Column(type: "json", nullable: true)]
     protected ?array $automaticTasks = null;
+    #[ORM\Column(type: "json", nullable: true)]
+    protected ?array $customObservationProps = null;
 
     public function __construct()
     {
@@ -173,6 +175,16 @@ class Tenant extends DefaultEntity
     {
         $this->automaticTasks = json_decode($automaticTasks, true);
 
+    }
+
+    public function getCustomObservationProps(): ?array
+    {
+        return $this->customObservationProps;
+    }
+
+    public function setCustomObservationProps(?array $customObservationProps): void
+    {
+        $this->customObservationProps = $customObservationProps;
     }
 
 
