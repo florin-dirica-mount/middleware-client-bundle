@@ -187,5 +187,19 @@ class Tenant extends DefaultEntity
         $this->customObservationProps = $customObservationProps;
     }
 
+    public function setCustomObservationPropsString(?string $customObservationProps): void
+    {
+        $this->customObservationProps = json_decode($customObservationProps, true);
+    }
+
+    public function getCustomObservationPropsString(): ?string
+    {
+        if($this->customObservationProps === null) {
+            return null;
+        }
+
+        return json_encode($this->customObservationProps);
+    }
+
 
 }
