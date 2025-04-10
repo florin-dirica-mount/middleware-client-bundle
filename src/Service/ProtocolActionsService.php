@@ -17,6 +17,7 @@ use Horeca\MiddlewareClientBundle\Exception\ApiException;
 use Horeca\MiddlewareClientBundle\Exception\OrderMappingException;
 use Horeca\MiddlewareClientBundle\VO\Provider\BaseProviderOrderResponse;
 use Horeca\MiddlewareClientBundle\VO\Provider\ProviderOrderPayloadInterface;
+use Horeca\MiddlewareClientBundle\VO\Provider\TestProviderOrderInterface;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
 use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
 use Horeca\MiddlewareCommonLib\Model\Protocol\SendShoppingCartResponse;
@@ -204,9 +205,9 @@ class ProtocolActionsService
 
         $this->orderNotificationRepository->save($notification);
 
-        if ($cart->isTestOrder()) {
-            throw  new MappingException('Order is marked as  test order');
-        }
+//        if ($cart->isTestOrder()) {
+//            throw  new MappingException('Order is marked as  test order');
+//        }
 
 //        return $providerOrder;
     }
@@ -223,6 +224,10 @@ class ProtocolActionsService
         if($notification->isType(OrderNotificationType::NewOrder)) {
 
             $providerOrder = $this->serializer->deserialize($notification->getProviderPayloadString(), $this->providerApi->getMiddlewareToProviderOrderClass(), 'json');
+
+            if($providerOrder instanceof TestProviderOrderInterface && $providerOrder->isTestOrder()){
+                throw new MappingException('Order is marked as test order');
+            }
 
             $errors = $this->validator->validate($providerOrder);
             if (count($errors) > 0) {
