@@ -13,7 +13,6 @@ use Horeca\MiddlewareClientBundle\VO\Api\OrderNotificationEventDto;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
 use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
 use Horeca\MiddlewareCommonLib\Model\Protocol\SendShoppingCartResponse;
-use Horeca\MiddlewareCommonLib\Model\Protocol\ShoppingCartStatusUpdate;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -33,8 +32,7 @@ class TenantApi implements TenantApiInterface
     public function sendOrderNotificationEvent(string $event, OrderNotification $notification): void
     {
         $client = $this->tenantClientFactory->client($notification->getTenant());
-        $webhook = $client->getWebhook(TenantWebhookName::WEBHOOK_ORDER_NOTIFICATION_EVENT);
-        if(!$webhook){
+        if (!$webhook = $client->getWebhook(TenantWebhookName::WEBHOOK_ORDER_NOTIFICATION_EVENT)) {
             throw new HorecaException(sprintf('%s webhook was not registered for tenant %s', TenantWebhookName::WEBHOOK_ORDER_NOTIFICATION_EVENT, $notification->getTenant()->getName()));
         }
 
@@ -150,7 +148,7 @@ class TenantApi implements TenantApiInterface
     /**
      * @throws HorecaException
      */
-    public function sendShoppingCartUpdate(Tenant $tenant,string $json, ?string $viewUrl, ?string $eventType): SendShoppingCartResponse
+    public function sendShoppingCartUpdate(Tenant $tenant, string $json, ?string $viewUrl, ?string $eventType): SendShoppingCartResponse
     {
         try {
             $client = $this->tenantClientFactory->client($tenant);
@@ -181,7 +179,7 @@ class TenantApi implements TenantApiInterface
                 $options[$target]['viewUrl'] = $viewUrl;
             }
 
-            if($eventType){
+            if ($eventType) {
                 $options[$target]['eventType'] = $eventType;
             }
 

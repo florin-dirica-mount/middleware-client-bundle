@@ -22,6 +22,10 @@ horeca_api_shop_initialize:
     path: /api/shop/initialize
     controller: Horeca\MiddlewareClientBundle\Controller\HorecaApiController::initializeShop
     methods: [POST]
+horeca_api_sync_and_export_shop_products:
+    path: /api/shop/initialize
+    controller: Horeca\MiddlewareClientBundle\Controller\HorecaApiController::syncAndExport
+    methods: [POST]
 
 horeca_api_shop_availability:
     path: /api/tenant/shop/availability

@@ -19,6 +19,7 @@ use Horeca\MiddlewareClientBundle\Message\MapTenantOrderAndSendUpdateToProviderM
 use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
 use Horeca\MiddlewareClientBundle\Service\InitializeShopApiInterface;
 use Horeca\MiddlewareClientBundle\Service\RequestDeliveryApiInterface;
+use Horeca\MiddlewareClientBundle\Service\SyncAndExportShopProductsApiInterface;
 use Horeca\MiddlewareClientBundle\Service\UpdateShopApiInterface;
 use Horeca\MiddlewareClientBundle\Service\UpdateShopAvailabilityApiInterface;
 use Horeca\MiddlewareClientBundle\VO\Api\OrderNotificationResponseDataDto;
@@ -27,6 +28,7 @@ use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaReceiveOrderBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaReceiveOrderUpdateBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaRequestDeliveryBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaSendOrderBody;
+use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaSyncAndExportShopProductsBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaUpdateShopAvailabilityBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaUpdateShopBody;
 use Horeca\MiddlewareCommonLib\Constants\ShoppingCartUpdateEvents;
@@ -276,6 +278,28 @@ class HorecaApiController extends AbstractController
             return $this->handleException($e);
         }
     }
+
+    public function syncAndExport(Request $request): Response
+    {
+        try {
+            /** @var HorecaSyncAndExportShopProductsBody $body */
+            $body = $this->deserializeRequestBodyAndValidate($request, HorecaSyncAndExportShopProductsBody::class);
+            $tenant = $this->protocolActionsService->authorizeTenant($request);
+
+            if ($this->tenantApiService instanceof SyncAndExportShopProductsApiInterface) {
+                if (!$this->tenantApiService->syncAndExportProducts($tenant, $body->tenantShopId)) {
+                    return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
+                }
+            } else {
+                $this->logger->error(sprintf('[%s] Tenant API does not support shop syncAndExport', __METHOD__));
+                return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
+            }
+            return new JsonResponse(['success' => true]);
+        } catch (\Exception $e) {
+            return $this->handleException($e);
+        }
+    }
+
     public function updateShopAvailability(Request $request): Response
     {
         try {
@@ -296,6 +320,7 @@ class HorecaApiController extends AbstractController
             return $this->handleException($e);
         }
     }
+
     public function updateShop(Request $request): Response
     {
         try {
