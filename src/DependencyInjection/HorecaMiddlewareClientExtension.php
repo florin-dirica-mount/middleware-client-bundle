@@ -35,6 +35,7 @@ class HorecaMiddlewareClientExtension extends Extension
 
         $container->setParameter('horeca.provider_api_class', $config['provider_api_class']);
         $container->setParameter('horeca.provider_credentials_class', $config['provider_credentials_class']);
+        $container->setParameter('horeca.disabled_provider_credentials_on_request', $config['disabled_provider_credentials_on_request']);
 
         $loader->load('services.yaml');
     }
