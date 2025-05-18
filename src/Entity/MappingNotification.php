@@ -20,6 +20,14 @@ use JMS\Serializer\Annotation as Serializer;
 #[ORM\Index(columns: ["service_order_id", "type"])]
 #[ORM\Index(columns: ["restaurant_id", "type"])]
 #[ORM\Index(columns: ["horeca_order_id"])]
+#[ORM\Index(columns: ["tenant_object_id"])]
+#[ORM\Index(columns: ["provider_object_id"])]
+#[ORM\Index(columns: ["tenant_object_id","type"])]
+#[ORM\Index(columns: ["provider_object_id","type"])]
+#[ORM\Index(columns: ["tenant_object_id","status"])]
+#[ORM\Index(columns: ["provider_object_id","status"])]
+#[ORM\Index(columns: ["tenant_object_id","type","status"])]
+#[ORM\Index(columns: ["provider_object_id","type","status"])]
 class MappingNotification extends TenantAwareEntity
 {
     use TenantObjectId;
