@@ -56,6 +56,7 @@ HORECA_MIDDLEWARE_CLIENT_ID="The middleware client id configured in horeca backe
 horeca_middleware_client:
     provider_api_class:                     App\Service\ProviderApi
     provider_credentials_class:             App\Entity\ProviderCredentials # this entity must extend Horeca\MiddlewareClientBundle\Entity\BaseProviderCredentials
+    disabled_provider_credentials_on_request : true
     order_notification_messenger_transport: hmc_order_notification
 ```
 

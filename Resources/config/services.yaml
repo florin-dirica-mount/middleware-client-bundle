@@ -35,6 +35,7 @@ services:
     Horeca\MiddlewareClientBundle\Service\TenantService:
         arguments:
             $providerCredentialsClass: '%horeca.provider_credentials_class%'
+            $disabledProviderCredentialsOnRequest: '%horeca.disabled_provider_credentials_on_request%'
 
     Horeca\MiddlewareClientBundle\Service\ProviderApiInterface:
         class: '%horeca.provider_api_class%'    # It is defined in the bundle's config file

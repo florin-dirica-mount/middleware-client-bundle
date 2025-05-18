@@ -14,6 +14,7 @@ class TenantService
     use TenantRepositoryDI;
 
     public function __construct(protected string               $providerCredentialsClass,
+                                protected string               $disabledProviderCredentialsOnRequest,
                                 protected SerializerInterface  $serializer,
                                 protected ProviderApiInterface $providerApi)
     {
@@ -25,7 +26,7 @@ class TenantService
      */
     public function compileTenantCredentials(Tenant $tenant, ?array $inputCredentials = null)
     {
-        if (empty($inputCredentials)) {
+        if (empty($inputCredentials) || $this->disabledProviderCredentialsOnRequest) {
             $credentials = $this->tenantRepository->findTenantCredentials($tenant, $this->providerCredentialsClass);
         } else {
             $credentialsJson = $this->serializer->serialize($inputCredentials, 'json');

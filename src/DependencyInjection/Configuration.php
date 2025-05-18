@@ -24,6 +24,10 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue('App\Entity\ProviderCredentials')
                 ->end()
 
+                ->scalarNode('disabled_provider_credentials_on_request')
+                    ->defaultValue(true)
+                ->end()
+
                 ->scalarNode('order_notification_messenger_transport')
                     ->defaultValue('hmc_order_notification')
                 ->end()
