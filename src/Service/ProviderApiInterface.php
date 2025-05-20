@@ -24,8 +24,9 @@ interface ProviderApiInterface
      *
      * @param ProviderOrderPayloadInterface $order
      * @param ProviderCredentialsInterface $credentials
+     * @param array | null $extraServiceCredentials
      */
-    public function sendOrderToProvider($order, $credentials): ?BaseProviderOrderResponse;
+    public function sendOrderToProvider($order, $credentials, $extraServiceCredentials = null): ?BaseProviderOrderResponse;
 
     /**
      * Handles the mapping between ShoppingCart and ProviderOrder models

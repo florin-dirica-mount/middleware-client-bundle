@@ -183,7 +183,7 @@ class ProtocolActionsService
         $cart = $this->serializer->deserialize($notification->getTenantPayloadString(), ShoppingCart::class, 'json');
 
         $notification->setErrorMessage(null);
-        if( $notification->isType(OrderNotificationType::NewOrder)){
+        if ($notification->isType(OrderNotificationType::NewOrder)) {
 
             $errors = $this->validator->validate($cart);
             if (count($errors) > 0) {
@@ -192,10 +192,10 @@ class ProtocolActionsService
 
             $providerOrder = $this->providerApi->mapShoppingCartToProviderOrder($notification->getTenant(), $cart);
 
-        }else{
+        } else {
             if ($this->providerApi instanceof OrderUpdatesApiInterface) {
                 $providerOrder = $this->providerApi->mapTenantOrderUpdateToProvider($notification);
-            }else{
+            } else {
                 throw new OrderMappingException('Provider does not support order updates, implement OrderUpdatesApiInterface');
             }
         }
@@ -221,11 +221,11 @@ class ProtocolActionsService
 
         $credentials = $this->tenantService->compileTenantCredentials($notification->getTenant(), $notification->getServiceCredentials());
 
-        if($notification->isType(OrderNotificationType::NewOrder)) {
+        if ($notification->isType(OrderNotificationType::NewOrder)) {
 
             $providerOrder = $this->serializer->deserialize($notification->getProviderPayloadString(), $this->providerApi->getMiddlewareToProviderOrderClass(), 'json');
 
-            if($providerOrder instanceof TestProviderOrderInterface && $providerOrder->isTestOrder()){
+            if ($providerOrder instanceof TestProviderOrderInterface && $providerOrder->isTestOrder()) {
                 throw new MappingException('Order is marked as test order');
             }
 
@@ -234,11 +234,11 @@ class ProtocolActionsService
                 throw new OrderMappingException($errors->get(0)->getMessage());
             }
 
-            $response = $this->providerApi->sendOrderToProvider($providerOrder, $credentials);
-        }else{
-            if($this->providerApi instanceof OrderUpdatesApiInterface) {
+            $response = $this->providerApi->sendOrderToProvider($providerOrder, $credentials, $notification->getServiceCredentials());
+        } else {
+            if ($this->providerApi instanceof OrderUpdatesApiInterface) {
                 $response = $this->providerApi->sendTenantOrderUpdateToProvider($notification);
-            }else{
+            } else {
                 throw new OrderMappingException('Provider does not support order updates, implement OrderUpdatesApiInterface');
             }
         }
