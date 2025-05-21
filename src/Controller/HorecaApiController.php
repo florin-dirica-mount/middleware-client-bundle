@@ -67,7 +67,7 @@ class HorecaApiController extends AbstractController
     {
         try {
             /** @var HorecaRequestDeliveryBody $body */
-            $body = $this->deserializeRequestBodyAndValidate($request, HorecaSendOrderBody::class);
+            $body = $this->deserializeRequestBodyAndValidate($request, HorecaRequestDeliveryBody::class);
             $tenant = $this->protocolActionsService->authorizeTenant($request);
             $credentials = $this->tenantService->compileTenantCredentials($tenant, $body->providerCredentials);
 
