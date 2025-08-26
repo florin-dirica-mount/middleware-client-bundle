@@ -117,4 +117,21 @@ class MappingLog
         $this->createdAt = $createdAt;
     }
 
+    public function appendLog($log): void
+    {
+        if (!$this->log) {
+
+            $this->log = $log;
+
+        } else {
+            $this->log .= $log;
+        }
+
+    }
+
+    public function appendLogLine($log): void
+    {
+        $this->appendLog(sprintf("\n%s", $log));
+    }
+
 }
