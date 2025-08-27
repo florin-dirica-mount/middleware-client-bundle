@@ -134,4 +134,17 @@ class MappingLog
         $this->appendLog(sprintf("\n%s", $log));
     }
 
+    public function appendTimeStampedLogLine($log): void
+    {
+        $text = sprintf("\n[%s] %s", (new \DateTime())->format('Y-m-d h:m:s'), $log);
+
+        $this->appendLogLine($text);
+    }
+
+    public function appendMemoryUsage(): void
+    {
+        $memory = round(memory_get_usage() / 1024 / 1024, 2);
+        $this->appendLogLine(sprintf('Memory: %s MB', $memory));
+    }
+
 }
