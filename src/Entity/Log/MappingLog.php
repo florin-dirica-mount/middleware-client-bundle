@@ -147,4 +147,18 @@ class MappingLog
         $this->appendLogLine(sprintf('Memory: %s MB', $memory));
     }
 
+    public function updateLastAppendedLine(string $newLog): void
+    {
+        $lines = explode("\n", $this->log);
+        if (count($lines) > 1) {
+            array_pop($lines);
+            $this->log = implode("\n", $lines);
+            $this->appendLogLine($newLog);
+        } else {
+            $this->log = $newLog;
+        }
+    }
+
+
+
 }
