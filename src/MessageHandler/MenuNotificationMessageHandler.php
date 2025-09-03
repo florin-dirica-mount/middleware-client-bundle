@@ -232,12 +232,12 @@ class MenuNotificationMessageHandler implements MessageSubscriberInterface
         }
     }
 
-    public function handleMapProviderMenuToTenantMessage(MapTenantMenuToProviderMessage $message): void
+    public function handleMapProviderMenuToTenantMessage(MapProviderMenuToTenantMessage $message): void
     {
         $this->handleMapProviderMenuToTenantMessageBase($message);
     }
 
-    public function handleMapProviderMenuToTenantSyncMessage(MapTenantMenuToProviderSyncMessage $message): void
+    public function handleMapProviderMenuToTenantSyncMessage(MapProviderMenuToTenantSyncMessage $message): void
     {
         $this->handleMapProviderMenuToTenantMessageBase($message, true);
     }
@@ -285,12 +285,12 @@ class MenuNotificationMessageHandler implements MessageSubscriberInterface
 
     }
 
-    public function handleSendProviderMenuToTenantMessage(SendTenantMenuToProviderMessage $message): void
+    public function handleSendProviderMenuToTenantMessage(SendProviderMenuToTenantMessage $message): void
     {
         $this->handleSendProviderMenuToTenantMessageBase($message);
     }
 
-    public function handleSendProviderMenuToTenantSyncMessage(SendTenantMenuToProviderSyncMessage $message): void
+    public function handleSendProviderMenuToTenantSyncMessage(SendProviderMenuToTenantSyncMessage $message): void
     {
         $this->handleSendProviderMenuToTenantMessageBase($message, true);
     }
