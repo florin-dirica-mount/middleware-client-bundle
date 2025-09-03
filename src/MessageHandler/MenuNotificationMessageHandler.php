@@ -11,8 +11,12 @@ use Horeca\MiddlewareClientBundle\Entity\MappingNotification;
 use Horeca\MiddlewareClientBundle\Enum\MappingNotificationStatus;
 use Horeca\MiddlewareClientBundle\Exception\MenuMappingException;
 use Horeca\MiddlewareClientBundle\Message\MappingNotificationMessage;
+use Horeca\MiddlewareClientBundle\Message\Menu\MapProviderMenuToTenantMessage;
+use Horeca\MiddlewareClientBundle\Message\Menu\MapProviderMenuToTenantSyncMessage;
 use Horeca\MiddlewareClientBundle\Message\Menu\MapTenantMenuToProviderMessage;
 use Horeca\MiddlewareClientBundle\Message\Menu\MapTenantMenuToProviderSyncMessage;
+use Horeca\MiddlewareClientBundle\Message\Menu\SendProviderMenuToTenantMessage;
+use Horeca\MiddlewareClientBundle\Message\Menu\SendProviderMenuToTenantSyncMessage;
 use Horeca\MiddlewareClientBundle\Message\Menu\SendTenantMenuToProviderMessage;
 use Horeca\MiddlewareClientBundle\Message\Menu\SendTenantMenuToProviderSyncMessage;
 use Horeca\MiddlewareClientBundle\Message\MessageTransports;
@@ -62,6 +66,25 @@ class MenuNotificationMessageHandler implements MessageSubscriberInterface
         ];
         yield SendTenantMenuToProviderSyncMessage::class => [
             'method'         => 'handleSendTenantMenuToProviderSyncMessage',
+            'from_transport' => MessageTransportsSync::SYNC
+        ];
+
+
+        yield MapProviderMenuToTenantMessage::class => [
+            'method'         => 'handleMapProviderMenuToTenantMessage',
+            'from_transport' => MessageTransports::MAP_PROVIDER_MENU_TO_TENANT
+        ];
+        yield MapProviderMenuToTenantSyncMessage::class => [
+            'method'         => 'handleMapProviderMenuToTenantSyncMessage',
+            'from_transport' => MessageTransportsSync::SYNC
+        ];
+
+        yield SendProviderMenuToTenantMessage::class => [
+            'method'         => 'handleSendProviderMenuToTenantMessage',
+            'from_transport' => MessageTransports::SEND_TENANT_MENU_TO_PROVIDER
+        ];
+        yield SendProviderMenuToTenantSyncMessage::class => [
+            'method'         => 'handleSendProviderMenuToTenantSyncMessage',
             'from_transport' => MessageTransportsSync::SYNC
         ];
 
@@ -168,6 +191,108 @@ class MenuNotificationMessageHandler implements MessageSubscriberInterface
     public function handleSendTenantMenuToProviderSyncMessage(SendTenantMenuToProviderSyncMessage $message): void
     {
         $this->handleSendTenantMenuToProviderMessageBase($message, true);
+    }
+
+
+    public function handleMapProviderMenuToTenantMessageBase(MappingNotificationMessage $message, ?bool $sync = false): void
+    {
+
+        if (!$notification = $this->menuNotificationRepository->find($message->getNotificationId())) {
+            return;
+        }
+
+        $this->mappingLogger->logMemoryUsage();
+
+        try {
+            $notification->changeStatus(MappingNotificationStatus::MappingStarted);
+            $this->menuNotificationRepository->save($notification);
+
+
+            if ($this->providerApi instanceof MenuMapperApiInterface) {
+                $this->providerApi->mapProviderMenuToTenant($notification);
+            } else {
+                throw new MenuMappingException('Provider API does not support menu mapping. Implement MenuMapperApiInterface In ProviderApi');
+            }
+            // after mapping notification should have provider payload
+            if (!$notification->getTenantPayload()) {
+                throw new MenuMappingException('Tenant payload is empty');
+            }
+
+            $notification->changeStatus(MappingNotificationStatus::Mapped);
+
+            $this->menuNotificationRepository->save($notification);
+
+            $this->mappingLogger->saveTo($notification, 'MenuNotificationMessageHandler::');
+
+            if (!$sync) {
+                $this->messageBus->dispatch(new SendProviderMenuToTenantMessage($notification));
+            }
+        } catch (\Throwable $e) {
+            $this->onNotificationException($notification, $e, __METHOD__);
+        }
+    }
+
+    public function handleMapProviderMenuToTenantMessage(MapTenantMenuToProviderMessage $message): void
+    {
+        $this->handleMapProviderMenuToTenantMessageBase($message);
+    }
+
+    public function handleMapProviderMenuToTenantSyncMessage(MapTenantMenuToProviderSyncMessage $message): void
+    {
+        $this->handleMapProviderMenuToTenantMessageBase($message, true);
+    }
+
+
+    public function handleSendProviderMenuToTenantMessageBase(MappingNotificationMessage $message, $sync = false): void
+    {
+
+        $this->mappingLogger->logMemoryUsage();
+        $notification = $this->menuNotificationRepository->find($message->getNotificationId());
+
+        try {
+            if (!$notification->hasStatus(MappingNotificationStatus::Mapped) || empty($notification->getTenantPayload())) {
+                $this->mappingLogger->info(__METHOD__, __LINE__, sprintf('Notification %s status is not *mapped*. Action aborted.', $notification->getId()));
+
+                throw new MenuMappingException('Menu is not sent to tenant.');
+            }
+
+            if ($notification->getStatus() !== MappingNotificationStatus::SendingNotification) {
+                $notification->changeStatus(MappingNotificationStatus::SendingNotification);
+                $this->menuNotificationRepository->save($notification);
+            }
+
+            $this->mappingLogger->info(__METHOD__, __LINE__, 'Sending menu to tenant...');
+
+            if ($this->providerApi instanceof MenuMapperApiInterface) {
+                $notification = $this->providerApi->sendProviderMenuToTenant($notification);
+            } else {
+                throw new MenuMappingException('Provider API does not support menu mapping. Implement MenuMapperApiInterface In ProviderApi');
+            }
+
+            $notification->setNotifiedAt(new \DateTime());
+//            if request succeeded clear provider body
+            $notification->changeStatus(MappingNotificationStatus::Notified);
+
+            $this->mappingLogger->info(__METHOD__, __LINE__, sprintf('Menu %s sent to provider with id %s', $notification->getId(), $notification->getProviderObjectId()));
+
+            $this->menuNotificationRepository->save($notification);
+
+            $this->mappingLogger->saveTo($notification, 'handleSendProviderMenuToTenantMessageBase::');
+
+        } catch (\Throwable $e) {
+            $this->onNotificationException($notification, $e, __METHOD__);
+        }
+
+    }
+
+    public function handleSendProviderMenuToTenantMessage(SendTenantMenuToProviderMessage $message): void
+    {
+        $this->handleSendProviderMenuToTenantMessageBase($message);
+    }
+
+    public function handleSendProviderMenuToTenantSyncMessage(SendTenantMenuToProviderSyncMessage $message): void
+    {
+        $this->handleSendProviderMenuToTenantMessageBase($message, true);
     }
 
 
