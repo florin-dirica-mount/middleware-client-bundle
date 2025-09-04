@@ -198,7 +198,7 @@ class TenantApi implements TenantApiInterface
         }
     }
 
-    public function sendMenuCategory(Tenant $tenant, string $categoryJson): void
+    public function sendMenuCategory(Tenant $tenant, string $categoryJson, string $shopId): void
     {
         try {
             $client = $this->tenantClientFactory->client($tenant);
@@ -218,6 +218,8 @@ class TenantApi implements TenantApiInterface
             }
 
             $options[$target]['payload'] = $payload;
+
+            $options['query']['shopId'] = $shopId;
 
 
             $this->mappingLogger->info(__METHOD__, __LINE__, sprintf('%s %s', $webhook->getMethod(), $webhook->getPath()));
