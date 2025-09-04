@@ -10,6 +10,8 @@ class TenantWebhookName
     const WEBHOOK_GET_PRODUCTS = 'tenant.webhook.get_products';
     const WEBHOOK_EVENTS = 'tenant.webhook.events';
 
+    const WEBHOOK_MENU_CATEGORY_SEND = 'tenant.webhook.menu.category.send';
+
 
     protected function __construct() { }
 }

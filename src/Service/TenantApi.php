@@ -198,4 +198,39 @@ class TenantApi implements TenantApiInterface
         }
     }
 
+    public function sendMenuCategory(Tenant $tenant, string $categoryJson): void
+    {
+        try {
+            $client = $this->tenantClientFactory->client($tenant);
+            $webhook = $client->getWebhook(TenantWebhookName::WEBHOOK_MENU_CATEGORY_SEND);
+
+            if (!$webhook) {
+                throw new HorecaException(sprintf('%s webhook was not registered for tenant %s', TenantWebhookName::WEBHOOK_MENU_CATEGORY_SEND, $tenant->getName()));
+            }
+
+
+            if ($webhook->getMethod() === 'GET') {
+                $target = 'query';
+                $payload = base64_encode($categoryJson);
+            } else {
+                $target = 'json';
+                $payload = json_decode($categoryJson, true);
+            }
+
+            $options[$target]['payload'] = $payload;
+
+
+            $this->mappingLogger->info(__METHOD__, __LINE__, sprintf('%s %s', $webhook->getMethod(), $webhook->getPath()));
+
+            $response = $client->sendWebhook($webhook, $options);
+            $contents = $response->getBody()->getContents();
+            $statusCode = $response->getStatusCode();
+
+            $this->mappingLogger->info(__METHOD__, __LINE__, sprintf('Response: %d %s', $statusCode, $contents));
+
+        } catch (GuzzleException|\Exception $e) {
+            throw new HorecaException($e->getMessage());
+        }
+    }
+
 }
