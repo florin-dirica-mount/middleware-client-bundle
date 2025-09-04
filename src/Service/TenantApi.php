@@ -230,7 +230,7 @@ class TenantApi implements TenantApiInterface
 
             $this->mappingLogger->info(__METHOD__, __LINE__, sprintf('Response: %d %s', $statusCode, $contents));
 
-        } catch (GuzzleException|\Exception $e) {
+        } catch (\Exception $e) {
             throw new HorecaException($e->getMessage());
         }
     }

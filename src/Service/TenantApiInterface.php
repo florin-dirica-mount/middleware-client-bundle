@@ -20,6 +20,6 @@ interface TenantApiInterface
 
     public function sendOrderNotificationEvent(string $event, OrderNotification $notification): void;
 
-    public function sendMenuCategory(Tenant $tenant, string $categoryJson): void;
+    public function sendMenuCategory(Tenant $tenant, string $categoryJson, $shopId): void;
 
 }
