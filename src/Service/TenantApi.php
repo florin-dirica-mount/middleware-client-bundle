@@ -236,7 +236,7 @@ class TenantApi implements TenantApiInterface
     }
 
 
-    public function deployUploadedMenu(Tenant $tenant,  string $shopId): void
+    public function switchMenuWithTmpMenu(Tenant $tenant,  string $shopId): void
     {
         try {
             $client = $this->tenantClientFactory->client($tenant);
@@ -262,7 +262,7 @@ class TenantApi implements TenantApiInterface
             throw new HorecaException($e->getMessage());
         }
     }
-    public function removeLastUploadedMenu(Tenant $tenant,  string $shopId): void
+    public function removeTmpMenu(Tenant $tenant,  string $shopId): void
     {
         try {
             $client = $this->tenantClientFactory->client($tenant);

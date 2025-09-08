@@ -22,7 +22,8 @@ interface TenantApiInterface
 
     public function sendMenuCategory(Tenant $tenant, string $categoryJson, string $shopId): void;
 
-    public function deployUploadedMenu(Tenant $tenant, string $shopId): void;
-    public function removeLastUploadedMenu(Tenant $tenant, string $shopId): void;
+    public function switchMenuWithTmpMenu(Tenant $tenant, string $shopId): void;
+
+    public function removeTmpMenu(Tenant $tenant, string $shopId): void;
 
 }
