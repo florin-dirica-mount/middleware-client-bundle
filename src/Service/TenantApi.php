@@ -240,10 +240,10 @@ class TenantApi implements TenantApiInterface
     {
         try {
             $client = $this->tenantClientFactory->client($tenant);
-            $webhook = $client->getWebhook(TenantWebhookName::WEBHOOK_MENU_DEPLOY);
+            $webhook = $client->getWebhook(TenantWebhookName::WEBHOOK_MENU_SWITCH_WITH_TMP);
 
             if (!$webhook) {
-                throw new HorecaException(sprintf('%s webhook was not registered for tenant %s', TenantWebhookName::WEBHOOK_MENU_DEPLOY, $tenant->getName()));
+                throw new HorecaException(sprintf('%s webhook was not registered for tenant %s', TenantWebhookName::WEBHOOK_MENU_SWITCH_WITH_TMP, $tenant->getName()));
             }
 
 
@@ -266,10 +266,10 @@ class TenantApi implements TenantApiInterface
     {
         try {
             $client = $this->tenantClientFactory->client($tenant);
-            $webhook = $client->getWebhook(TenantWebhookName::WEBHOOK_MENU_REMOVE_LAST_UPLOADED);
+            $webhook = $client->getWebhook(TenantWebhookName::WEBHOOK_MENU_REMOVE_TMP);
 
             if (!$webhook) {
-                throw new HorecaException(sprintf('%s webhook was not registered for tenant %s', TenantWebhookName::WEBHOOK_MENU_REMOVE_LAST_UPLOADED, $tenant->getName()));
+                throw new HorecaException(sprintf('%s webhook was not registered for tenant %s', TenantWebhookName::WEBHOOK_MENU_REMOVE_TMP, $tenant->getName()));
             }
 
 
