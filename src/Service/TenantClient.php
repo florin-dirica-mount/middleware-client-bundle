@@ -9,11 +9,11 @@ use Horeca\MiddlewareClientBundle\Entity\TenantWebhook;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
 use Psr\Http\Message\ResponseInterface;
 
-class TenantClient implements TenantClientInterface
+final class TenantClient implements TenantClientInterface
 {
     private Client $client;
 
-    public function __construct(private Tenant $tenant)
+    public function __construct(private Tenant $tenant, array $options = [])
     {
         $this->client = new Client([
             'base_uri' => $tenant->getWebhookUrl(),
@@ -23,6 +23,7 @@ class TenantClient implements TenantClientInterface
                 'Api-Key'      => $tenant->getWebhookKey()
             ],
             'timeout'  => 30,
+            ...$options
         ]);
     }
 

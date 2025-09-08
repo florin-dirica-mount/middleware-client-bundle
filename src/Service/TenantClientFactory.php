@@ -4,7 +4,7 @@ namespace Horeca\MiddlewareClientBundle\Service;
 
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
 
-final class TenantClientFactory implements TenantClientFactoryInterface
+class TenantClientFactory implements TenantClientFactoryInterface
 {
     /**
      * @var TenantClient[]
@@ -20,8 +20,8 @@ final class TenantClientFactory implements TenantClientFactoryInterface
         return $this->clients[$tenant->getId()];
     }
 
-    private function build(Tenant $tenant): TenantClient
+    private function build(Tenant $tenant, array $options = []): TenantClient
     {
-        return new TenantClient($tenant);
+        return new TenantClient($tenant, $options);
     }
 }
