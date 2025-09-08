@@ -20,7 +20,7 @@ class TenantClientFactory implements TenantClientFactoryInterface
         return $this->clients[$tenant->getId()];
     }
 
-    private function build(Tenant $tenant, array $options = []): TenantClient
+    protected function build(Tenant $tenant, array $options = []): TenantClient
     {
         return new TenantClient($tenant, $options);
     }
