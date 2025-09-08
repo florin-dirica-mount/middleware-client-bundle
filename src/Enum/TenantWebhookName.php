@@ -11,7 +11,8 @@ class TenantWebhookName
     const WEBHOOK_EVENTS = 'tenant.webhook.events';
 
     const WEBHOOK_MENU_CATEGORY_SEND = 'tenant.webhook.menu.category.send';
-
+    const WEBHOOK_MENU_DEPLOY = 'tenant.webhook.menu.deploy';
+    const WEBHOOK_MENU_REMOVE_LAST_UPLOADED = 'tenant.webhook.menu.remove_last_uploaded';
 
     protected function __construct() { }
 }

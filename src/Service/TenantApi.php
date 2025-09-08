@@ -235,4 +235,57 @@ class TenantApi implements TenantApiInterface
         }
     }
 
+
+    public function deployUploadedMenu(Tenant $tenant,  string $shopId): void
+    {
+        try {
+            $client = $this->tenantClientFactory->client($tenant);
+            $webhook = $client->getWebhook(TenantWebhookName::WEBHOOK_MENU_DEPLOY);
+
+            if (!$webhook) {
+                throw new HorecaException(sprintf('%s webhook was not registered for tenant %s', TenantWebhookName::WEBHOOK_MENU_DEPLOY, $tenant->getName()));
+            }
+
+
+            $options['query']['shopId'] = $shopId;
+
+
+            $this->mappingLogger->info(__METHOD__, __LINE__, sprintf('%s %s', $webhook->getMethod(), $webhook->getPath()));
+
+            $response = $client->sendWebhook($webhook, $options);
+            $contents = $response->getBody()->getContents();
+            $statusCode = $response->getStatusCode();
+
+            $this->mappingLogger->info(__METHOD__, __LINE__, sprintf('Response: %d %s', $statusCode, $contents));
+
+        } catch (\Exception $e) {
+            throw new HorecaException($e->getMessage());
+        }
+    }
+    public function removeLastUploadedMenu(Tenant $tenant,  string $shopId): void
+    {
+        try {
+            $client = $this->tenantClientFactory->client($tenant);
+            $webhook = $client->getWebhook(TenantWebhookName::WEBHOOK_MENU_REMOVE_LAST_UPLOADED);
+
+            if (!$webhook) {
+                throw new HorecaException(sprintf('%s webhook was not registered for tenant %s', TenantWebhookName::WEBHOOK_MENU_REMOVE_LAST_UPLOADED, $tenant->getName()));
+            }
+
+
+            $options['query']['shopId'] = $shopId;
+
+
+            $this->mappingLogger->info(__METHOD__, __LINE__, sprintf('%s %s', $webhook->getMethod(), $webhook->getPath()));
+
+            $response = $client->sendWebhook($webhook, $options);
+            $contents = $response->getBody()->getContents();
+            $statusCode = $response->getStatusCode();
+
+            $this->mappingLogger->info(__METHOD__, __LINE__, sprintf('Response: %d %s', $statusCode, $contents));
+
+        } catch (\Exception $e) {
+            throw new HorecaException($e->getMessage());
+        }
+    }
 }
