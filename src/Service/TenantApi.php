@@ -235,7 +235,10 @@ class TenantApi implements TenantApiInterface
         }
     }
 
-    public function createTmpMenu(Tenant $tenant, string $shopId): void
+    /**
+     * @return string
+     */
+    public function createTmpMenu(Tenant $tenant, string $shopId)
     {
         try {
             $client = $this->tenantClientFactory->client($tenant);
@@ -256,6 +259,8 @@ class TenantApi implements TenantApiInterface
             $statusCode = $response->getStatusCode();
 
             $this->mappingLogger->info(__METHOD__, __LINE__, sprintf('Response: %d %s', $statusCode, $contents));
+
+            return $contents;
 
         } catch (\Exception $e) {
             throw new HorecaException($e->getMessage());
