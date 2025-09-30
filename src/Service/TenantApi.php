@@ -235,15 +235,14 @@ class TenantApi implements TenantApiInterface
         }
     }
 
-
-    public function switchMenuWithTmpMenu(Tenant $tenant,  string $shopId): void
+    public function createTmpMenu(Tenant $tenant, string $shopId): void
     {
         try {
             $client = $this->tenantClientFactory->client($tenant);
-            $webhook = $client->getWebhook(TenantWebhookName::WEBHOOK_MENU_SWITCH_WITH_TMP);
+            $webhook = $client->getWebhook(TenantWebhookName::WEBHOOK_MENU_CREATE_TMP);
 
             if (!$webhook) {
-                throw new HorecaException(sprintf('%s webhook was not registered for tenant %s', TenantWebhookName::WEBHOOK_MENU_SWITCH_WITH_TMP, $tenant->getName()));
+                throw new HorecaException(sprintf('%s webhook was not registered for tenant %s', TenantWebhookName::WEBHOOK_MENU_CREATE_TMP, $tenant->getName()));
             }
 
 
@@ -262,7 +261,38 @@ class TenantApi implements TenantApiInterface
             throw new HorecaException($e->getMessage());
         }
     }
-    public function removeTmpMenu(Tenant $tenant,  string $shopId): void
+
+    public function switchMenuWithTmpMenu(Tenant $tenant, string $shopId, ?string $menuId = null): void
+    {
+        try {
+            $client = $this->tenantClientFactory->client($tenant);
+            $webhook = $client->getWebhook(TenantWebhookName::WEBHOOK_MENU_SWITCH_WITH_TMP);
+
+            if (!$webhook) {
+                throw new HorecaException(sprintf('%s webhook was not registered for tenant %s', TenantWebhookName::WEBHOOK_MENU_SWITCH_WITH_TMP, $tenant->getName()));
+            }
+
+
+            $options['query']['shopId'] = $shopId;
+            if ($menuId) {
+                $options['query']['menuId'] = $menuId;
+            }
+
+
+            $this->mappingLogger->info(__METHOD__, __LINE__, sprintf('%s %s', $webhook->getMethod(), $webhook->getPath()));
+
+            $response = $client->sendWebhook($webhook, $options);
+            $contents = $response->getBody()->getContents();
+            $statusCode = $response->getStatusCode();
+
+            $this->mappingLogger->info(__METHOD__, __LINE__, sprintf('Response: %d %s', $statusCode, $contents));
+
+        } catch (\Exception $e) {
+            throw new HorecaException($e->getMessage());
+        }
+    }
+
+    public function removeTmpMenu(Tenant $tenant, string $shopId): void
     {
         try {
             $client = $this->tenantClientFactory->client($tenant);
