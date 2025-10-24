@@ -77,7 +77,7 @@ class HorecaApiController extends AbstractController
             }
 
             if ($this->providerApi instanceof RequestDeliveryApiInterface) {
-                if (!$this->providerApi->requestDelivery($body, $credentials)) {
+                if (!$this->providerApi->requestDelivery($tenant, $body, $credentials)) {
                     return new JsonResponse(['success' => false], Response::HTTP_BAD_REQUEST);
                 }
             } else {

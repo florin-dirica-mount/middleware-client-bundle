@@ -14,6 +14,6 @@ interface RequestDeliveryApiInterface
     /**
      * @param ProviderCredentialsInterface $credentials
      */
-    public function requestDelivery(HorecaRequestDeliveryBody $body, $credentials): bool;
+    public function requestDelivery(Tenant $tenant, HorecaRequestDeliveryBody $body, $credentials): bool;
 
 }
