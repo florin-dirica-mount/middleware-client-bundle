@@ -56,5 +56,8 @@ class HorecaRequestDeliveryForm
     #[Serializer\SerializedName('payment_type')]
     #[Serializer\Type('string')]
     public ?string $paymentType = null;
+    #[Serializer\SerializedName('delivery_code')]
+    #[Serializer\Type('string')]
+    public ?string $deliveryCode = null;
 
 }
