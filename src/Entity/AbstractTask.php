@@ -6,11 +6,24 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Horeca\MiddlewareClientBundle\Entity\Log\MappingLog;
+use Horeca\MiddlewareClientBundle\Enum\SerializationGroups;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 
 #[ORM\MappedSuperclass]
 abstract class AbstractTask
 {
+    #[ORM\Id]
+    #[ORM\Column(name: "id", type: "uuid")]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
+    #[Serializer\Expose]
+    #[Serializer\Groups([SerializationGroups::Default, SerializationGroups::TenantOrderNotificationView])]
+    protected ?string $id = null;
+
+    #[ORM\Column(name: "created_at", type: "datetime", nullable: false, options: ["default" => "CURRENT_TIMESTAMP"])]
+    protected \DateTime $createdAt;
+
     #[ORM\ManyToOne(targetEntity: Tenant::class, cascade: ["persist"])]
     #[ORM\JoinColumn(name: "tenant_id", referencedColumnName: "id", nullable: true, onDelete: "CASCADE")]
     #[Serializer\Exclude]
@@ -54,6 +67,35 @@ abstract class AbstractTask
     public function __construct()
     {
         $this->logs = new ArrayCollection();
+        $this->createdAt = new \DateTime();
+
+    }
+
+    public function __toString()
+    {
+        return $this->getName() ?? 'Unnamed Task - ' . $this->getId();
+    }
+
+    public function getId(): ?string
+    {
+        return $this->id;
+    }
+
+
+    /**
+     * @return \DateTime
+     */
+    public function getCreatedAt(): \DateTime
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * @param \DateTime $createdAt
+     */
+    public function setCreatedAt(\DateTime $createdAt): void
+    {
+        $this->createdAt = $createdAt;
     }
 
     public function getTenant(): ?Tenant
@@ -64,22 +106,6 @@ abstract class AbstractTask
     public function setTenant(?Tenant $tenant): void
     {
         $this->tenant = $tenant;
-    }
-
-    public function __toString()
-    {
-        return $this->getName() ?? 'Unnamed Task - ' . $this->getId();
-    }
-
-
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    public function setId(string $id): void
-    {
-        $this->id = $id;
     }
 
     public function getName(): string

@@ -13,6 +13,7 @@ use Horeca\MiddlewareClientBundle\Enum\MappingNotificationStatus;
 use Horeca\MiddlewareClientBundle\Enum\OrderNotificationType;
 use Horeca\MiddlewareClientBundle\Enum\SerializationGroups;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 
 #[ORM\MappedSuperclass]
 #[ORM\Index(columns: ["created_at", "status"])]
@@ -32,6 +33,17 @@ class MappingNotification
 {
     use TenantObjectId;
     use ProviderObjectId;
+
+    #[ORM\Id]
+    #[ORM\Column(name: "id", type: "uuid")]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
+    #[Serializer\Expose]
+    #[Serializer\Groups([SerializationGroups::Default, SerializationGroups::TenantOrderNotificationView])]
+    protected ?string $id = null;
+
+    #[ORM\Column(name: "created_at", type: "datetime", nullable: false, options: ["default" => "CURRENT_TIMESTAMP"])]
+    protected \DateTime $createdAt;
 
     /**
      * @deprecated use getTenantObjectId
@@ -149,10 +161,9 @@ class MappingNotification
     #[Serializer\Exclude]
     protected ?Tenant $tenant = null;
 
-
     public function __construct()
     {
-
+        $this->createdAt = new \DateTime();
         $this->statusEntriesHistory = new ArrayCollection();
         $this->statusEntries = new ArrayCollection();
         $this->logs = new ArrayCollection();
@@ -560,6 +571,28 @@ class MappingNotification
     public function setProcessTime(?\DateInterval $processTime): void
     {
         $this->processTime = $processTime;
+    }
+
+    public function getId(): ?string
+    {
+        return $this->id;
+    }
+
+
+    /**
+     * @return \DateTime
+     */
+    public function getCreatedAt(): \DateTime
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * @param \DateTime $createdAt
+     */
+    public function setCreatedAt(\DateTime $createdAt): void
+    {
+        $this->createdAt = $createdAt;
     }
 
 
