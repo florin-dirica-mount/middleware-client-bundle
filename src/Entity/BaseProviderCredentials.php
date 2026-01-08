@@ -5,7 +5,7 @@ namespace Horeca\MiddlewareClientBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Horeca\MiddlewareClientBundle\VO\Provider\ProviderCredentialsInterface;
 use JMS\Serializer\Annotation\Exclude;
-use Ramsey\Uuid\Doctrine\UuidGenerator;
+use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 
 #[ORM\MappedSuperclass]
 abstract class BaseProviderCredentials implements ProviderCredentialsInterface

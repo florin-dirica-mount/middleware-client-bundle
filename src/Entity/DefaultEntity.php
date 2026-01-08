@@ -5,7 +5,7 @@ namespace Horeca\MiddlewareClientBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Horeca\MiddlewareClientBundle\Enum\SerializationGroups;
 use JMS\Serializer\Annotation as Serializer;
-use Ramsey\Uuid\Doctrine\UuidGenerator;
+use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 
 abstract class DefaultEntity
 {
