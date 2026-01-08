@@ -22,13 +22,13 @@ use JMS\Serializer\Annotation as Serializer;
 #[ORM\Index(columns: ["horeca_order_id"])]
 #[ORM\Index(columns: ["tenant_object_id"])]
 #[ORM\Index(columns: ["provider_object_id"])]
-#[ORM\Index(columns: ["tenant_object_id","type"])]
-#[ORM\Index(columns: ["provider_object_id","type"])]
-#[ORM\Index(columns: ["tenant_object_id","status"])]
-#[ORM\Index(columns: ["provider_object_id","status"])]
-#[ORM\Index(columns: ["tenant_object_id","type","status"])]
-#[ORM\Index(columns: ["provider_object_id","type","status"])]
-class MappingNotification extends TenantAwareEntity
+#[ORM\Index(columns: ["tenant_object_id", "type"])]
+#[ORM\Index(columns: ["provider_object_id", "type"])]
+#[ORM\Index(columns: ["tenant_object_id", "status"])]
+#[ORM\Index(columns: ["provider_object_id", "status"])]
+#[ORM\Index(columns: ["tenant_object_id", "type", "status"])]
+#[ORM\Index(columns: ["provider_object_id", "type", "status"])]
+class MappingNotification
 {
     use TenantObjectId;
     use ProviderObjectId;
@@ -144,9 +144,14 @@ class MappingNotification extends TenantAwareEntity
     #[Serializer\Exclude]
     private Collection|array $statusEntries;
 
+    #[ORM\ManyToOne(targetEntity: Tenant::class, cascade: ["persist"])]
+    #[ORM\JoinColumn(name: "tenant_id", referencedColumnName: "id", nullable: true, onDelete: "CASCADE")]
+    #[Serializer\Exclude]
+    protected ?Tenant $tenant = null;
+
+
     public function __construct()
     {
-        parent::__construct();
 
         $this->statusEntriesHistory = new ArrayCollection();
         $this->statusEntries = new ArrayCollection();
@@ -159,6 +164,16 @@ class MappingNotification extends TenantAwareEntity
     public function __toString()
     {
         return sprintf('%s - %s', $this->status, $this->horecaOrderId);
+    }
+
+    public function getTenant(): ?Tenant
+    {
+        return $this->tenant;
+    }
+
+    public function setTenant(?Tenant $tenant): void
+    {
+        $this->tenant = $tenant;
     }
 
     public function changeStatus(string $status): void

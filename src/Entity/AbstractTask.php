@@ -6,10 +6,16 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Horeca\MiddlewareClientBundle\Entity\Log\MappingLog;
+use JMS\Serializer\Annotation as Serializer;
 
 #[ORM\MappedSuperclass]
-abstract class AbstractTask extends TenantAwareEntity
+abstract class AbstractTask
 {
+    #[ORM\ManyToOne(targetEntity: Tenant::class, cascade: ["persist"])]
+    #[ORM\JoinColumn(name: "tenant_id", referencedColumnName: "id", nullable: true, onDelete: "CASCADE")]
+    #[Serializer\Exclude]
+    protected ?Tenant $tenant = null;
+
     #[ORM\Column(type: "string", length: 255)]
     protected string $name;
     #[ORM\Column(type: "string", length: 255, nullable: false)]
@@ -47,10 +53,18 @@ abstract class AbstractTask extends TenantAwareEntity
 
     public function __construct()
     {
-        parent::__construct();
         $this->logs = new ArrayCollection();
     }
 
+    public function getTenant(): ?Tenant
+    {
+        return $this->tenant;
+    }
+
+    public function setTenant(?Tenant $tenant): void
+    {
+        $this->tenant = $tenant;
+    }
 
     public function __toString()
     {
