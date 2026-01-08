@@ -50,9 +50,7 @@ services:
     Horeca\MiddlewareClientBundle\Service\TenantClientFactoryInterface:
         class: Horeca\MiddlewareClientBundle\Service\TenantClientFactory
 
-    Horeca\MiddlewareClientBundle\MessageHandler\OrderNotificationMessageHandler:
-        tags:
-            - { name: messenger.message_handler }
+    Horeca\MiddlewareClientBundle\MessageHandler\OrderNotificationMessageHandler: ~
 
     Horeca\MiddlewareClientBundle\MessageHandler\MenuNotificationMessageHandler:
         tags:
