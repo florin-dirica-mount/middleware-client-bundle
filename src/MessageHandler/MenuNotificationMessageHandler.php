@@ -24,13 +24,16 @@ use Horeca\MiddlewareClientBundle\Message\MessageTransportsSync;
 use Horeca\MiddlewareClientBundle\Service\MenuMapperApiInterface;
 use JMS\Serializer\SerializerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * Handles menu notifications processing
+ * 
+ * This handler uses the #[AsMessageHandler] attribute on each method for Symfony 5.4+ compatibility.
+ * The attributes work with PHP 8+ and are supported in Symfony 5.4, 6.x, and 7.x.
  */
-class MenuNotificationMessageHandler implements MessageSubscriberInterface
+class MenuNotificationMessageHandler
 {
     use MenuNotificationRepositoryDI;
     use ProductNotificationRepositoryDI;
@@ -45,53 +48,7 @@ class MenuNotificationMessageHandler implements MessageSubscriberInterface
     {
     }
 
-    /**
-     * @inheritDoc
-     */
-    public static function getHandledMessages(): iterable
-    {
-        yield MapTenantMenuToProviderMessage::class => [
-            'method'         => 'handleMapTenantMenuToProviderMessage',
-            'from_transport' => MessageTransports::MAP_TENANT_MENU_TO_PROVIDER
-        ];
-        yield MapTenantMenuToProviderSyncMessage::class => [
-            'method'         => 'handleMapTenantMenuToProviderSyncMessage',
-            'from_transport' => MessageTransportsSync::SYNC
-        ];
-
-
-        yield SendTenantMenuToProviderMessage::class => [
-            'method'         => 'handleSendTenantMenuToProviderMessage',
-            'from_transport' => MessageTransports::SEND_TENANT_MENU_TO_PROVIDER
-        ];
-        yield SendTenantMenuToProviderSyncMessage::class => [
-            'method'         => 'handleSendTenantMenuToProviderSyncMessage',
-            'from_transport' => MessageTransportsSync::SYNC
-        ];
-
-
-        yield MapProviderMenuToTenantMessage::class => [
-            'method'         => 'handleMapProviderMenuToTenantMessage',
-            'from_transport' => MessageTransports::MAP_PROVIDER_MENU_TO_TENANT
-        ];
-        yield MapProviderMenuToTenantSyncMessage::class => [
-            'method'         => 'handleMapProviderMenuToTenantSyncMessage',
-            'from_transport' => MessageTransportsSync::SYNC
-        ];
-
-        yield SendProviderMenuToTenantMessage::class => [
-            'method'         => 'handleSendProviderMenuToTenantMessage',
-            'from_transport' => MessageTransports::SEND_PROVIDER_MENU_TO_TENANT
-        ];
-        yield SendProviderMenuToTenantSyncMessage::class => [
-            'method'         => 'handleSendProviderMenuToTenantSyncMessage',
-            'from_transport' => MessageTransportsSync::SYNC
-        ];
-
-
-    }
-
-    public function handleMapTenantMenuToProviderMessageBase(MappingNotificationMessage $message, ?bool $sync = false): void
+    protected function handleMapTenantMenuToProviderMessageBase(MappingNotificationMessage $message, ?bool $sync = false): void
     {
         $notification = $this->menuNotificationRepository->find($message->getNotificationId());
 
@@ -130,18 +87,20 @@ class MenuNotificationMessageHandler implements MessageSubscriberInterface
         }
     }
 
+    #[AsMessageHandler(fromTransport: MessageTransports::MAP_TENANT_MENU_TO_PROVIDER)]
     public function handleMapTenantMenuToProviderMessage(MapTenantMenuToProviderMessage $message): void
     {
         $this->handleMapTenantMenuToProviderMessageBase($message);
     }
 
+    #[AsMessageHandler(fromTransport: MessageTransportsSync::SYNC)]
     public function handleMapTenantMenuToProviderSyncMessage(MapTenantMenuToProviderSyncMessage $message): void
     {
         $this->handleMapTenantMenuToProviderMessageBase($message, true);
     }
 
 
-    public function handleSendTenantMenuToProviderMessageBase(MappingNotificationMessage $message, $sync = false): void
+    protected function handleSendTenantMenuToProviderMessageBase(MappingNotificationMessage $message, $sync = false): void
     {
 
         $this->mappingLogger->logMemoryUsage();
@@ -183,18 +142,20 @@ class MenuNotificationMessageHandler implements MessageSubscriberInterface
 
     }
 
+    #[AsMessageHandler(fromTransport: MessageTransports::SEND_TENANT_MENU_TO_PROVIDER)]
     public function handleSendTenantMenuToProviderMessage(SendTenantMenuToProviderMessage $message): void
     {
         $this->handleSendTenantMenuToProviderMessageBase($message);
     }
 
+    #[AsMessageHandler(fromTransport: MessageTransportsSync::SYNC)]
     public function handleSendTenantMenuToProviderSyncMessage(SendTenantMenuToProviderSyncMessage $message): void
     {
         $this->handleSendTenantMenuToProviderMessageBase($message, true);
     }
 
 
-    public function handleMapProviderMenuToTenantMessageBase(MappingNotificationMessage $message, ?bool $sync = false): void
+    protected function handleMapProviderMenuToTenantMessageBase(MappingNotificationMessage $message, ?bool $sync = false): void
     {
 
         if (!$notification = $this->menuNotificationRepository->find($message->getNotificationId())) {
@@ -232,18 +193,20 @@ class MenuNotificationMessageHandler implements MessageSubscriberInterface
         }
     }
 
+    #[AsMessageHandler(fromTransport: MessageTransports::MAP_PROVIDER_MENU_TO_TENANT)]
     public function handleMapProviderMenuToTenantMessage(MapProviderMenuToTenantMessage $message): void
     {
         $this->handleMapProviderMenuToTenantMessageBase($message);
     }
 
+    #[AsMessageHandler(fromTransport: MessageTransportsSync::SYNC)]
     public function handleMapProviderMenuToTenantSyncMessage(MapProviderMenuToTenantSyncMessage $message): void
     {
         $this->handleMapProviderMenuToTenantMessageBase($message, true);
     }
 
 
-    public function handleSendProviderMenuToTenantMessageBase(MappingNotificationMessage $message, $sync = false): void
+    protected function handleSendProviderMenuToTenantMessageBase(MappingNotificationMessage $message, $sync = false): void
     {
 
         $this->mappingLogger->logMemoryUsage();
@@ -285,11 +248,13 @@ class MenuNotificationMessageHandler implements MessageSubscriberInterface
 
     }
 
+    #[AsMessageHandler(fromTransport: MessageTransports::SEND_PROVIDER_MENU_TO_TENANT)]
     public function handleSendProviderMenuToTenantMessage(SendProviderMenuToTenantMessage $message): void
     {
         $this->handleSendProviderMenuToTenantMessageBase($message);
     }
 
+    #[AsMessageHandler(fromTransport: MessageTransportsSync::SYNC)]
     public function handleSendProviderMenuToTenantSyncMessage(SendProviderMenuToTenantSyncMessage $message): void
     {
         $this->handleSendProviderMenuToTenantMessageBase($message, true);

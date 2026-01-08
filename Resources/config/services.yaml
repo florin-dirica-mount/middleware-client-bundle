@@ -52,6 +52,4 @@ services:
 
     Horeca\MiddlewareClientBundle\MessageHandler\OrderNotificationMessageHandler: ~
 
-    Horeca\MiddlewareClientBundle\MessageHandler\MenuNotificationMessageHandler:
-        tags:
-            - { name: messenger.message_handler }
+    Horeca\MiddlewareClientBundle\MessageHandler\MenuNotificationMessageHandler: ~
