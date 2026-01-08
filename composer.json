@@ -1,79 +1,76 @@
 {
-    "name": "horeca/middleware-client-bundle",
-    "description": "A symfony bundle containing core functionality for custom horeca services integrations",
-    "type": "symfony-bundle",
-    "authors": [
-        {
-            "name": "Florin Dirica",
-            "email": "florin.dirica@mountsoftware.ro"
-        }
-    ],
-    "require": {
-        "php": ">=8.0",
-        "ext-ctype": "*",
-        "ext-iconv": "*",
-        "ext-json": "*",
-        "ext-openssl": "*",
-        "doctrine/doctrine-bundle": "^2.1",
-        "doctrine/orm": "^2.10",
-        "guzzlehttp/guzzle": "^6.2 || ^7.0",
-        "horeca/middleware-common-lib": "3.0.x-dev",
-        "jms/serializer": "^3.10",
-        "ramsey/uuid": "^4.2",
-        "ramsey/uuid-doctrine": "^1.8",
-        "symfony/framework-bundle": "^5.0 || ^6.2",
-        "symfony/http-foundation": "^5.0 || ^6.2",
-        "symfony/messenger": "^5.4",
-        "symfony/validator": "^5.0 || ^6.2",
-        "symfony/yaml": "^5.0 || ^6.2"
-    },
-    "require-dev": {
-        "doctrine/doctrine-fixtures-bundle": "^3.4",
-        "phpunit/phpunit": "^9.5",
-        "symfony/phpunit-bridge": "^5.1"
-    },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://gitlab.com/horeca-universal/libs/middleware-common-lib.git"
-        }
-    ],
-    "autoload": {
-        "psr-4": {
-            "Horeca\\MiddlewareClientBundle\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Horeca\\MiddlewareClientBundle\\Tests\\": "tests/"
-        }
-    },
-    "scripts": {
-        "auto-scripts": {
-            "cache:clear": "symfony-cmd",
-            "assets:install %PUBLIC_DIR%": "symfony-cmd"
-        },
-        "post-install-cmd": [
-            "Horeca\\MiddlewareClientBundle\\Composer\\ComposerScripts::postInstall"
-        ],
-        "post-update-cmd": [
-            "Horeca\\MiddlewareClientBundle\\Composer\\ComposerScripts::postUpdate"
-        ]
-    },
-    "extra": {
-        "symfony": {
-            "docker": true,
-            "allow-contrib": true,
-            "endpoint": [
-                "https://api.github.com/repos/florin-dirica-mount/middleware-client-bundle-recipe/contents/index.json",
-                "flex://defaults"
-            ]
-        }
-    },
-    "config": {
-        "allow-plugins": {
-            "symfony/flex": true,
-            "symfony/runtime": true
-        }
-    }
+	"name": "horeca/middleware-client-bundle",
+	"description": "A symfony bundle containing core functionality for custom horeca services integrations",
+	"type": "symfony-bundle",
+	"authors": [
+		{
+			"name": "Florin Dirica",
+			"email": "florin.dirica@mountsoftware.ro"
+		}
+	],
+	"require": {
+		"php": ">=8.1",
+		"ext-ctype": "*",
+		"ext-iconv": "*",
+		"ext-json": "*",
+		"ext-openssl": "*",
+		"doctrine/doctrine-bundle": "^2.1",
+		"doctrine/orm": "^2.10",
+		"guzzlehttp/guzzle": "^6.2 || ^7.0",
+		"horeca/middleware-common-lib": "3.0.x-dev",
+		"jms/serializer": "^3.10",
+		"ramsey/uuid": "^4.2",
+		"ramsey/uuid-doctrine": "^1.8",
+		"symfony/framework-bundle": "^5.4 || ^6.2 || ^7.0",
+		"symfony/http-foundation": "^5.4 || ^6.2 || ^7.0",
+		"symfony/messenger": "^5.4 || ^6.2 || ^7.0",
+		"symfony/validator": "^5.4 || ^6.2 || ^7.0",
+		"symfony/yaml": "^5.4 || ^6.2 || ^7.0"
+	},
+	"require-dev": {
+	},
+	"repositories": [
+		{
+			"type": "vcs",
+			"url": "https://gitlab.com/horeca-universal/libs/middleware-common-lib.git"
+		}
+	],
+	"autoload": {
+		"psr-4": {
+			"Horeca\\MiddlewareClientBundle\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Horeca\\MiddlewareClientBundle\\Tests\\": "tests/"
+		}
+	},
+	"scripts": {
+		"auto-scripts": {
+			"cache:clear": "symfony-cmd",
+			"assets:install %PUBLIC_DIR%": "symfony-cmd"
+		},
+		"post-install-cmd": [
+			"Horeca\\MiddlewareClientBundle\\Composer\\ComposerScripts::postInstall"
+		],
+		"post-update-cmd": [
+			"Horeca\\MiddlewareClientBundle\\Composer\\ComposerScripts::postUpdate"
+		]
+	},
+	"extra": {
+		"symfony": {
+			"docker": true,
+			"allow-contrib": true,
+			"endpoint": [
+				"https://api.github.com/repos/florin-dirica-mount/middleware-client-bundle-recipe/contents/index.json",
+				"flex://defaults"
+			]
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"symfony/flex": true,
+			"symfony/runtime": true
+		}
+	}
 }
