@@ -4,7 +4,7 @@ namespace Horeca\MiddlewareClientBundle\VO\Api;
 
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Enum\SerializationGroups;
-use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Attribute as Serializer;
 
 final class OrderNotificationResponseDataDto
 {

@@ -4,7 +4,7 @@ namespace Horeca\MiddlewareClientBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Horeca\MiddlewareClientBundle\Enum\SerializationGroups;
-use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Attribute as Serializer;
 
 #[ORM\Entity]
 #[ORM\Table(name: "hmc_status_entries")]

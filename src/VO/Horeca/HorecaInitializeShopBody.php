@@ -2,7 +2,7 @@
 
 namespace Horeca\MiddlewareClientBundle\VO\Horeca;
 
-use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Attribute as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class HorecaInitializeShopBody
@@ -10,16 +10,13 @@ class HorecaInitializeShopBody
 
 
     #[Serializer\SerializedName("shop_name")]
-    #[Serializer\Type("string")]
     public ?string $shopName = null;
 
     #[Serializer\SerializedName("tenant_shop_id")]
-    #[Serializer\Type("string")]
     #[Assert\NotNull(message: "app.parameter.tenant_shop_id.not_null")]
     public string $tenantShopId;
 
     #[Serializer\SerializedName("provider_shop_id")]
-    #[Serializer\Type("string")]
     #[Assert\NotNull(message: "app.parameter.provider_shop_id.not_null")]
     public string $providerShopId;
 

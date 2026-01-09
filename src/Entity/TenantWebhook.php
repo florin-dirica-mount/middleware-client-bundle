@@ -3,8 +3,8 @@
 namespace Horeca\MiddlewareClientBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as Serializer;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Attribute as Serializer;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'tenant_webhooks')]
@@ -13,7 +13,7 @@ class TenantWebhook extends DefaultEntity
 {
     #[ORM\ManyToOne(targetEntity: Tenant::class, cascade: ["persist"], inversedBy: 'webhooks')]
     #[ORM\JoinColumn(name: "tenant_id", referencedColumnName: "id", nullable: true, onDelete: "CASCADE")]
-    #[Serializer\Exclude]
+    #[Serializer\Ignore]
     protected ?Tenant $tenant = null;
 
     #[ORM\Column(name: 'name', type: 'string', nullable: false)]

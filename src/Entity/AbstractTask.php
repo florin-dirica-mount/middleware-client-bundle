@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Horeca\MiddlewareClientBundle\Entity\Log\MappingLog;
 use Horeca\MiddlewareClientBundle\Enum\SerializationGroups;
-use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Attribute as Serializer;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 
 #[ORM\MappedSuperclass]
@@ -17,7 +17,6 @@ abstract class AbstractTask
     #[ORM\Column(name: "id", type: "uuid")]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
-    #[Serializer\Expose]
     #[Serializer\Groups([SerializationGroups::Default, SerializationGroups::TenantOrderNotificationView])]
     protected ?string $id = null;
 
@@ -26,7 +25,7 @@ abstract class AbstractTask
 
     #[ORM\ManyToOne(targetEntity: Tenant::class, cascade: ["persist"])]
     #[ORM\JoinColumn(name: "tenant_id", referencedColumnName: "id", nullable: true, onDelete: "CASCADE")]
-    #[Serializer\Exclude]
+    #[Serializer\Ignore]
     protected ?Tenant $tenant = null;
 
     #[ORM\Column(type: "string", length: 255)]

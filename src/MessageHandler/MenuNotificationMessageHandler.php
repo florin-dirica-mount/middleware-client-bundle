@@ -22,14 +22,13 @@ use Horeca\MiddlewareClientBundle\Message\Menu\SendTenantMenuToProviderSyncMessa
 use Horeca\MiddlewareClientBundle\Message\MessageTransports;
 use Horeca\MiddlewareClientBundle\Message\MessageTransportsSync;
 use Horeca\MiddlewareClientBundle\Service\MenuMapperApiInterface;
-use JMS\Serializer\SerializerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * Handles menu notifications processing
- * 
+ *
  * This handler uses the #[AsMessageHandler] attribute on each method for Symfony 5.4+ compatibility.
  * The attributes work with PHP 8+ and are supported in Symfony 5.4, 6.x, and 7.x.
  */
@@ -43,7 +42,6 @@ class MenuNotificationMessageHandler
     public function __construct(protected MessageBusInterface    $messageBus,
                                 protected EntityManagerInterface $entityManager,
                                 protected LoggerInterface        $logger,
-                                protected SerializerInterface    $serializer,
     )
     {
     }

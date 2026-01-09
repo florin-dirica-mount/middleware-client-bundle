@@ -3,10 +3,6 @@
 namespace Horeca\MiddlewareClientBundle\Entity\Log;
 
 use Doctrine\ORM\Mapping as ORM;
-use Horeca\MiddlewareClientBundle\Entity\MenuNotification;
-use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
-use Horeca\MiddlewareClientBundle\Entity\ProductNotification;
-use JMS\Serializer\Annotation as Serializer;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'hmc_mapping_logs')]
@@ -158,7 +154,6 @@ class MappingLog
             $this->log = $newLog;
         }
     }
-
 
 
 }

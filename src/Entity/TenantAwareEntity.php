@@ -3,7 +3,7 @@
 namespace Horeca\MiddlewareClientBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Attribute as Serializer;
 
 /**
  * Any entity that contains data owned by a Tenant should extend this class.
@@ -12,7 +12,7 @@ abstract class TenantAwareEntity extends DefaultEntity
 {
     #[ORM\ManyToOne(targetEntity: Tenant::class, cascade: ["persist"])]
     #[ORM\JoinColumn(name: "tenant_id", referencedColumnName: "id", nullable: true, onDelete: "CASCADE")]
-    #[Serializer\Exclude]
+    #[Serializer\Ignore]
     protected ?Tenant $tenant = null;
 
     public function getTenant(): ?Tenant

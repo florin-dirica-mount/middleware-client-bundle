@@ -4,8 +4,8 @@ namespace Horeca\MiddlewareClientBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Horeca\MiddlewareClientBundle\VO\Provider\ProviderCredentialsInterface;
-use JMS\Serializer\Annotation\Exclude;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
+use Symfony\Component\Serializer\Attribute as Serializer;
 
 #[ORM\MappedSuperclass]
 abstract class BaseProviderCredentials implements ProviderCredentialsInterface
@@ -19,7 +19,7 @@ abstract class BaseProviderCredentials implements ProviderCredentialsInterface
 
     #[ORM\ManyToOne(targetEntity: Tenant::class, cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'tenant_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
-    #[Exclude]
+    #[Serializer\Ignore]
     private Tenant $tenant;
 
     #[ORM\Column(name: 'name', type: 'string', nullable: true)]

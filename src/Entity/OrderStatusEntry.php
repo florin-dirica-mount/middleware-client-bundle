@@ -3,7 +3,7 @@
 namespace Horeca\MiddlewareClientBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Attribute as Serializer;
 
 #[ORM\Entity]
 #[ORM\Table(name: "hmc_order_status_entries")]
@@ -16,7 +16,7 @@ class OrderStatusEntry extends DefaultEntity
 
     #[ORM\ManyToOne(targetEntity: OrderNotification::class, cascade: ["persist"], inversedBy: "statusEntries")]
     #[ORM\JoinColumn(name: "order_notification_id", nullable: false, onDelete: "CASCADE")]
-    #[Serializer\Exclude]
+    #[Serializer\Ignore]
     protected ?OrderNotification $order = null;
 
     public function __construct(?OrderNotification $order = null, ?string $status = null)

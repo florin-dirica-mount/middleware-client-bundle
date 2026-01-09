@@ -13,9 +13,8 @@ use Horeca\MiddlewareClientBundle\VO\Api\OrderNotificationEventDto;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
 use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
 use Horeca\MiddlewareCommonLib\Model\Protocol\SendShoppingCartResponse;
-use JMS\Serializer\SerializationContext;
-use JMS\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class TenantApi implements TenantApiInterface
 {
@@ -37,8 +36,7 @@ class TenantApi implements TenantApiInterface
         }
 
         $data = new OrderNotificationEventDto($event, $notification);
-        $context = SerializationContext::create()->setGroups(SerializationGroups::TenantOrderNotificationView);
-        $json = $this->serializer->serialize($data, 'json', $context);
+        $json = $this->serializer->serialize($data, 'json', ['groups' => [SerializationGroups::TenantOrderNotificationView]]);
 
         try {
             if ($webhook->getMethod() === 'GET') {

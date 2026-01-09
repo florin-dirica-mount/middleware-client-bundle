@@ -4,7 +4,7 @@ namespace Horeca\MiddlewareClientBundle\Entity\Log;
 
 use Doctrine\ORM\Mapping as ORM;
 use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
-use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Attribute as Serializer;
 
 /**
  * @deprecated use MappingLog entity instead
@@ -32,7 +32,7 @@ class OrderLog
 
     #[ORM\ManyToOne(targetEntity: OrderNotification::class, cascade: ['persist'], inversedBy: 'logs')]
     #[ORM\JoinColumn(name: 'order_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
-    #[Serializer\Exclude]
+    #[Serializer\Ignore]
     private OrderNotification $order;
 
     #[ORM\Column(name: 'micro_time', type: 'float', nullable: false)]

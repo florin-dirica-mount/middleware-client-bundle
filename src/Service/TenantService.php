@@ -7,7 +7,7 @@ use Horeca\MiddlewareClientBundle\Entity\BaseProviderCredentials;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
 use Horeca\MiddlewareClientBundle\Exception\MiddlewareClientException;
 use Horeca\MiddlewareClientBundle\VO\Provider\ProviderCredentialsInterface;
-use JMS\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class TenantService
 {

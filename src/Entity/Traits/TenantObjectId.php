@@ -4,7 +4,7 @@ namespace Horeca\MiddlewareClientBundle\Entity\Traits;
 
 use Doctrine\ORM\Mapping as ORM;
 use Horeca\MiddlewareClientBundle\Enum\SerializationGroups;
-use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Attribute as Serializer;
 
 /**
  * This field is meant to represent the object's id in the Tenant platform.

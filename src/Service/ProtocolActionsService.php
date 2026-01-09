@@ -16,15 +16,14 @@ use Horeca\MiddlewareClientBundle\Enum\OrderNotificationType;
 use Horeca\MiddlewareClientBundle\Exception\ApiException;
 use Horeca\MiddlewareClientBundle\Exception\OrderMappingException;
 use Horeca\MiddlewareClientBundle\VO\Provider\BaseProviderOrderResponse;
-use Horeca\MiddlewareClientBundle\VO\Provider\ProviderOrderPayloadInterface;
 use Horeca\MiddlewareClientBundle\VO\Provider\TestProviderOrderInterface;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
 use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
 use Horeca\MiddlewareCommonLib\Model\Protocol\SendShoppingCartResponse;
 use Horeca\MiddlewareCommonLib\Model\Protocol\ShoppingCartStatusUpdate;
-use JMS\Serializer\SerializerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ProtocolActionsService

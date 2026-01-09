@@ -6,14 +6,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Horeca\MiddlewareClientBundle\Entity\Log\MappingLog;
-use Horeca\MiddlewareClientBundle\Entity\Log\OrderLog;
 use Horeca\MiddlewareClientBundle\Entity\Traits\ProviderObjectId;
 use Horeca\MiddlewareClientBundle\Entity\Traits\TenantObjectId;
 use Horeca\MiddlewareClientBundle\Enum\MappingNotificationStatus;
 use Horeca\MiddlewareClientBundle\Enum\OrderNotificationType;
 use Horeca\MiddlewareClientBundle\Enum\SerializationGroups;
-use JMS\Serializer\Annotation as Serializer;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
+use Symfony\Component\Serializer\Attribute as Serializer;
 
 #[ORM\MappedSuperclass]
 #[ORM\Index(columns: ["created_at", "status"])]
@@ -38,26 +37,11 @@ class MappingNotification
     #[ORM\Column(name: "id", type: "uuid")]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
-    #[Serializer\Expose]
     #[Serializer\Groups([SerializationGroups::Default, SerializationGroups::TenantOrderNotificationView])]
     protected ?string $id = null;
 
     #[ORM\Column(name: "created_at", type: "datetime", nullable: false, options: ["default" => "CURRENT_TIMESTAMP"])]
     protected \DateTime $createdAt;
-
-    /**
-     * @deprecated use getTenantObjectId
-     */
-    #[ORM\Column(name: "horeca_order_id", type: "string", length: 36, nullable: true)]
-    #[Serializer\SerializedName("tenantObjectId")]
-    private ?string $horecaOrderId = null;
-
-    /**
-     * @deprecated use getProviderObjectId
-     */
-    #[ORM\Column(name: "service_order_id", type: "string", length: 36, nullable: true)]
-    #[Serializer\SerializedName("providerObjectId")]
-    private ?string $serviceOrderId = null;
 
     #[ORM\Column(name: "status", type: "string", length: 50, nullable: false, options: ["default" => "received"])]
     #[Serializer\Groups([SerializationGroups::TenantOrderNotificationView])]
@@ -75,20 +59,10 @@ class MappingNotification
     #[ORM\Column(name: "service_credentials", type: "json", nullable: true)]
     private ?array $serviceCredentials = [];
 
-    /**
-     * @deprecated use tenantPayload
-     */
-    #[ORM\Column(name: "horeca_payload", type: "json", nullable: true)]
-    private ?array $horecaPayload = null;
 
     #[ORM\Column(name: "tenant_payload", type: "json", nullable: true)]
     private ?array $tenantPayload = null;
 
-    #[ORM\Column(name: "service_payload", type: "json", nullable: true)]
-    /**
-     * @deprecated use providerPayload
-     */
-    private ?array $servicePayload = [];
     #[ORM\Column(name: "provider_payload", type: "json", nullable: true)]
     private ?array $providerPayload = [];
 
@@ -107,30 +81,6 @@ class MappingNotification
     #[ORM\Column(name: "notified_at", type: "datetime", nullable: true)]
     private ?\DateTime $notifiedAt = null;
 
-    /**
-     * @var Collection<int, OrderStatusEntry>|OrderStatusEntry[]
-     * @deprecated
-     */
-    #[ORM\OneToMany(mappedBy: "order", targetEntity: OrderStatusEntry::class, cascade: [
-        "persist",
-        "remove"
-    ], fetch: "EXTRA_LAZY", orphanRemoval: true)]
-    #[Serializer\Exclude]
-    #[ORM\OrderBy(["createdAt" => "ASC"])]
-    private Collection|array $statusEntriesHistory;
-
-    /**
-     * @var Collection<int, OrderLog>|OrderLog[]
-     * @deprecated
-     */
-    #[ORM\OneToMany(mappedBy: "order", targetEntity: OrderLog::class, cascade: [
-        "persist",
-        "remove"
-    ], fetch: "EXTRA_LAZY", orphanRemoval: true)]
-    #[Serializer\Exclude]
-    #[ORM\OrderBy(["createdAt" => "ASC"])]
-    private Collection|array $logsHistory;
-
     #[ORM\Column(name: "process_time", type: "dateinterval", nullable: true)]
     private ?\DateInterval $processTime;
 
@@ -142,7 +92,7 @@ class MappingNotification
     #[ORM\JoinColumn(name: 'notification_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     #[ORM\InverseJoinColumn(name: 'mapping_log_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     #[ORM\OrderBy(["createdAt" => "ASC"])]
-    #[Serializer\Exclude]
+    #[Serializer\Ignore]
     private Collection|array $logs;
 
     /**
@@ -153,28 +103,26 @@ class MappingNotification
     #[ORM\JoinColumn(name: 'notification_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     #[ORM\InverseJoinColumn(name: 'status_entry_id', referencedColumnName: 'id', onDelete: 'RESTRICT')]
     #[ORM\OrderBy(["id" => "ASC"])]
-    #[Serializer\Exclude]
+    #[Serializer\Ignore]
     private Collection|array $statusEntries;
 
     #[ORM\ManyToOne(targetEntity: Tenant::class, cascade: ["persist"])]
     #[ORM\JoinColumn(name: "tenant_id", referencedColumnName: "id", nullable: true, onDelete: "CASCADE")]
-    #[Serializer\Exclude]
+    #[Serializer\Ignore]
     protected ?Tenant $tenant = null;
 
     public function __construct()
     {
         $this->createdAt = new \DateTime();
-        $this->statusEntriesHistory = new ArrayCollection();
         $this->statusEntries = new ArrayCollection();
         $this->logs = new ArrayCollection();
-        $this->logsHistory = new ArrayCollection();
         $this->type = OrderNotificationType::NewOrder;
         $this->changeStatus(MappingNotificationStatus::Received);
     }
 
     public function __toString()
     {
-        return sprintf('%s - %s', $this->status, $this->horecaOrderId);
+        return sprintf('%s - %s', $this->status, $this->tenantObjectId);
     }
 
     public function getTenant(): ?Tenant
@@ -197,15 +145,6 @@ class MappingNotification
         $this->getStatusEntries()->add($entry);
     }
 
-    public function getStatusEntriesHistory(): Collection|array
-    {
-        return $this->statusEntriesHistory;
-    }
-
-    public function setStatusEntriesHistory(Collection|array $statusEntriesHistory): void
-    {
-        $this->statusEntriesHistory = $statusEntriesHistory;
-    }
 
     public function addStatusEntry(StatusEntry $statusEntry): void
     {
@@ -229,49 +168,15 @@ class MappingNotification
         return null;
     }
 
-    /**
-     * @deprecated use getTenantObjectId
-     */
-    public function getHorecaOrderId(): ?string
-    {
-        return $this->tenantObjectId ?: $this->horecaOrderId;
-    }
-
-    /**
-     * @deprecated use setTenantObjectId
-     */
-    public function setHorecaOrderId(?string $horecaOrderId): void
-    {
-        $this->horecaOrderId = $horecaOrderId;
-        $this->tenantObjectId = $horecaOrderId;
-    }
 
     public function setTenantObjectId(string $tenantObjectId): void
     {
-        $this->horecaOrderId = $tenantObjectId;
         $this->tenantObjectId = $tenantObjectId;
     }
 
-    /**
-     * @deprecated use getProviderObjectId
-     */
-    public function getServiceOrderId(): ?string
-    {
-        return $this->providerObjectId ?: $this->serviceOrderId;
-    }
-
-    /**
-     * @deprecated use setProviderObjectId
-     */
-    public function setServiceOrderId(?string $serviceOrderId): void
-    {
-        $this->serviceOrderId = $serviceOrderId;
-        $this->providerObjectId = $serviceOrderId;
-    }
 
     public function setProviderObjectId(?string $providerObjectId): void
     {
-        $this->serviceOrderId = $providerObjectId;
         $this->providerObjectId = $providerObjectId;
     }
 
@@ -283,25 +188,6 @@ class MappingNotification
     public function setStatus(string $status): void
     {
         $this->status = $status;
-    }
-
-    /**
-     * @return string|null
-     * @deprecated
-     */
-    public function getRestaurantId(): ?string
-    {
-        return $this->tenantShopId;
-    }
-
-    /**
-     * @param string|null $restaurantId
-     * @return void
-     * @deprecated
-     */
-    public function setRestaurantId(?string $restaurantId): void
-    {
-        $this->tenantShopId = $restaurantId;
     }
 
     public function getTenantShopId(): ?string
@@ -325,42 +211,9 @@ class MappingNotification
         $this->serviceCredentials = $serviceCredentials;
     }
 
-    /**
-     * @deprecated
-     */
-    public function getHorecaPayload(): ?array
-    {
-        return $this->horecaPayload;
-    }
-
-    /**
-     * @deprecated
-     */
-    public function setHorecaPayload(array $horecaPayload): void
-    {
-        $this->horecaPayload = $horecaPayload;
-    }
-
-    /**
-     * @deprecated
-     */
-    public function getHorecaPayloadString(): ?string
-    {
-        return json_encode($this->horecaPayload);
-    }
-
-    /**
-     * @deprecated
-     */
-    public function setHorecaPayloadString(string $horecaPayload): void
-    {
-        $this->horecaPayload = json_decode($horecaPayload, true);
-        $this->tenantPayload = json_decode($horecaPayload, true);
-    }
-
     public function getTenantPayload(): ?array
     {
-        return $this->tenantPayload ?? $this->horecaPayload;
+        return $this->tenantPayload;
     }
 
     public function setTenantPayload(?array $tenantPayload): void
@@ -375,41 +228,9 @@ class MappingNotification
 
     public function getTenantPayloadString(): ?string
     {
-        return json_encode($this->tenantPayload) ?? json_encode($this->horecaPayload);
-//       return json_encode($this->tenantPayload);
+        return json_encode($this->tenantPayload);
     }
 
-    public function getServicePayload(): ?array
-    {
-        return $this->servicePayload;
-    }
-
-    /**
-     * @deprecated use setProviderPayload
-     */
-    public function setServicePayload(array $servicePayload): void
-    {
-        $this->servicePayload = $servicePayload;
-        $this->providerPayload = $servicePayload;
-
-    }
-
-    /**
-     * @deprecated
-     */
-    public function getServicePayloadString(): ?string
-    {
-        return json_encode($this->servicePayload);
-    }
-
-
-    /**
-     * @deprecated
-     */
-    public function setServicePayloadString(string $servicePayload): void
-    {
-        $this->servicePayload = json_decode($servicePayload, true);
-    }
 
     public function getResponsePayload(): ?array
     {
@@ -540,9 +361,6 @@ class MappingNotification
 
     public function getProviderPayload(): ?array
     {
-        if (!$this->providerPayload) {
-            return $this->servicePayload;
-        }
 
         return $this->providerPayload;
     }
@@ -550,7 +368,6 @@ class MappingNotification
     public function setProviderPayload(?array $providerPayload): void
     {
         $this->providerPayload = $providerPayload;
-        $this->servicePayload = $providerPayload;
     }
 
     public function getProviderPayloadString(): ?string
