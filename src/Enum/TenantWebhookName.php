@@ -14,6 +14,7 @@ class TenantWebhookName
     const WEBHOOK_MENU_SWITCH_WITH_TMP = 'tenant.webhook.menu.switch_with_tmp';
     const WEBHOOK_MENU_CREATE_TMP = 'tenant.webhook.menu.create_tmp';
     const WEBHOOK_MENU_REMOVE_TMP = 'tenant.webhook.menu.remove_tmp';
+    const WEBHOOK_BULK_UPDATE_PRODUCTS_AVAILABILITY = 'tenant.webhook.bulk_update_products_availability';
 
     protected function __construct()
     {
