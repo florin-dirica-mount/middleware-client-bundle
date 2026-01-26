@@ -33,7 +33,7 @@ class HorecaRequestDeliveryForm
     public ?int $deliveryCost = null;
 
     #[Serializer\SerializedName("package_value")]
-    public string|float|null $packageValue = null;
+    public string|float|int|null $packageValue = null;
 
     #[Serializer\SerializedName("comment")]
     public ?string $comment = null;
