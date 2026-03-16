@@ -4,7 +4,6 @@ namespace Horeca\MiddlewareClientBundle\MessageHandler;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\MenuNotificationRepositoryDI;
-use Horeca\MiddlewareClientBundle\DependencyInjection\Repository\ProductNotificationRepositoryDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\MappingLoggerDI;
 use Horeca\MiddlewareClientBundle\DependencyInjection\Service\ProviderApiDI;
 use Horeca\MiddlewareClientBundle\Entity\MappingNotification;
@@ -33,7 +32,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
 class MenuNotificationMessageHandler implements MessageSubscriberInterface
 {
     use MenuNotificationRepositoryDI;
-    use ProductNotificationRepositoryDI;
     use MappingLoggerDI;
     use ProviderApiDI;
 
