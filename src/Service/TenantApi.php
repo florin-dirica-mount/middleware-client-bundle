@@ -9,6 +9,7 @@ use Horeca\MiddlewareClientBundle\Entity\OrderNotification;
 use Horeca\MiddlewareClientBundle\Entity\Tenant;
 use Horeca\MiddlewareClientBundle\Enum\SerializationGroups;
 use Horeca\MiddlewareClientBundle\Enum\TenantWebhookName;
+use Horeca\MiddlewareClientBundle\Exception\ApiException;
 use Horeca\MiddlewareClientBundle\VO\Api\OrderNotificationEventDto;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
 use Horeca\MiddlewareCommonLib\Model\Cart\ShoppingCart;
@@ -321,4 +322,46 @@ class TenantApi implements TenantApiInterface
             throw new HorecaException($e->getMessage());
         }
     }
+
+    public function sendProducts(Tenant $tenant, string $tenantShopId, array $products): string
+    {
+
+        try {
+
+
+//            $serializedProducts = [];
+//            foreach ($products as $product) {
+//                $serializedProducts[] = [
+//                    'externalId' => $product->getProviderObjectId(),
+//                    'name' => $product->getName(),
+//                    'price' => $product->getPrice(),
+//                    'vat' => $product->getVat(),
+//                ];
+//            }
+
+            $options = [
+                'query' => [
+                    'restaurantId' => $tenantShopId,
+                ],
+                'json'  => [
+                    'products' => $products,
+                ],
+            ];
+
+            $response = $this->tenantClientFactory->client($tenant)
+                ->request('POST', '/api/key_auth/v1/restaurant/sendProducts', $options);
+
+            $body = $response->getBody();
+            $contents = $body->getContents();
+
+            $this->mappingLogger->info(__METHOD__, __LINE__, 'Status Code: ' . $response->getStatusCode());
+            $this->mappingLogger->info(__METHOD__, __LINE__, 'Response Body: ' . $response->getBody());
+
+            return $contents;
+
+        } catch (GuzzleException|HorecaException $e) {
+            throw new ApiException($e->getMessage());
+        }
+    }
+
 }
