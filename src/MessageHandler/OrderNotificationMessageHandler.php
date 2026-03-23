@@ -314,6 +314,7 @@ class OrderNotificationMessageHandler
         $this->mappingLogger->logMemoryUsage();
         $notification = $this->getMessageOrderNotification($message);
 
+        $be = null;
         try {
             $notification->changeStatus(MappingNotificationStatus::SendingNotification);
             $this->orderNotificationRepository->save($notification);
@@ -324,9 +325,14 @@ class OrderNotificationMessageHandler
 
         } catch (\Throwable $e) {
             $this->onOrderNotificationException($notification, $e);
+            $be = $e;
         } finally {
             $this->mappingLogger->logMemoryUsage();
             $this->mappingLogger->saveTo($notification, 'OrderNotificationMessageHandler::handleSendProviderOrderUpdateToTenantMessageBase');
+        }
+
+        if($be){
+            throw $be;
         }
     }
 
