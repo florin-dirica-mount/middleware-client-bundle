@@ -60,4 +60,8 @@ class HorecaRequestDeliveryForm
     #[Serializer\Type('string')]
     public ?string $deliveryCode = null;
 
+    #[Serializer\SerializedName('courier_payout')]
+    #[Serializer\Type('float')]
+    public ?float $courierPayout = null;
+
 }
