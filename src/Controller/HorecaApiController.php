@@ -32,6 +32,7 @@ use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaUpdateShopAvailabilityBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaUpdateShopBody;
 use Horeca\MiddlewareCommonLib\Constants\ShoppingCartUpdateEvents;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
+use JMS\Serializer\SerializationContext;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
