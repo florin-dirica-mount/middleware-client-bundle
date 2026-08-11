@@ -16,10 +16,7 @@ use Symfony\Component\Serializer\Attribute as Serializer;
 
 #[ORM\MappedSuperclass]
 #[ORM\Index(columns: ["created_at", "status"])]
-#[ORM\Index(columns: ["horeca_order_id", "type"])]
-#[ORM\Index(columns: ["service_order_id", "type"])]
 #[ORM\Index(columns: ["restaurant_id", "type"])]
-#[ORM\Index(columns: ["horeca_order_id"])]
 #[ORM\Index(columns: ["tenant_object_id"])]
 #[ORM\Index(columns: ["provider_object_id"])]
 #[ORM\Index(columns: ["tenant_object_id", "type"])]

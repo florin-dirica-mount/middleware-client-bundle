@@ -183,8 +183,7 @@ Response: status 200
 POST /middleware/order/{restaurant_id}
 Body: ShoppingCart
 
-Reponse: status 200
-    horeca_order_id: string
+ 
 ```
 
 - Receive order notification events
