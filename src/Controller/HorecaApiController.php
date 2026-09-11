@@ -32,7 +32,6 @@ use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaUpdateShopAvailabilityBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaUpdateShopBody;
 use Horeca\MiddlewareCommonLib\Constants\ShoppingCartUpdateEvents;
 use Horeca\MiddlewareCommonLib\Exception\HorecaException;
-use JMS\Serializer\SerializationContext;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -186,8 +185,9 @@ class HorecaApiController extends AbstractController
                 $messageBus->dispatch(new MapTenantOrderAndSendToProviderMessage($order));
             }
 
-            $context = SerializationContext::create()->setGroups([SerializationGroups::TenantOrderNotificationView]);
-            $data = $this->serializer->serialize(new OrderNotificationResponseDataDto($order), 'json', $context);
+            $data = $this->serializer->serialize(new OrderNotificationResponseDataDto($order), 'json', [
+                'groups' => [SerializationGroups::TenantOrderNotificationView],
+            ]);
 
             return new JsonResponse($data, 200, [], true);
         } catch (\Exception $e) {
@@ -248,8 +248,9 @@ class HorecaApiController extends AbstractController
 
             $messageBus->dispatch(new MapTenantOrderAndSendUpdateToProviderMessage($order));
 
-            $context = SerializationContext::create()->setGroups([SerializationGroups::TenantOrderNotificationView]);
-            $data = $this->serializer->serialize(new OrderNotificationResponseDataDto($order), 'json', $context);
+            $data = $this->serializer->serialize(new OrderNotificationResponseDataDto($order), 'json', [
+                'groups' => [SerializationGroups::TenantOrderNotificationView],
+            ]);
 
             return new JsonResponse($data, 200, [], true);
         } catch (\Exception $e) {
