@@ -13,6 +13,16 @@ horeca_api_order_update:
     controller: Horeca\MiddlewareClientBundle\Controller\HorecaApiController::receiveOrderUpdate
     methods: [POST]
 
+horeca_api_order_cancel_check:
+    path: /api/order/cancel/check
+    controller: Horeca\MiddlewareClientBundle\Controller\HorecaApiController::checkOrderCancellation
+    methods: [POST]
+
+horeca_api_order_cancel:
+    path: /api/order/cancel
+    controller: Horeca\MiddlewareClientBundle\Controller\HorecaApiController::cancelOrder
+    methods: [POST]
+
 horeca_api_notification_view:
     path: /api/notification/view
     controller: Horeca\MiddlewareClientBundle\Controller\HorecaApiController::viewNotification

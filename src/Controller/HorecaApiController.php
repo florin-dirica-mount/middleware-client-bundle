@@ -17,12 +17,16 @@ use Horeca\MiddlewareClientBundle\Exception\ApiException;
 use Horeca\MiddlewareClientBundle\Message\MapTenantOrderAndSendToProviderMessage;
 use Horeca\MiddlewareClientBundle\Message\MapTenantOrderAndSendUpdateToProviderMessage;
 use Horeca\MiddlewareClientBundle\Repository\OrderNotificationRepository;
+use Horeca\MiddlewareClientBundle\Service\CancelOrderApiInterface;
 use Horeca\MiddlewareClientBundle\Service\InitializeShopApiInterface;
 use Horeca\MiddlewareClientBundle\Service\RequestDeliveryApiInterface;
 use Horeca\MiddlewareClientBundle\Service\SyncAndExportShopProductsApiInterface;
 use Horeca\MiddlewareClientBundle\Service\UpdateShopApiInterface;
 use Horeca\MiddlewareClientBundle\Service\UpdateShopAvailabilityApiInterface;
+use Horeca\MiddlewareClientBundle\VO\Api\OrderCancellationResultDto;
 use Horeca\MiddlewareClientBundle\VO\Api\OrderNotificationResponseDataDto;
+use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaCancelOrderBody;
+use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaCheckOrderCancellationBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaInitializeShopBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaReceiveOrderBody;
 use Horeca\MiddlewareClientBundle\VO\Horeca\HorecaReceiveOrderUpdateBody;
@@ -84,6 +88,61 @@ class HorecaApiController extends AbstractController
             }
 
             return new JsonResponse(['success' => true]);
+        } catch (\Throwable $e) {
+            return $this->handleException($e);
+        }
+    }
+
+    /**
+     * Great Food asks whether an order it sent here can still be cancelled, before showing the cancellation form. Read
+     * only; always 200 with one of OrderCancellationResult (cancellable / not_cancellable / not_found / unsupported).
+     */
+    public function checkOrderCancellation(Request $request): Response
+    {
+        try {
+            /** @var HorecaCheckOrderCancellationBody $body */
+            $body = $this->deserializeRequestBodyAndValidate($request, HorecaCheckOrderCancellationBody::class);
+            $tenant = $this->protocolActionsService->authorizeTenant($request);
+
+            $canCancelOrders = $this->providerApi instanceof CancelOrderApiInterface;
+            if (!$canCancelOrders) {
+                return $this->json(OrderCancellationResultDto::unsupported());
+            }
+
+            $credentials = $this->tenantService->compileTenantCredentials($tenant, $body->providerCredentials);
+            $result = $this->providerApi->canCancelOrder($tenant, $body, $credentials);
+
+            return $this->json($result);
+        } catch (\Throwable $e) {
+            return $this->handleException($e);
+        }
+    }
+
+    /**
+     * Great Food asks to cancel an order it sent here. The provider API decides by its own rules and answers with one of
+     * OrderCancellationResult, always 200: a refusal is an answer, not an error. 4xx / 5xx only when the request is
+     * invalid or the provider could not be asked.
+     */
+    public function cancelOrder(Request $request): Response
+    {
+        try {
+            /** @var HorecaCancelOrderBody $body */
+            $body = $this->deserializeRequestBodyAndValidate($request, HorecaCancelOrderBody::class);
+            $tenant = $this->protocolActionsService->authorizeTenant($request);
+
+            $canCancelOrders = $this->providerApi instanceof CancelOrderApiInterface;
+            if (!$canCancelOrders) {
+                return $this->json(OrderCancellationResultDto::unsupported());
+            }
+
+            $credentials = $this->tenantService->compileTenantCredentials($tenant, $body->providerCredentials);
+            $result = $this->providerApi->cancelOrder($tenant, $body, $credentials);
+
+            $message = sprintf('[%s] Order %s cancellation (%s, by %s): %s %s', __METHOD__, $body->tenantOrderId,
+                $body->reason, $body->cancelledBy, $result->result, $result->message);
+            $this->logger->info($message);
+
+            return $this->json($result);
         } catch (\Throwable $e) {
             return $this->handleException($e);
         }
